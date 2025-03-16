@@ -21,13 +21,14 @@
   </form>
   <h2>Reportování</h2>
   <form (ngSubmit)="onReportSubmit()" #reportForm="ngForm">
-    <div class="form-group">
+    <div class="form-group" style="width: 49%; display: inline-block;">
       <label for="reporter1">Práskač 1</label>
       <select class="form-control" id="reporter1" required [(ngModel)]="state.reporter1" name="reporter1">
         <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
-    <div class="form-group">
+    &nbsp;
+    <div class="form-group" style="width: 49%; display: inline-block;">
       <label for="reporter2">Práskač 2</label>
       <select class="form-control" id="reporter2" [(ngModel)]="state.reporter2" name="reporter2">
         <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
@@ -49,8 +50,48 @@
     </div>
     <div class="form-group">
       <label for="reason">Důvod</label><br />
-      <input type="text" id="reason" name="reason" required [(ngModel)]="state.reason" style="width: 100%"/>
+      <input type="text" id="reason" name="reason" required [(ngModel)]="state.reportReason" style="width: 100%"/>
     </div>
     <button type="submit" [disabled]="!reportForm.form.valid" class="btn btn-success">Prásk!</button><br /><br />
+  </form>
+  <h2>Změnit viditelnost</h2>
+  <form (ngSubmit)="onVisibilitySubmit()" #visibilityForm="ngForm">
+    <div class="form-group">
+      <label for="who">Komu</label>
+      <select class="form-control" id="who" required [(ngModel)]="state.visibilityUser" name="who">
+        <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="!visibilityForm.form.valid" class="btn btn-success">Změnit viditelnost</button><br /><br />
+  </form>
+  <h2>Změnit hodnocení</h2>
+  <form (ngSubmit)="onRatingSubmit()" #ratingForm="ngForm">
+    <div class="form-group">
+      <label for="who">Komu</label>
+      <select class="form-control" id="who" required [(ngModel)]="state.ratingUser" name="who">
+        <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="ratingChange">O kolik změnit (kladné hodnoty zvýšení, záporné snížení)</label><br />
+      <input type="number" [(ngModel)]="state.ratingChange" id="ratingChange" name="ratingChange" required/>
+    </div>
+    <div class="form-group">
+      <label for="reason">Důvod</label><br />
+      <input type="text" id="reason" name="reason" required [(ngModel)]="state.ratingReason" style="width: 100%"/>
+    </div>
+    <button type="submit" [disabled]="!ratingForm.form.valid" class="btn btn-success">Změnit hodnocení</button><br /><br />
+  </form>
+  <h2>Reset</h2>
+  <form (ngSubmit)="onResetSubmit()" #resetForm="ngForm">
+    <div class="form-group">
+      <label for="sbt">Slack bot token</label><br />
+      <input type="text" id="sbt" name="sbt" required [(ngModel)]="state.slackBotToken" style="width: 100%"/>
+    </div>
+    <div class="form-group">
+      <label for="fchid">#feed channel id</label><br />
+      <input type="text" id="fchid" name="fchid" required [(ngModel)]="state.feedChannelId" style="width: 100%"/>
+    </div>
+    <button type="submit" [disabled]="!resetForm.form.valid" class="btn btn-success">Resetovat vše mezi běhy</button><br /><br />
   </form>
 </div>

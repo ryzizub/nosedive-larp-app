@@ -17,7 +17,7 @@ export class AppComponent {
   npcs: User[] = [];
   players: User[] = [];
   channels: Observable<Channel[]>;
-  state = new State(NO_USER, new Channel("", ""), "", NO_USER, NO_USER, NO_USER, 0.1, 0.1, "")
+  state = new State(NO_USER, new Channel("", ""), "", NO_USER, NO_USER, NO_USER, 0.05, 0.05, "", NO_USER, "", 0, NO_USER, "", "")
 
   constructor(private http: HttpClient) {
     listVal(query(ref(this.database, "nearbyUsers")), { keyField: "id" }).subscribe(users => {
@@ -47,15 +47,27 @@ export class AppComponent {
       "victim": this.state.victim.id,
       "penalty": this.state.penalty,
       "reward": this.state.reward,
-      "reason": this.state.reason,
+      "reason": this.state.reportReason,
       "createdAt": serverTimestamp()
     })
     let feedChannelId = "C07M32PS14P" // TODO: change every run!
     let message = (this.state.reporter2 == NO_USER) ?
-      "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reason + "\n\nDěkujeme uživateli " + this.state.reporter1.name + " za reportování, za odměnu bylo zvýšeno hodnocení o " + this.state.reward
-    :
-      "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reason + "\n\nDěkujeme uživatelům " + this.state.reporter1.name + " a " + this.state.reporter2.name + " za reportování, za odměnu jim bylo zvýšeno hodnocení o " + this.state.reward / 2
+      "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživateli " + this.state.reporter1.name + " za reportování, za odměnu bylo zvýšeno hodnocení o " + this.state.reward
+      :
+      "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživatelům " + this.state.reporter1.name + " a " + this.state.reporter2.name + " za reportování, za odměnu jim bylo zvýšeno hodnocení o " + this.state.reward / 2
     this.sendSlackMessage(new User("_dive_safety", "Dive Safety", "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FDive%20Safety.png?alt=media&token=1003e7ad-28fe-4093-b0f2-6cfc96bd2ee9"), feedChannelId, message)
+  }
+
+  onResetSubmit() {
+
+  }
+
+  onRatingSubmit() {
+
+  }
+
+  onVisibilitySubmit() {
+
   }
 
   isSame(first: User[], second: User[]): Boolean {
@@ -84,7 +96,13 @@ export class State {
     public victim: User,
     public penalty: number,
     public reward: number,
-    public reason: string
+    public reportReason: string,
+    public ratingUser: User,
+    public ratingReason: string,
+    public ratingChange: number,
+    public visibilityUser: User,
+    public feedChannelId: string,
+    public slackBotToken: string
   ) { }
 
 }
