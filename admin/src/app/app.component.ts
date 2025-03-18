@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Injectable, inject } from '@angular/core';
 import { Database, listVal, query, ref, push, serverTimestamp, objectVal } from '@angular/fire/database';
-import { map } from 'rxjs';
+import { EMPTY, empty, map } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
 
@@ -16,13 +16,15 @@ export class AppComponent {
   private database: Database = inject(Database);
   npcs: User[] = [];
   players: User[] = [];
-  channels: Observable<Channel[]>;
+  channels: Observable<Channel[]> = EMPTY;
   state = new State(NO_USER, new Channel("", ""), "", NO_USER, NO_USER, NO_USER, 0.05, 0.05, "", NO_USER, "", 0, NO_USER, "", "")
 
   constructor(private http: HttpClient) {
     objectVal(ref(this.database, "config")).subscribe(config => {
-      JSON.stringify(config)
-      //this.state.slackBotToken = config.slackBotToken
+      this.state.slackBotToken = (config as Config).slackBotToken
+      this.state.feedChannelId = (config as Config).feedChannelId
+
+      this.channels = http.post<Channels>("https://slack.com/api/conversations.list?types=public_channel%2C%20private_channel", "token=" + this.state.slackBotToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).pipe(map(channels => channels.channels))
     })
     listVal(query(ref(this.database, "nearbyUsers")), { keyField: "id" }).subscribe(users => {
       if (users != null) {
@@ -37,7 +39,6 @@ export class AppComponent {
         }
       }
     })
-    this.channels = http.post<Channels>("https://slack.com/api/conversations.list?types=public_channel%2C%20private_channel", "token=" + this.state.slackBotToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).pipe(map(channels => channels.channels))
   }
 
   onMessageSubmit() {
@@ -135,4 +136,14 @@ export class Channel {
   ) { }
 
 }
+
+export class Config {
+
+  constructor(
+    public feedChannelId: string,
+    public slackBotToken: string
+  ) { }
+
+}
+
 
