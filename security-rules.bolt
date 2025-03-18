@@ -67,6 +67,14 @@ path /reports {
   }
 }
 
+// 
+// Reports
+//
+
+path /config {
+  read() { true }
+}
+
 //
 // Common
 //

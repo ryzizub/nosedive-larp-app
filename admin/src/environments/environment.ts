@@ -8,8 +8,5 @@ export const environment = {
     authDomain: 'nosedive-larp.firebaseapp.com',
     messagingSenderId: '110661909115',
     measurementId: 'G-7R4TLS3JQM',
-  },
-  slack: {
-    botToken: 'bot_token_from_ci'
   }
 };

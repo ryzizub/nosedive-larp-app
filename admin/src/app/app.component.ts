@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Injectable, inject } from '@angular/core';
-import { Database, listVal, query, ref, push, serverTimestamp } from '@angular/fire/database';
+import { Database, listVal, query, ref, push, serverTimestamp, objectVal } from '@angular/fire/database';
 import { map } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
@@ -20,6 +20,10 @@ export class AppComponent {
   state = new State(NO_USER, new Channel("", ""), "", NO_USER, NO_USER, NO_USER, 0.05, 0.05, "", NO_USER, "", 0, NO_USER, "", "")
 
   constructor(private http: HttpClient) {
+    objectVal(ref(this.database, "config")).subscribe(config => {
+      JSON.stringify(config)
+      //this.state.slackBotToken = config.slackBotToken
+    })
     listVal(query(ref(this.database, "nearbyUsers")), { keyField: "id" }).subscribe(users => {
       if (users != null) {
         users.push(NO_USER)
@@ -33,7 +37,7 @@ export class AppComponent {
         }
       }
     })
-    this.channels = http.post<Channels>("https://slack.com/api/conversations.list?types=public_channel%2C%20private_channel", "token=" + environment.slack.botToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).pipe(map(channels => channels.channels))
+    this.channels = http.post<Channels>("https://slack.com/api/conversations.list?types=public_channel%2C%20private_channel", "token=" + this.state.slackBotToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).pipe(map(channels => channels.channels))
   }
 
   onMessageSubmit() {
@@ -50,12 +54,11 @@ export class AppComponent {
       "reason": this.state.reportReason,
       "createdAt": serverTimestamp()
     })
-    let feedChannelId = "C07M32PS14P" // TODO: change every run!
     let message = (this.state.reporter2 == NO_USER) ?
       "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživateli " + this.state.reporter1.name + " za reportování, za odměnu bylo zvýšeno hodnocení o " + this.state.reward
       :
       "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživatelům " + this.state.reporter1.name + " a " + this.state.reporter2.name + " za reportování, za odměnu jim bylo zvýšeno hodnocení o " + this.state.reward / 2
-    this.sendSlackMessage(new User("_dive_safety", "Dive Safety", "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FDive%20Safety.png?alt=media&token=1003e7ad-28fe-4093-b0f2-6cfc96bd2ee9"), feedChannelId, message)
+    this.sendSlackMessage(new User("_dive_safety", "Dive Safety", "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FDive%20Safety.png?alt=media&token=1003e7ad-28fe-4093-b0f2-6cfc96bd2ee9"), this.state.feedChannelId, message)
   }
 
   onResetSubmit() {
@@ -78,7 +81,7 @@ export class AppComponent {
   sendSlackMessage(user: User, channelId: string, message: string) {
     let url = "https://slack.com/api/chat.postMessage?channel=" + channelId + "&icon_url=" + encodeURIComponent(user.profilePictureUrl) + "&text=" + encodeURIComponent(message) + "&username=" + user.name
     console.log("url=" + url)
-    this.http.post(url, "token=" + environment.slack.botToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).subscribe(response => {
+    this.http.post(url, "token=" + this.state.slackBotToken, { headers: { "Content-Type": "application/x-www-form-urlencoded" } }).subscribe(response => {
       console.log(JSON.stringify(response))
       this.state.text = ""
     })
