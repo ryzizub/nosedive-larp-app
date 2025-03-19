@@ -73,7 +73,7 @@ path /reports {
 
 path /config {
   read() { true }
-  write { true }
+  write() { true }
 }
 
 //
