@@ -68,11 +68,12 @@ path /reports {
 }
 
 // 
-// Reports
+// Config
 //
 
 path /config {
   read() { true }
+  write { true }
 }
 
 //

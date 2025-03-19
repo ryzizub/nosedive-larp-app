@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Injectable, inject } from '@angular/core';
-import { Database, listVal, query, ref, push, serverTimestamp, objectVal } from '@angular/fire/database';
-import { EMPTY, empty, map } from 'rxjs';
+import { Database, listVal, query, ref, push, serverTimestamp, objectVal, update } from '@angular/fire/database';
+import { EMPTY, map } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -63,7 +62,12 @@ export class AppComponent {
   }
 
   onResetSubmit() {
-
+    if (confirm("Fakt chceš všechno smazat a začít nový běh?")) {
+      update(ref(this.database, "config"), {
+        "slackBotToken": this.state.slackBotToken,
+        "feedChannelId": this.state.feedChannelId
+      })
+    }
   }
 
   onRatingSubmit() {
