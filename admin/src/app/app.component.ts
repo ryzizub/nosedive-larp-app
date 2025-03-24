@@ -84,7 +84,7 @@ export class AppComponent {
         if (player.defaultRating != undefined) {
           update(ref(this.database, "nearbyUsers/" + player.id), {
             "totalRating": player.defaultRating,
-            "ratingCount": 5000
+            "ratingCount": 4000
           })
         }
       })
@@ -92,7 +92,7 @@ export class AppComponent {
         if (npc.defaultRating != undefined) {
           update(ref(this.database, "nearbyUsers/" + npc.id), {
             "totalRating": npc.defaultRating,
-            "ratingCount": npc.id == "_karolina" ? 500000 : 5000
+            "ratingCount": npc.id == "_karolina" ? 500000 : 4000
           })
         }
       })
