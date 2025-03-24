@@ -76,7 +76,7 @@ export class AppComponent {
       })
       this.players.forEach(player => {
         if (player.defaultRating != undefined) {
-          update(ref(this.database, "nearbyUsers/" + player.id + "/totalRating"), {
+          update(ref(this.database, "nearbyUsers/" + player.id), {
             "totalRating": player.defaultRating,
             "ratingCount": 5000
           })
@@ -84,14 +84,14 @@ export class AppComponent {
       })
       this.npcs.forEach(npc => {
         if (npc.defaultRating != undefined) {
-          update(ref(this.database, "nearbyUsers/" + npc.id + "/totalRating"), {
+          update(ref(this.database, "nearbyUsers/" + npc.id), {
             "totalRating": npc.defaultRating,
             "ratingCount": npc.id == "_karolina" ? 500000 : 5000
           })
         }
       })
-      // remove(ref(this.database, "reports"))
-      //  remove(ref(this.database, "ratings"))
+      remove(ref(this.database, "reports"))
+      remove(ref(this.database, "ratings"))
     }
   }
 
