@@ -56,7 +56,8 @@ type Rating {
   from: Id,
   to: Id,
   createdAt: Number,
-  stars: Number
+  stars: Number | null,
+  majorChange: Number | null,
 }
 
 // 

@@ -79,7 +79,7 @@
       <input type="number" [(ngModel)]="state.ratingChange" id="ratingChange" name="ratingChange" required/>
     </div>
     <div class="form-group">
-      <label for="reason">Důvod</label><br />
+      <label for="reason">Důvod (napíše se do #feed za SuperBlesk)</label><br />
       <input type="text" id="reason" name="reason" required [(ngModel)]="state.ratingReason" style="width: 100%"/>
     </div>
     <button type="submit" [disabled]="!ratingForm.form.valid" class="btn btn-success">Změnit hodnocení</button><br /><br />
