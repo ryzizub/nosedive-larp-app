@@ -55,14 +55,16 @@
     <button type="submit" [disabled]="!reportForm.form.valid" class="btn btn-success">Prásk!</button><br /><br />
   </form>
   <h2>Změnit viditelnost</h2>
-  <form (ngSubmit)="onVisibilitySubmit()" #visibilityForm="ngForm">
+  <form #visibilityForm="ngForm">
     <div class="form-group">
       <label for="who">Komu</label>
       <select class="form-control" id="who" required [(ngModel)]="state.visibilityUser" name="who">
         <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
-    <button type="submit" [disabled]="!visibilityForm.form.valid" class="btn btn-success">Změnit viditelnost</button><br /><br />
+    <button [disabled]="!visibilityForm.form.valid" class="btn btn-success" (click)="onMakeVisible()">Zviditelnit</button>&nbsp;
+    <button [disabled]="!visibilityForm.form.valid" class="btn btn-success" (click)="onMakeInvisible()">Zmizet</button>
+    <br /><br />
   </form>
   <h2>Změnit hodnocení</h2>
   <form (ngSubmit)="onRatingSubmit()" #ratingForm="ngForm">

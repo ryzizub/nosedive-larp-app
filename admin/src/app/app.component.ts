@@ -99,8 +99,16 @@ export class AppComponent {
 
   }
 
-  onVisibilitySubmit() {
+  onMakeVisible() {
+    update(ref(this.database, "nearbyUsers/" + this.state.visibilityUser.id), {
+      "isVisible": true
+    })
+  }
 
+  onMakeInvisible() {
+    update(ref(this.database, "nearbyUsers/" + this.state.visibilityUser.id), {
+      "isVisible": false
+    })
   }
 
   isSame(first: User[], second: User[]): Boolean {
