@@ -66,6 +66,12 @@ export class AppComponent {
       :
       "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživatelům " + this.state.reporter1.name + " a " + this.state.reporter2.name + " za reportování, za odměnu jim bylo zvýšeno hodnocení o " + this.state.reward / 2
     this.sendSlackMessage(new User("_dive_safety", "Dive Safety", "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FDive%20Safety.png?alt=media&token=1003e7ad-28fe-4093-b0f2-6cfc96bd2ee9", undefined, undefined), this.state.feedChannelId, message)
+    this.state.reporter1 = NO_USER
+    this.state.reporter2 = NO_USER
+    this.state.victim = NO_USER
+    this.state.penalty = 0.05
+    this.state.reward = 0.05
+    this.state.reportReason = ""
   }
 
   onResetSubmit() {
