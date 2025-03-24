@@ -4,6 +4,7 @@
 
 path /nearbyUsers {
     read() { true }
+    write() { isAuditor()}
     path /{user_id} {
       index() {["delegate", "isVisible", "totalRating"]}
     }
@@ -40,6 +41,8 @@ type Token extends String {
 
 path /ratings {
 
+  write() { isAuditor() }
+
   path /{rating_id} is Rating {
     index() {["from", "to"]}
     
@@ -61,10 +64,8 @@ type Rating {
 //
 
 path /reports {
-  path /{report_id} {
-    read() { true }
-    write() { true }
-  }
+  read() { isAuditor() }
+  write() { isAuditor() }
 }
 
 // 
@@ -72,8 +73,8 @@ path /reports {
 //
 
 path /config {
-  read() { true }
-  write() { true }
+  read() { isAuditor() }
+  write() { isAuditor() }
 }
 
 //
@@ -98,4 +99,8 @@ isCurrentUser(user_id) {
 
 isInsert(value) {
     prior(value) == null && value != null
+}
+
+isAuditor() {
+    auth != null && auth.uid == "_karolina"
 }
