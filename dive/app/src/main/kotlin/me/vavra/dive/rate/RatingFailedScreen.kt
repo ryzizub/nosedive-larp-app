@@ -24,12 +24,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import com.gowtham.ratingbar.RatingBar
-import com.gowtham.ratingbar.RatingBarStyle
-import me.vavra.dive.ui.theme.Rate
 
 @Composable
-fun RatedScreen(
+fun RatingFailedScreen(
     rating: Rating,
     onClose: () -> Unit
 ) {
@@ -73,18 +70,13 @@ fun RatedScreen(
             )
             Spacer(modifier = Modifier.height(26.dp))
             Text(
-                "odesláno",
+                "se nepodařilo odeslat.",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.align(CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(32.dp))
-            RatingBar(
-                value = rating.stars.toFloat(),
-                style = RatingBarStyle.Stroke(activeColor = MaterialTheme.colorScheme.tertiary, width = 3f),
-                onValueChange = {  },
-                size = 46.dp,
-                spaceBetween = 6.dp,
-                onRatingChanged = {  },
+            Text(
+                "Zkontrolujte připojení.",
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.align(CenterHorizontally)
             )
         }
@@ -93,8 +85,8 @@ fun RatedScreen(
 
 @Preview
 @Composable
-private fun RatedScreenPreview() {
-    RatedScreen(
+private fun RatingFailedPreview() {
+    RatingFailedScreen(
         rating = Rating(
             User(
                 "",

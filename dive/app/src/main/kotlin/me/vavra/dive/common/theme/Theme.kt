@@ -1,4 +1,4 @@
-package me.vavra.dive.ui.theme
+package me.vavra.dive.common.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme

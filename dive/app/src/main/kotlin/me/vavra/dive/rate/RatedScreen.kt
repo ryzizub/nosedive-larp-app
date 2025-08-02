@@ -26,10 +26,9 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
-import me.vavra.dive.ui.theme.Rate
 
 @Composable
-fun RatingFailedScreen(
+fun RatedScreen(
     rating: Rating,
     onClose: () -> Unit
 ) {
@@ -73,13 +72,18 @@ fun RatingFailedScreen(
             )
             Spacer(modifier = Modifier.height(26.dp))
             Text(
-                "se nepodařilo odeslat.",
+                "odesláno",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.align(CenterHorizontally)
             )
-            Text(
-                "Zkontrolujte připojení.",
-                style = MaterialTheme.typography.headlineMedium,
+            Spacer(modifier = Modifier.height(32.dp))
+            RatingBar(
+                value = rating.stars.toFloat(),
+                style = RatingBarStyle.Stroke(activeColor = MaterialTheme.colorScheme.tertiary, width = 3f),
+                onValueChange = {  },
+                size = 46.dp,
+                spaceBetween = 6.dp,
+                onRatingChanged = {  },
                 modifier = Modifier.align(CenterHorizontally)
             )
         }
@@ -88,8 +92,8 @@ fun RatingFailedScreen(
 
 @Preview
 @Composable
-private fun RatingFailedPreview() {
-    RatingFailedScreen(
+private fun RatedScreenPreview() {
+    RatedScreen(
         rating = Rating(
             User(
                 "",

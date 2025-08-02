@@ -1,4 +1,4 @@
-package me.vavra.dive.ui.theme
+package me.vavra.dive.common.theme
 
 import androidx.compose.ui.graphics.Color
 

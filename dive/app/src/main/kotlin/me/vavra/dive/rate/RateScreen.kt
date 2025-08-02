@@ -26,7 +26,7 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
-import me.vavra.dive.ui.theme.Rate
+import me.vavra.dive.common.theme.Rate
 
 @Composable
 fun RateScreen(
