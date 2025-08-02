@@ -4,12 +4,14 @@ import android.util.JsonReader
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import me.vavra.dive.Database
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -23,6 +25,10 @@ object Auth {
         awaitClose {
             Firebase.auth.removeAuthStateListener(authStateListener)
         }
+    }
+
+    fun getUserId(): String {
+        return Firebase.auth.uid ?: throw IllegalStateException("User not logged in")
     }
 
     suspend fun login(password: String): Boolean {
@@ -43,6 +49,7 @@ object Auth {
                     reader.close()
                     if (!invalidPassword) {
                         Firebase.auth.signInWithCustomToken(token).await()
+                        updateNotificationsToken()
                         return@withContext true
                     }
                 }
@@ -51,6 +58,11 @@ object Auth {
             }
         }
         return false
+    }
+
+    private suspend fun updateNotificationsToken() {
+        val token = FirebaseMessaging.getInstance().token.await()
+        Database.updateNotificationsToken(token)
     }
 
     fun logout() {
