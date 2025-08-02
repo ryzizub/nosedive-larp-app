@@ -4,15 +4,15 @@ import android.app.Application
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.database.ServerValue
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
-import com.google.firebase.database.ktx.snapshots
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.database
+import com.google.firebase.database.getValue
+import com.google.firebase.database.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.vavra.dive.nearby.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

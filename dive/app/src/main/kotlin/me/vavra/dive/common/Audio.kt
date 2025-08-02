@@ -1,4 +1,4 @@
-package me.vavra.dive
+package me.vavra.dive.common
 
 import android.app.Application
 import android.media.MediaPlayer

@@ -1,4 +1,4 @@
-package me.vavra.dive
+package me.vavra.dive.rate
 
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
@@ -27,6 +27,8 @@ import coil.transform.CircleCropTransformation
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
 import me.vavra.dive.common.theme.Rate
+import me.vavra.dive.nearby.Rating
+import me.vavra.dive.nearby.User
 
 @Composable
 fun RateScreen(

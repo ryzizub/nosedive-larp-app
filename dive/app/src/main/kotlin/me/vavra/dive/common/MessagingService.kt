@@ -1,4 +1,4 @@
-package me.vavra.dive
+package me.vavra.dive.common
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -8,13 +8,16 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import me.vavra.dive.Database
+import me.vavra.dive.MainActivity
+import me.vavra.dive.R
 import kotlin.random.Random
 
 
@@ -31,9 +34,7 @@ class MessagingService : FirebaseMessagingService() {
             val audioAttributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build()
-            val sound = Uri.parse(
-                "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/star$stars"
-            )
+            val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/star$stars".toUri()
             channel.setSound(sound, audioAttributes)
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)

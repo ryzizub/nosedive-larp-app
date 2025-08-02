@@ -1,9 +1,9 @@
-package me.vavra.dive
+package me.vavra.dive.common
 
 import android.util.JsonReader
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ object Auth {
         }
     }
 
-    suspend fun login(password: String) {
+    suspend fun login(password: String): Boolean {
         withContext(Dispatchers.IO) {
             try {
                 val url =
@@ -39,16 +39,18 @@ object Auth {
                     val token = reader.nextString()
                     reader.nextName()
                     val invalidPassword = reader.nextBoolean()
-                    if (!invalidPassword) {
-                        Firebase.auth.signInWithCustomToken(token).await()
-                    }
                     reader.endObject()
                     reader.close()
+                    if (!invalidPassword) {
+                        Firebase.auth.signInWithCustomToken(token).await()
+                        return@withContext true
+                    }
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
         }
+        return false
     }
 
     fun logout() {
