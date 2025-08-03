@@ -26,8 +26,8 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
+import me.vavra.dive.User
 import me.vavra.dive.nearby.Rating
-import me.vavra.dive.nearby.User
 
 @Composable
 fun RatedScreen(

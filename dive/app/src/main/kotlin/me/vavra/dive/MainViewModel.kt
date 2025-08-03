@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Auth
-import me.vavra.dive.nearby.User
 
 class MainViewModel: ViewModel() {
 

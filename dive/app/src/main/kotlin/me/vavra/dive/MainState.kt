@@ -1,9 +1,20 @@
 package me.vavra.dive
 
-import me.vavra.dive.nearby.User
-
 sealed class MainState {
     object Loading : MainState()
     data class LoggedIn(val user: User = User("", "", "", "", "", "", 0.0, "", "", false)): MainState()
     object LoggedOut: MainState()
 }
+
+data class User(
+    val id: String,
+    val name: String,
+    val nameVokativ: String,
+    val nameAkuzativ: String,
+    val nameGenitiv: String,
+    val profilePictureUrl: String,
+    val totalRating: Double,
+    val mainRating: String,
+    val detailedRating: String,
+    val isVisible: Boolean
+)

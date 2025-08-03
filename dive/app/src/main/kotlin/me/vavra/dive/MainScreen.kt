@@ -15,7 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,10 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.feed.FeedScreen
+import me.vavra.dive.feed.FeedState
 import me.vavra.dive.nearby.NearbyScreen
-import me.vavra.dive.nearby.User
-import me.vavra.dive.nearby.UserRow
 
 @Composable
 fun MainScreen(state: MainState, onLogin: (String) -> Unit, onLogout: () -> Unit) {
@@ -101,13 +101,11 @@ private fun MainNavigation(user: User, onLoggedOut: ()-> Unit) {
                 NearbyScreen()
             }
             composable("feed") {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Feed Screen")
-                }
+                FeedScreen(FeedState())
             }
             composable("chat") {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Chat Screen")
+                    Text("Chat Screen") // Placeholder for Chat
                 }
             }
         }
@@ -121,7 +119,7 @@ private fun LogoutDropDown(loggedInUser: User, onLoggedOut: () -> Unit) {
         Row(
             modifier = Modifier.clickable { expanded = !expanded }
         ) {
-            UserRow(user = loggedInUser)
+            UserRating(user = loggedInUser)
         }
         DropdownMenu(
             expanded = expanded,

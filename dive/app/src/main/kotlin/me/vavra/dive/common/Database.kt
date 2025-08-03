@@ -13,7 +13,6 @@ import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import me.vavra.dive.nearby.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

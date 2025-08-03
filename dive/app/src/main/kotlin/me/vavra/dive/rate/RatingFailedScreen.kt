@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import me.vavra.dive.User
 import me.vavra.dive.nearby.Rating
-import me.vavra.dive.nearby.User
 
 @Composable
 fun RatingFailedScreen(

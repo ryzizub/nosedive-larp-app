@@ -26,7 +26,7 @@ enum class BottomNavItem(
 ) {
     Nearby("Nearby", Icons.Default.Place, "nearby"),
     Feed("Feed", Icons.AutoMirrored.Default.List, "feed"),
-    Chat("Chat", Icons.Default.Email, "chat")
+    Chat("Chat", Icons.Default.ChatBubble, "chat")
 }
 
 @Composable
