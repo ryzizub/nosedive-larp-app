@@ -4,7 +4,7 @@ import me.vavra.dive.User
 
 val sampleUsers = listOf(
     User(
-        "",
+        "1",
         "Sylva Malá",
         "",
         "",
@@ -16,7 +16,7 @@ val sampleUsers = listOf(
         true
     ),
     User(
-        "",
+        "2",
         "Nina Králová",
         "",
         "",
@@ -28,7 +28,7 @@ val sampleUsers = listOf(
         true
     ),
     User(
-        "",
+        "3",
         "Mirek Pospíšil",
         "",
         "",

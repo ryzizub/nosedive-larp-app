@@ -1,0 +1,186 @@
+package me.vavra.dive.chat
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
+import me.vavra.dive.User
+import me.vavra.dive.common.theme.Nosedive
+import me.vavra.dive.feed.sampleUsers
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConversationScreen(
+    navController: NavController,
+    conversation: ChatState.Conversation,
+    currentUser: User
+) {
+    val listState = rememberLazyListState()
+
+    // Scroll to the bottom when messages change or initially
+    LaunchedEffect(conversation.messages) {
+        if (conversation.messages.isNotEmpty()) {
+            listState.scrollToItem(conversation.messages.size - 1)
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(conversation.partner.name + " (" + conversation.partner.mainRating + ")") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Nosedive)
+            )
+        },
+        bottomBar = {
+            MessageInput() // Placeholder for message input
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp), // Add padding at the bottom for messages above input
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(conversation.messages) { message ->
+                MessageBubble(
+                    message = message,
+                    isCurrentUserMessage = message.author == currentUser,
+                    partnerName = if (message.author != currentUser) conversation.partner.name else ""
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MessageBubble(
+    message: ChatState.Message,
+    isCurrentUserMessage: Boolean,
+    partnerName: String
+) {
+    val bubbleAlignment = if (isCurrentUserMessage) Alignment.CenterEnd else Alignment.CenterStart
+    val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
+    val bubbleColor =
+        if (isCurrentUserMessage) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+    val textColor =
+        if (isCurrentUserMessage) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+    val shape = if (isCurrentUserMessage) {
+        RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
+    } else {
+        RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalAlignment = if (isCurrentUserMessage) Alignment.End else Alignment.Start
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(0.8f), // Max width for a bubble row
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            if (!isCurrentUserMessage) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(message.author.profilePictureUrl)
+                        .crossfade(true)
+                        .transformations(CircleCropTransformation())
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Box(
+                modifier = Modifier
+                    .clip(shape)
+                    .background(bubbleColor)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = message.text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = textColor
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MessageInput() {
+    OutlinedTextField(
+        value = "",
+        onValueChange = {},
+        placeholder = { Text("Napiš zprávu...") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp) // Increased padding around the input field
+            .windowInsetsPadding(NavigationBarDefaults.windowInsets)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun ConversationScreenPreview() {
+    val currentUser = sampleUsers[0]
+    val conversation = ChatState().conversations[0]
+    ConversationScreen(
+        navController = NavController(LocalContext.current),
+        conversation = conversation,
+        currentUser = currentUser
+    )
+}

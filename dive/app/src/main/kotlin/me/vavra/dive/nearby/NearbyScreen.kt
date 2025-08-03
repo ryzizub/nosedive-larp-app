@@ -15,9 +15,10 @@ import me.vavra.dive.User
 import me.vavra.dive.common.UserRating
 
 @Composable
-fun NearbyScreen() {
+fun NearbyScreen(modifier: Modifier = Modifier) {
     val viewModel = viewModel<NearbyViewModel>()
     NearbyScreenContent(
+        modifier,
         viewModel.state,
         onUserSelected = { // TODO
         })
@@ -25,12 +26,14 @@ fun NearbyScreen() {
 
 @Composable
 private fun NearbyScreenContent(
+    modifier: Modifier,
     state: NearbyState,
     onUserSelected: (User) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(all = 20.dp)
+        contentPadding = PaddingValues(all = 20.dp),
+        modifier = modifier
     ) {
         items(state.nearbyUsers) {
             Row(

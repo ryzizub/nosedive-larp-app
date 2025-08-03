@@ -23,27 +23,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
 
 @Composable
-fun ChatScreen() {
+fun ChatScreen(modifier: Modifier, navController: NavController, chatState: ChatState) {
     ChatScreenContent(
-        ChatState(),
-        onUserSelected = { // TODO
+        modifier,
+        chatState,
+        onUserSelected = {
+            navController.navigate("conversation/${it.id}")
         })
 }
 
 @Composable
 private fun ChatScreenContent(
+    modifier: Modifier,
     state: ChatState,
     onUserSelected: (User) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(all = 20.dp)
+        contentPadding = PaddingValues(all = 20.dp),
+        modifier = modifier
     ) {
         items(state.conversations) {
             Row(
@@ -93,7 +98,7 @@ private fun RowScope.Conversation(conversation: ChatState.Conversation) {
 @Preview(showBackground = true)
 private fun ChatScreenContentPreview() {
     ChatScreenContent(
-        state = ChatState(),
-        onUserSelected = {}
-    )
+        modifier = Modifier,
+        state = ChatState()
+    ) {}
 }

@@ -36,9 +36,9 @@ import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
 
 @Composable
-fun FeedScreen(state: FeedState) {
+fun FeedScreen(modifier: Modifier, state: FeedState) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }

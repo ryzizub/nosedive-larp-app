@@ -24,15 +24,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import me.vavra.dive.chat.ChatScreen
+import me.vavra.dive.chat.ChatState
+import me.vavra.dive.chat.ConversationScreen
 import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
+import me.vavra.dive.feed.sampleUsers
 import me.vavra.dive.nearby.NearbyScreen
+
 
 @Composable
 fun MainScreen(state: MainState, onLogin: (String) -> Unit, onLogout: () -> Unit) {
@@ -59,53 +66,77 @@ private fun LoadingScreen() {
 private fun MainNavigation(user: User, onLoggedOut: ()-> Unit) {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(BottomNavItem.Nearby) }
+    val chatState by remember { mutableStateOf(ChatState()) }
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(selectedItem) { item ->
-                selectedItem = item
-                navController.navigate(item.route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
+            if (currentRoute.isBottomNavRoute()) {
+                BottomNavigationBar(selectedItem) { item ->
+                    selectedItem = item
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
-                    launchSingleTop = true
-                    restoreState = true
                 }
             }
         },
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets)
-            ) {
-                Text(
-                    text = "Dive",
-                    style = MaterialTheme.typography.headlineLarge,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Text(
-                    text = " ${selectedItem.label.lowercase()}", style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                LogoutDropDown(user, onLoggedOut)
+            if (currentRoute.isBottomNavRoute()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .windowInsetsPadding(TopAppBarDefaults.windowInsets)
+                ) {
+                    Text(
+                        text = "Dive",
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                    Text(
+                        text = " ${selectedItem.label.lowercase()}", style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    LogoutDropDown(user, onLoggedOut)
+                }
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "nearby",
-            modifier = Modifier.padding(innerPadding)
+            startDestination = "nearby"
         ) {
             composable("nearby") {
-                NearbyScreen()
+                NearbyScreen(Modifier.padding(innerPadding))
             }
             composable("feed") {
-                FeedScreen(FeedState())
+                FeedScreen(Modifier.padding(innerPadding), FeedState())
             }
             composable("chat") {
-                ChatScreen()
+                ChatScreen(Modifier.padding(innerPadding),  navController, chatState)
+            }
+            composable(
+                route = "conversation/{partnerId}",
+                arguments = listOf(navArgument("partnerId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val partnerId = backStackEntry.arguments?.getString("partnerId")
+                val currentUser = sampleUsers[0] 
+                val conversation = chatState.conversations.find { it.partner.id == partnerId }
+
+                if (conversation != null && partnerId != null) {
+                    ConversationScreen(
+                        navController = navController,
+                        conversation = conversation,
+                        currentUser = currentUser
+                    )
+                } else {
+                    Text("Error: Conversation not found for partner ID $partnerId")
+                }
             }
         }
     }

@@ -3,21 +3,13 @@ package me.vavra.dive
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.Email // Changed from ChatBubble
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 
 enum class BottomNavItem(
     val label: String,
@@ -27,6 +19,10 @@ enum class BottomNavItem(
     Nearby("Nearby", Icons.Default.Place, "nearby"),
     Feed("Feed", Icons.AutoMirrored.Default.List, "feed"),
     Chat("Chat", Icons.Default.ChatBubble, "chat")
+}
+
+fun String?.isBottomNavRoute(): Boolean {
+    return BottomNavItem.entries.any { it.route == this }
 }
 
 @Composable
