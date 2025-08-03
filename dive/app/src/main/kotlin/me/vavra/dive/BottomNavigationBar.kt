@@ -12,46 +12,38 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 
-data class BottomNavItem(
+enum class BottomNavItem(
     val label: String,
     val icon: ImageVector,
     val route: String
-)
+) {
+    Nearby("Nearby", Icons.Default.Place, "nearby"),
+    Feed("Feed", Icons.AutoMirrored.Default.List, "feed"),
+    Chat("Chat", Icons.Default.Email, "chat")
+}
 
 @Composable
 fun BottomNavigationBar(
-    onTabSelected: (String) -> Unit
+    selectedItem: BottomNavItem,
+    onTabSelected: (BottomNavItem) -> Unit
 ) {
-    var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf(
-        BottomNavItem("Nearby", Icons.Default.Place, "nearby"),
-        BottomNavItem("Feed", Icons.AutoMirrored.Default.List, "feed"),
-        BottomNavItem("Chat", Icons.Default.ChatBubble, "chat") // Changed from ChatBubble
-    )
-
     NavigationBar {
-        items.forEachIndexed { index, item ->
+        BottomNavItem.entries.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
-                selected = selectedItem == index,
+                selected = selectedItem == item,
                 onClick = {
-                    selectedItem = index
-                    onTabSelected(item.route)
+                    onTabSelected(item)
                 }
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun BottomNavigationBarPreview() {
-    BottomNavigationBar(onTabSelected = {})
 }

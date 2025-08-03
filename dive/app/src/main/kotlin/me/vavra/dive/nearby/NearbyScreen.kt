@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,7 +35,6 @@ fun NearbyScreen() {
     val viewModel = viewModel<NearbyViewModel>()
     NearbyScreenContent(
         viewModel.state,
-        onLoggedOut = { viewModel.logOut() },
         onUserSelected = { // TODO
         })
 }
@@ -44,68 +42,26 @@ fun NearbyScreen() {
 @Composable
 private fun NearbyScreenContent(
     state: NearbyState,
-    onLoggedOut: () -> Unit,
     onUserSelected: (User) -> Unit
 ) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        ) {
-            Text(
-                text = "Dive",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-            Text(
-                text = " nearby", style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            LogoutDropDown(state.loggedInUser, onLoggedOut)
-        }
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            contentPadding = PaddingValues(all = 20.dp)
-        ) {
-            items(state.nearbyUsers) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onUserSelected(it) }
-                ) {
-                    UserRow(it)
-                }
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        contentPadding = PaddingValues(all = 20.dp)
+    ) {
+        items(state.nearbyUsers) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onUserSelected(it) }
+            ) {
+                UserRow(it)
             }
         }
     }
 }
 
 @Composable
-private fun LogoutDropDown(loggedInUser: User, onLoggedOut: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Box() {
-        Row(
-            modifier = Modifier.clickable { expanded = !expanded }
-        ) {
-            UserRow(user = loggedInUser)
-        }
-        DropdownMenu(
-            expanded = expanded,
-            modifier = Modifier.align(Alignment.BottomEnd),
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Odhlásit") },
-                onClick = onLoggedOut
-            )
-        }
-    }
-}
-
-@Composable
-private fun RowScope.UserRow(user: User) {
+fun RowScope.UserRow(user: User) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(user.profilePictureUrl)

@@ -1,8 +1,7 @@
 package me.vavra.dive.nearby
 
 data class NearbyState(
-    val nearbyUsers: List<User> = listOf(),
-    val loggedInUser: User = User("", "", "", "", "", "", 0.0, "", "", false)
+    val nearbyUsers: List<User> = listOf()
 )
 
 data class User(

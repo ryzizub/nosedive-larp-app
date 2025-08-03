@@ -23,6 +23,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainScreen(viewModel.state, onLogin = {
                 viewModel.login(it)
+            }, onLogout = {
+                viewModel.logOut()
             })
         }
         askNotificationPermission()

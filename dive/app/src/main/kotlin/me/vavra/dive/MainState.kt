@@ -1,7 +1,9 @@
 package me.vavra.dive
 
-enum class MainState {
-    LOADING,
-    LOGGED_IN,
-    LOGGED_OUT
+import me.vavra.dive.nearby.User
+
+sealed class MainState {
+    object Loading : MainState()
+    data class LoggedIn(val user: User = User("", "", "", "", "", "", 0.0, "", "", false)): MainState()
+    object LoggedOut: MainState()
 }

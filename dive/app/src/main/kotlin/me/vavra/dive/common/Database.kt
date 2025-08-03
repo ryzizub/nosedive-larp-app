@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
@@ -29,23 +30,33 @@ object Database {
         val query = reference.child("nearbyUsers")
         return query.snapshots.map { list ->
             list.children.map { snapshot ->
-                val totalRating = snapshot.child("totalRating").getValue<Double>() ?: 0.0
-                User(
-                    id = checkNotNull(snapshot.key),
-                    name = checkNotNull(snapshot.child("name").getValue<String>()),
-                    nameVokativ = snapshot.child("nameVokativ").getValue<String>() ?: "",
-                    nameAkuzativ = snapshot.child("nameAkuzativ").getValue<String>() ?: "",
-                    nameGenitiv = snapshot.child("nameGenitiv").getValue<String>() ?: "",
-                    profilePictureUrl = checkNotNull(
-                        snapshot.child("profilePictureUrl").getValue<String>()
-                    ),
-                    totalRating = totalRating,
-                    mainRating = totalRating.formatToOnceDecimal(),
-                    detailedRating = totalRating.extractThirdAndFourthDecimal(),
-                    isVisible = checkNotNull(snapshot.child("isVisible").getValue<Boolean>())
-                )
+                snapshot.toUser()
             }
         }
+    }
+
+    fun observeUser(userId: String): Flow<User> {
+        return reference.child("nearbyUsers").child(userId).snapshots.map {
+            it.toUser()
+        }
+    }
+
+    private fun DataSnapshot.toUser(): User {
+        val totalRating = child("totalRating").getValue<Double>() ?: 0.0
+        return User(
+            id = checkNotNull(key),
+            name = checkNotNull(child("name").getValue<String>()),
+            nameVokativ = child("nameVokativ").getValue<String>() ?: "",
+            nameAkuzativ = child("nameAkuzativ").getValue<String>() ?: "",
+            nameGenitiv = child("nameGenitiv").getValue<String>() ?: "",
+            profilePictureUrl = checkNotNull(
+                child("profilePictureUrl").getValue<String>()
+            ),
+            totalRating = totalRating,
+            mainRating = totalRating.formatToOnceDecimal(),
+            detailedRating = totalRating.extractThirdAndFourthDecimal(),
+            isVisible = checkNotNull(child("isVisible").getValue<Boolean>())
+        )
     }
 
     fun addRating(

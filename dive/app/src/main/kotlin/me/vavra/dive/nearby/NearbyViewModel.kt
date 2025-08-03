@@ -19,18 +19,9 @@ class NearbyViewModel() : ViewModel() {
             Database.observeNearbyUsers().collect { users ->
                 state = state.copy(
                     nearbyUsers = users.sortedByDescending { it.totalRating }
-                        .filter { it.isVisible && it.id != userId },
-                    loggedInUser = users.first { it.id == userId }.shortenName()
+                        .filter { it.isVisible && it.id != userId }
                 )
             }
         }
-    }
-
-    private fun User.shortenName(): User {
-        return this.copy(name = this.name.split(" ")[0])
-    }
-
-    fun logOut() {
-        Auth.logout()
     }
 }
