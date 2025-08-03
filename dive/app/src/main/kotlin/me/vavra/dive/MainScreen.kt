@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import me.vavra.dive.chat.ChatScreen
 import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.feed.FeedScreen
@@ -104,9 +105,7 @@ private fun MainNavigation(user: User, onLoggedOut: ()-> Unit) {
                 FeedScreen(FeedState())
             }
             composable("chat") {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Chat Screen") // Placeholder for Chat
-                }
+                ChatScreen()
             }
         }
     }

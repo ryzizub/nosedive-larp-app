@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -46,4 +47,22 @@ fun UserRating(user: User, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UserRatingPreview() {
+    val user = User(
+        id = "1",
+        name = "John Doe",
+        nameVokativ = "John",
+        nameAkuzativ = "John",
+        nameGenitiv = "John's",
+        profilePictureUrl = "https://example.com/profile.jpg",
+        totalRating = 4.5,
+        mainRating = "4.5",
+        detailedRating = "25",
+        isVisible = true
+    )
+    UserRating(user)
 }
