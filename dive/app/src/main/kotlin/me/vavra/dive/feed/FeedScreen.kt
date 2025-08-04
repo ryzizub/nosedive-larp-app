@@ -126,6 +126,7 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
 fun ColumnScope.Post(post: FeedState.Post) {
     Spacer(modifier = Modifier.height(8.dp))
     UserRating(post.user, modifier = Modifier.padding(horizontal = 20.dp))
+    Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = post.caption,
         style = MaterialTheme.typography.bodyLarge,

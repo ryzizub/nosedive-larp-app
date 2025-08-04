@@ -6,7 +6,8 @@ import androidx.compose.runtime.Composable
 
 private val LightColorScheme = lightColorScheme(
     primary = Rate,
-    background = Nosedive
+    background = Nosedive2,
+    surface = Nosedive2
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

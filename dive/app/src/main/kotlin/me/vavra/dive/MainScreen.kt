@@ -52,6 +52,8 @@ import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
 import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
+import me.vavra.dive.ratings.MyRatingsScreen
+import me.vavra.dive.ratings.MyRatingsState
 
 
 @Composable
@@ -157,6 +159,9 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                 post = checkNotNull(post)
             )
         }
+        composable(route ="ratings") {
+            MyRatingsScreen(navController, MyRatingsState())
+        }
     }
 }
 
@@ -198,7 +203,7 @@ private fun BottomNavigation(
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                UserMenu(user, onLogout)
+                UserMenu(navController, user, onLogout)
             }
         },
         floatingActionButton = {
@@ -214,7 +219,7 @@ private fun BottomNavigation(
 }
 
 @Composable
-private fun UserMenu(loggedInUser: User, onLoggedOut: () -> Unit) {
+private fun UserMenu(navController: NavController, loggedInUser: User, onLoggedOut: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         Row(
@@ -233,7 +238,7 @@ private fun UserMenu(loggedInUser: User, onLoggedOut: () -> Unit) {
         ) {
             DropdownMenuItem(
                 text = { Text("Moje hodnocení") },
-                onClick = { }
+                onClick = { navController.navigate("ratings") }
             )
             DropdownMenuItem(
                 text = { Text("Odhlásit") },

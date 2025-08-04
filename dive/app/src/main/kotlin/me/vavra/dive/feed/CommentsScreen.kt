@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -36,7 +35,6 @@ import androidx.navigation.compose.rememberNavController
 import me.vavra.dive.chat.MessageInput
 import me.vavra.dive.common.Avatar
 import me.vavra.dive.common.theme.DiveTheme
-import me.vavra.dive.common.theme.Nosedive
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -59,8 +57,7 @@ fun CommentsScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Nosedive)
+                }
             )
         },
         bottomBar = {
