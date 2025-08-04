@@ -12,19 +12,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,8 +30,9 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.common.ui.StarRating
+import me.vavra.dive.common.ui.UserRating
 
 @Composable
 fun FeedScreen(modifier: Modifier, navController: NavHostController, state: FeedState) {
@@ -98,27 +95,9 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
                 }
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 10.dp), // Increased padding
-            horizontalArrangement = Arrangement.SpaceEvenly, // Distribute stars evenly
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            (1..5).forEach { starIndex ->
-                Icon(
-                    imageVector = Icons.Outlined.StarOutline,
-                    contentDescription = "Ohodnotit $starIndex hvězdičkami",
-                    tint = Color.Gray,
-                    modifier = Modifier
-                        .size(40.dp) // Larger stars
-                        .clickable {
-                            // TODO
-                        }
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        StarRating(modifier = Modifier.align(CenterHorizontally))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

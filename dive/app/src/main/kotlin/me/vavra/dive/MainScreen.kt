@@ -45,13 +45,17 @@ import androidx.navigation.navArgument
 import me.vavra.dive.chat.ChatScreen
 import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
-import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
+import me.vavra.dive.feed.sampleUsers
 import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
+import me.vavra.dive.rate.RateScreen
+import me.vavra.dive.rate.RateState
+import me.vavra.dive.rate.RatedScreen
 import me.vavra.dive.ratings.MyRatingsScreen
 import me.vavra.dive.ratings.MyRatingsState
 
@@ -84,25 +88,25 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
         startDestination = "nearby",
         enterTransition = {
             slideIntoContainer(
-                towards = SlideDirection.Left,
+                towards = SlideDirection.Up,
                 animationSpec = tween(500)
             )
         },
         exitTransition = {
             slideOutOfContainer(
-                towards = SlideDirection.Left,
+                towards = SlideDirection.Up,
                 animationSpec = tween(500)
             )
         },
         popEnterTransition = {
             slideIntoContainer(
-                towards = SlideDirection.Right,
+                towards = SlideDirection.Down,
                 animationSpec = tween(500)
             )
         },
         popExitTransition = {
             slideOutOfContainer(
-                towards = SlideDirection.Right,
+                towards = SlideDirection.Down,
                 animationSpec = tween(500)
             )
         }
@@ -114,7 +118,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }) {
             BottomNavigation(navController, user, onLoggedOut) {
-                NearbyScreen(Modifier.padding(it))
+                NearbyScreen(navController, Modifier.padding(it))
             }
         }
         composable(
@@ -159,8 +163,34 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                 post = checkNotNull(post)
             )
         }
-        composable(route ="ratings") {
+        composable(route = "ratings") {
             MyRatingsScreen(navController, MyRatingsState())
+        }
+        composable(
+            route = "rate/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            val ratedUser = sampleUsers.find { it.id == userId }
+            if (ratedUser != null) {
+                RateScreen(
+                    navController = navController,
+                    RateState(user, ratedUser)
+                )
+            }
+        }
+        composable(
+            route = "rated/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            val ratedUser = sampleUsers.find { it.id == userId }
+            if (ratedUser != null) {
+                RatedScreen(
+                    navController = navController,
+                    RateState(user, ratedUser)
+                )
+            }
         }
     }
 }

@@ -19,17 +19,14 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import me.vavra.dive.User
-import me.vavra.dive.nearby.Rating
 
 @Composable
 fun RatingFailedScreen(
-    rating: Rating,
+    state: RateState,
     onClose: () -> Unit
 ) {
     var swipeOffset by remember { mutableStateOf(0f) }
@@ -54,14 +51,14 @@ fun RatingFailedScreen(
                 modifier = Modifier.align(CenterHorizontally)
             )
             Text(
-                rating.ofUser.nameGenitiv,
+                state.ratedUser.nameGenitiv,
                 modifier = Modifier.align(CenterHorizontally),
                 style = MaterialTheme.typography.displayMedium
             )
             Spacer(modifier = Modifier.height(32.dp))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(rating.ofUser.profilePictureUrl)
+                    .data(state.ratedUser.profilePictureUrl)
                     .crossfade(true)
                     .transformations(CircleCropTransformation())
                     .build(),
@@ -83,24 +80,4 @@ fun RatingFailedScreen(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun RatingFailedPreview() {
-    RatingFailedScreen(
-        rating = Rating(
-            User(
-                "",
-                "",
-                "",
-                "Davida",
-                nameGenitiv = "Davida",
-                "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FAuditor%20Va%CC%81clav%20Svoboda.jpg?alt=media&token=11df83cb-200c-4c85-a9c5-f7921d401412",
-                0.0,
-                "",
-                "", true
-            )
-        ), {}
-    )
 }

@@ -1,4 +1,4 @@
-package me.vavra.dive.common
+package me.vavra.dive.common.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +43,7 @@ fun UserRating(user: User, modifier: Modifier = Modifier, avatarSize: Dp = 60.dp
 }
 
 @Composable
-fun Avatar(user: User, avatarSize: Dp = 60.dp) {
+fun Avatar(user: User, avatarSize: Dp = 60.dp, modifier: Modifier = Modifier) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(user.profilePictureUrl)
@@ -51,7 +51,7 @@ fun Avatar(user: User, avatarSize: Dp = 60.dp) {
             .transformations(CircleCropTransformation())
             .build(),
         contentDescription = null,
-        modifier = Modifier.size(avatarSize)
+        modifier = modifier.size(avatarSize)
     )
 }
 

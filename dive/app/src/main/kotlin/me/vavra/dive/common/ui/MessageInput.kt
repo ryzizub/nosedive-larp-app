@@ -1,4 +1,4 @@
-package me.vavra.dive.common
+package me.vavra.dive.common.ui
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult

@@ -10,16 +10,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import me.vavra.dive.User
-import me.vavra.dive.common.UserRating
+import me.vavra.dive.common.ui.UserRating
 
 @Composable
-fun NearbyScreen(modifier: Modifier = Modifier) {
+fun NearbyScreen(navController: NavController, modifier: Modifier = Modifier) {
     val viewModel = viewModel<NearbyViewModel>()
     NearbyScreenContent(
         modifier,
         viewModel.state,
-        onUserSelected = { // TODO
+        onUserSelected = {
+            navController.navigate("rate/${it.id}")
         })
 }
 

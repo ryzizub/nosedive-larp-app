@@ -19,20 +19,18 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
-import me.vavra.dive.User
-import me.vavra.dive.nearby.Rating
 
 @Composable
 fun RatedScreen(
-    rating: Rating,
-    onClose: () -> Unit
+    navController: NavController,
+    state: RateState
 ) {
     var swipeOffset by remember { mutableStateOf(0f) }
     Box(modifier = Modifier
@@ -42,9 +40,9 @@ fun RatedScreen(
                 change.consume()
                 swipeOffset += dragAmount
                 if (swipeOffset > 150) {
-                    onClose()
+                    navController.popBackStack("nearby", true)
                 } else if (swipeOffset < -150) {
-                    onClose()
+                    navController.popBackStack("nearby", true)
                 }
             }
 
@@ -56,14 +54,14 @@ fun RatedScreen(
                 modifier = Modifier.align(CenterHorizontally)
             )
             Text(
-                rating.ofUser.nameGenitiv,
+                state.ratedUser.nameGenitiv,
                 modifier = Modifier.align(CenterHorizontally),
                 style = MaterialTheme.typography.displayMedium
             )
             Spacer(modifier = Modifier.height(32.dp))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(rating.ofUser.profilePictureUrl)
+                    .data(state.ratedUser.profilePictureUrl)
                     .crossfade(true)
                     .transformations(CircleCropTransformation())
                     .build(),
@@ -80,7 +78,7 @@ fun RatedScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
             RatingBar(
-                value = rating.stars.toFloat(),
+                value = state.stars.toFloat(),
                 style = RatingBarStyle.Stroke(activeColor = MaterialTheme.colorScheme.tertiary, width = 3f),
                 onValueChange = {  },
                 size = 46.dp,
@@ -90,24 +88,4 @@ fun RatedScreen(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun RatedScreenPreview() {
-    RatedScreen(
-        rating = Rating(
-            User(
-                "",
-                "",
-                "",
-                "Davida",
-                nameGenitiv = "Davida",
-                "https://firebasestorage.googleapis.com/v0/b/nosedive-larp.appspot.com/o/profile_pics%2FAuditor%20Va%CC%81clav%20Svoboda.jpg?alt=media&token=11df83cb-200c-4c85-a9c5-f7921d401412",
-                0.0,
-                "",
-                "", true
-            )
-        ), {}
-    )
 }
