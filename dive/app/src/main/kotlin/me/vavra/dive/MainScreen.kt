@@ -43,6 +43,7 @@ import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
 import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
 import me.vavra.dive.login.LoginScreen
@@ -117,7 +118,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }) {
             BottomNavigation(navController, user, onLoggedOut, {
-                FeedScreen(Modifier.padding(it), FeedState())
+                FeedScreen(Modifier.padding(it), navController, FeedState())
             })
         }
         composable(
@@ -139,6 +140,17 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             ConversationScreen(
                 navController = navController,
                 conversation = checkNotNull(conversation)
+            )
+        }
+        composable(
+            route = "comments/{postId}",
+            arguments = listOf(navArgument("postId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
+            val post = FeedState().posts.find { it.id == postId }
+            CommentsScreen(
+                navController = navController,
+                post = checkNotNull(post)
             )
         }
     }
@@ -197,7 +209,11 @@ private fun UserMenu(loggedInUser: User, onLoggedOut: () -> Unit) {
         Row(
             modifier = Modifier.clickable { expanded = !expanded }
         ) {
-            UserRating(user = loggedInUser, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp), avatarSize = 50.dp)
+            UserRating(
+                user = loggedInUser,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                avatarSize = 50.dp
+            )
         }
         DropdownMenu(
             expanded = expanded,

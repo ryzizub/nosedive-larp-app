@@ -4,11 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,7 +49,7 @@ import me.vavra.dive.User
 import me.vavra.dive.common.theme.Nosedive
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ConversationScreen(
     navController: NavController,
@@ -54,10 +57,9 @@ fun ConversationScreen(
 ) {
     val listState = rememberLazyListState()
 
-    // Scroll to the bottom when messages change or initially
-    LaunchedEffect(conversation.messages) {
+    LaunchedEffect(conversation.messages.size, WindowInsets.isImeVisible) {
         if (conversation.messages.isNotEmpty()) {
-            listState.scrollToItem(conversation.messages.size - 1)
+            listState.animateScrollToItem(conversation.messages.size - 1)
         }
     }
 
@@ -79,7 +81,7 @@ fun ConversationScreen(
             )
         },
         bottomBar = {
-            MessageInput() // Placeholder for message input
+            MessageInput("Napiš zprávu")
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
@@ -159,7 +161,7 @@ fun MessageBubble(
 }
 
 @Composable
-fun MessageInput() {
+fun MessageInput(hint: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,7 +172,7 @@ fun MessageInput() {
         OutlinedTextField(
             value = "",
             onValueChange = {},
-            placeholder = { Text("Napiš zprávu...") },
+            placeholder = { Text(hint) },
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.size(8.dp))

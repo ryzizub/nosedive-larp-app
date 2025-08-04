@@ -21,15 +21,7 @@ import me.vavra.dive.User
 @Composable
 fun UserRating(user: User, modifier: Modifier = Modifier, avatarSize: Dp = 60.dp) {
     Row(modifier = modifier) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(user.profilePictureUrl)
-                .crossfade(true)
-                .transformations(CircleCropTransformation())
-                .build(),
-            contentDescription = null,
-            modifier = Modifier.size(avatarSize)
-        )
+        Avatar(user, avatarSize)
         Column(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
@@ -48,6 +40,19 @@ fun UserRating(user: User, modifier: Modifier = Modifier, avatarSize: Dp = 60.dp
             }
         }
     }
+}
+
+@Composable
+fun Avatar(user: User, avatarSize: Dp = 60.dp) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(user.profilePictureUrl)
+            .crossfade(true)
+            .transformations(CircleCropTransformation())
+            .build(),
+        contentDescription = null,
+        modifier = Modifier.size(avatarSize)
+    )
 }
 
 @Preview(showBackground = true)
