@@ -32,8 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import me.vavra.dive.chat.MessageInput
 import me.vavra.dive.common.Avatar
+import me.vavra.dive.common.MessageInput
 import me.vavra.dive.common.theme.DiveTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)

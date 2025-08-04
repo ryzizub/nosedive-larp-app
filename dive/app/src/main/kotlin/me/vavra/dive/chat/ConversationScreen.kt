@@ -15,20 +15,16 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,6 +41,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
+import me.vavra.dive.common.MessageInput
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -153,31 +150,6 @@ fun MessageBubble(
                     color = textColor
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun MessageInput(hint: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp) // Increased padding around the input field
-            .windowInsetsPadding(NavigationBarDefaults.windowInsets),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = { Text(hint) },
-            modifier = Modifier.weight(1f)
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        IconButton(onClick = { /* Handle attaching any file */ }) {
-            Icon(
-                imageVector = Icons.Default.AttachFile,
-                contentDescription = "Attach any file"
-            )
         }
     }
 }
