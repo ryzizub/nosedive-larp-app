@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +47,9 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController, state: Feed
             PostItem(post = post) {
                 navController.navigate("comments/${post.id}")
             }
+        }
+        item {
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }
@@ -119,6 +124,7 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
 
 @Composable
 fun ColumnScope.Post(post: FeedState.Post) {
+    Spacer(modifier = Modifier.height(8.dp))
     UserRating(post.user, modifier = Modifier.padding(horizontal = 20.dp))
     Text(
         text = post.caption,

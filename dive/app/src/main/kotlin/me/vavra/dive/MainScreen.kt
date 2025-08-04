@@ -16,10 +16,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -195,6 +199,13 @@ private fun BottomNavigation(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 UserMenu(user, onLogout)
+            }
+        },
+        floatingActionButton = {
+            if (currentRoute == "feed" || currentRoute == "chat") {
+                FloatingActionButton(onClick = { /* TODO: Navigate to create post screen */ }) {
+                    Icon(Icons.Filled.Add, "Add post")
+                }
             }
         }
     ) { innerPadding ->

@@ -23,7 +23,7 @@ private val LightColorScheme = lightColorScheme(
 fun DiveTheme(
     content: @Composable () -> Unit
 ) {
-    val colorScheme =  LightColorScheme
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
