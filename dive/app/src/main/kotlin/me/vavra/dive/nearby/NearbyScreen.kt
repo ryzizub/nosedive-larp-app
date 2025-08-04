@@ -1,10 +1,9 @@
 package me.vavra.dive.nearby
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -31,8 +30,6 @@ private fun NearbyScreenContent(
     onUserSelected: (User) -> Unit
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(all = 20.dp),
         modifier = modifier
     ) {
         items(state.nearbyUsers) {
@@ -40,6 +37,7 @@ private fun NearbyScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onUserSelected(it) }
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 UserRating(it)
             }

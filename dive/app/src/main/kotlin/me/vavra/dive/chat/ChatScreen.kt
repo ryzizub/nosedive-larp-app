@@ -1,9 +1,7 @@
 package me.vavra.dive.chat
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -46,8 +44,6 @@ private fun ChatScreenContent(
     onUserSelected: (User) -> Unit
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(all = 20.dp),
         modifier = modifier
     ) {
         items(state.conversations) {
@@ -55,6 +51,7 @@ private fun ChatScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onUserSelected(it.partner) }
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Conversation(it)
             }

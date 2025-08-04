@@ -21,13 +21,9 @@ enum class BottomNavItem(
     Chat("Chat", Icons.Default.ChatBubble, "chat")
 }
 
-fun String?.isBottomNavRoute(): Boolean {
-    return BottomNavItem.entries.any { it.route == this }
-}
-
 @Composable
 fun BottomNavigationBar(
-    selectedItem: BottomNavItem,
+    selectedItemRoute: String?,
     onTabSelected: (BottomNavItem) -> Unit
 ) {
     NavigationBar {
@@ -35,7 +31,7 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
-                selected = selectedItem == item,
+                selected = selectedItemRoute == item.route,
                 onClick = {
                     onTabSelected(item)
                 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -18,7 +19,7 @@ import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
 
 @Composable
-fun UserRating(user: User, modifier: Modifier = Modifier) {
+fun UserRating(user: User, modifier: Modifier = Modifier, avatarSize: Dp = 60.dp) {
     Row(modifier = modifier) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -27,7 +28,7 @@ fun UserRating(user: User, modifier: Modifier = Modifier) {
                 .transformations(CircleCropTransformation())
                 .build(),
             contentDescription = null,
-            modifier = Modifier.size(60.dp)
+            modifier = Modifier.size(avatarSize)
         )
         Column(
             modifier = Modifier

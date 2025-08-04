@@ -1,12 +1,20 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package me.vavra.dive
 
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -24,10 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import me.vavra.dive.chat.ChatScreen
@@ -46,7 +54,7 @@ fun MainScreen(state: MainState, onLogin: (String) -> Unit, onLogout: () -> Unit
     DiveTheme {
         when (state) {
             MainState.Loading -> LoadingScreen()
-            is MainState.LoggedIn -> MainNavigation(state.user, onLogout)
+            is MainState.LoggedIn -> LoggedInScreen(state.user, onLogout)
             MainState.LoggedOut -> LoginScreen(onLogin)
         }
     }
@@ -61,95 +69,137 @@ private fun LoadingScreen() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainNavigation(user: User, onLoggedOut: ()-> Unit) {
+private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
     val navController = rememberNavController()
-    var selectedItem by remember { mutableStateOf(BottomNavItem.Nearby) }
-    val chatState by remember { mutableStateOf(ChatState()) }
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-
-    Scaffold(
-        bottomBar = {
-            if (currentRoute.isBottomNavRoute()) {
-                BottomNavigationBar(selectedItem) { item ->
-                    selectedItem = item
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            }
+    NavHost(
+        navController = navController,
+        startDestination = "nearby",
+        enterTransition = {
+            slideIntoContainer(
+                towards = SlideDirection.Left,
+                animationSpec = tween(500)
+            )
         },
-        topBar = {
-            if (currentRoute.isBottomNavRoute()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .windowInsetsPadding(TopAppBarDefaults.windowInsets)
-                ) {
-                    Text(
-                        text = "Dive",
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                    Text(
-                        text = " ${selectedItem.label.lowercase()}", style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    LogoutDropDown(user, onLoggedOut)
-                }
+        exitTransition = {
+            slideOutOfContainer(
+                towards = SlideDirection.Left,
+                animationSpec = tween(500)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = SlideDirection.Right,
+                animationSpec = tween(500)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = SlideDirection.Right,
+                animationSpec = tween(500)
+            )
+        }
+    ) {
+        composable(
+            "nearby",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }) {
+            BottomNavigation(navController, user, onLoggedOut) {
+                NearbyScreen(Modifier.padding(it))
             }
         }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "nearby"
-        ) {
-            composable("nearby") {
-                NearbyScreen(Modifier.padding(innerPadding))
-            }
-            composable("feed") {
-                FeedScreen(Modifier.padding(innerPadding), FeedState())
-            }
-            composable("chat") {
-                ChatScreen(Modifier.padding(innerPadding),  navController, chatState)
-            }
-            composable(
-                route = "conversation/{partnerId}",
-                arguments = listOf(navArgument("partnerId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val partnerId = backStackEntry.arguments?.getString("partnerId")
-                val currentUser = sampleUsers[0] 
-                val conversation = chatState.conversations.find { it.partner.id == partnerId }
-
-                if (conversation != null && partnerId != null) {
-                    ConversationScreen(
-                        navController = navController,
-                        conversation = conversation,
-                        currentUser = currentUser
-                    )
-                } else {
-                    Text("Error: Conversation not found for partner ID $partnerId")
-                }
-            }
+        composable(
+            "feed",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }) {
+            BottomNavigation(navController, user, onLoggedOut, {
+                FeedScreen(Modifier.padding(it), FeedState())
+            })
+        }
+        composable(
+            "chat",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }) {
+            BottomNavigation(navController, user, onLoggedOut, {
+                ChatScreen(Modifier.padding(it), navController, ChatState())
+            })
+        }
+        composable(
+            route = "conversation/{partnerId}",
+            arguments = listOf(navArgument("partnerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val partnerId = backStackEntry.arguments?.getString("partnerId")
+            val currentUser = sampleUsers[0]
+            val conversation = ChatState().conversations.find { it.partner.id == partnerId }
+            ConversationScreen(
+                navController = navController,
+                conversation = checkNotNull(conversation),
+                currentUser = currentUser
+            )
         }
     }
 }
 
 @Composable
-private fun LogoutDropDown(loggedInUser: User, onLoggedOut: () -> Unit) {
+private fun BottomNavigation(
+    navController: NavController,
+    user: User,
+    onLogout: () -> Unit,
+    content: @Composable ((PaddingValues) -> Unit)
+) {
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(currentRoute) { item ->
+                navController.navigate(item.route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        },
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets)
+            ) {
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    text = "Dive",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Text(
+                    text = " $currentRoute",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                UserMenu(user, onLogout)
+            }
+        }
+    ) { innerPadding ->
+        content(innerPadding)
+    }
+}
+
+@Composable
+private fun UserMenu(loggedInUser: User, onLoggedOut: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    Box() {
+    Box {
         Row(
             modifier = Modifier.clickable { expanded = !expanded }
         ) {
-            UserRating(user = loggedInUser)
+            UserRating(user = loggedInUser, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp), avatarSize = 50.dp)
         }
         DropdownMenu(
             expanded = expanded,
@@ -158,7 +208,7 @@ private fun LogoutDropDown(loggedInUser: User, onLoggedOut: () -> Unit) {
         ) {
             DropdownMenuItem(
                 text = { Text("Moje hodnocení") },
-                onClick = {  }
+                onClick = { }
             )
             DropdownMenuItem(
                 text = { Text("Odhlásit") },
