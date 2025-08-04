@@ -45,7 +45,7 @@ import me.vavra.dive.common.UserRating
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
-import me.vavra.dive.feed.sampleUsers
+import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
 
 
@@ -135,12 +135,10 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             arguments = listOf(navArgument("partnerId") { type = NavType.StringType })
         ) { backStackEntry ->
             val partnerId = backStackEntry.arguments?.getString("partnerId")
-            val currentUser = sampleUsers[0]
             val conversation = ChatState().conversations.find { it.partner.id == partnerId }
             ConversationScreen(
                 navController = navController,
-                conversation = checkNotNull(conversation),
-                currentUser = currentUser
+                conversation = checkNotNull(conversation)
             )
         }
     }

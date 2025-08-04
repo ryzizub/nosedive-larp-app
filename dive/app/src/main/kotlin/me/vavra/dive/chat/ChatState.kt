@@ -11,19 +11,19 @@ data class ChatState(
             unread = true,
             messages = listOf(
                 Message(
-                    author = sampleUsers[1], // Nina
+                    isMine = false,
                     text = "Ahoj Sylvo! ✨ Tvoje včerejší párty byla naprosto 5hvězdičková! Úžasná atmosféra!"
                 ),
                 Message(
-                    author = sampleUsers[0], // Sylva
+                    isMine = true,
                     text = "Nino, děkuji! Jsem tak ráda, že sis to užila. Tvoje pozitivní energie byla nakažlivá! 😊"
                 ),
                 Message(
-                    author = sampleUsers[1], // Nina
+                    isMine = false,
                     text = "Musíme to brzy zopakovat! Možná nějaký exkluzivní brunch pro 4.5+? 😉 Potřebuji si vylepšit skóre po tom incidentu s číšníkem..."
                 ),
                 Message(
-                    author = sampleUsers[0], // Sylva
+                    isMine = true,
                     text = "Skvělý nápad! Dám vědět, až najdu perfektní místo. Jen ty nejlepší vibrace! ⭐"
                 )
             )
@@ -34,23 +34,23 @@ data class ChatState(
             unread = false,
             messages = listOf(
                 Message(
-                    author = sampleUsers[2], // Mirek
+                    isMine = false,
                     text = "Čau Sylvo. Díky za pozvání včera. Bylo to... zajímavé."
                 ),
                 Message(
-                    author = sampleUsers[0], // Sylva
+                    isMine = true,
                     text = "Ahoj Mirku! Jsem ráda, že jsi dorazil. Doufám, že ses bavil?"
                 ),
                 Message(
-                    author = sampleUsers[2], // Mirek
+                    isMine = false,
                     text = "No, abych byl upřímný, ta hudba byla trochu moc nahlas pro můj vkus. A ty jednohubky... nebyly zrovna můj šálek čaje. Ale jinak fajn, no."
                 ),
                 Message(
-                    author = sampleUsers[0], // Sylva
+                    isMine = true,
                     text = "Ach tak. No, snažila jsem se vyhovět všem. Každopádně díky za upřímnost, Mirku. Toho si cením. (I když by to mohlo být 3.5hvězdičkové hodnocení upřímnosti 😉)"
                 ),
                 Message(
-                    author = sampleUsers[2], // Mirek
+                    isMine = false,
                     text = "Jo, promiň, jestli to znělo drsně. Jen říkám, jak to vidím. Ne každý den je pětihvězdičkový, že? Drž se."
                 )
             )
@@ -63,5 +63,5 @@ data class ChatState(
         val unread: Boolean
     )
 
-    data class Message(val author: User, val text: String)
+    data class Message(val text: String, val isMine: Boolean)
 }

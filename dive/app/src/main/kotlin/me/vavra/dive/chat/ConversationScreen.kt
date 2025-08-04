@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,15 +44,13 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
 import me.vavra.dive.common.theme.Nosedive
-import me.vavra.dive.feed.sampleUsers
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreen(
     navController: NavController,
-    conversation: ChatState.Conversation,
-    currentUser: User
+    conversation: ChatState.Conversation
 ) {
     val listState = rememberLazyListState()
 
@@ -80,22 +80,22 @@ fun ConversationScreen(
         },
         bottomBar = {
             MessageInput() // Placeholder for message input
-        }
+        },
+        modifier = Modifier.imePadding()
     ) { paddingValues ->
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp), // Add padding at the bottom for messages above input
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(conversation.messages) { message ->
                 MessageBubble(
                     message = message,
-                    isCurrentUserMessage = message.author == currentUser,
-                    partnerName = if (message.author != currentUser) conversation.partner.name else ""
+                    partner = conversation.partner,
+                    isMine = message.isMine
                 )
             }
         }
@@ -105,16 +105,15 @@ fun ConversationScreen(
 @Composable
 fun MessageBubble(
     message: ChatState.Message,
-    isCurrentUserMessage: Boolean,
-    partnerName: String
+    partner: User,
+    isMine: Boolean
 ) {
-    val bubbleAlignment = if (isCurrentUserMessage) Alignment.CenterEnd else Alignment.CenterStart
-    val horizontalArrangement = if (isCurrentUserMessage) Arrangement.End else Arrangement.Start
+    val horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     val bubbleColor =
-        if (isCurrentUserMessage) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+        if (isMine) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
     val textColor =
-        if (isCurrentUserMessage) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
-    val shape = if (isCurrentUserMessage) {
+        if (isMine) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+    val shape = if (isMine) {
         RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
     } else {
         RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
@@ -124,17 +123,17 @@ fun MessageBubble(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        horizontalAlignment = if (isCurrentUserMessage) Alignment.End else Alignment.Start
+        horizontalAlignment = if (isMine) Alignment.End else Alignment.Start
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(0.8f), // Max width for a bubble row
             horizontalArrangement = horizontalArrangement,
             verticalAlignment = Alignment.Bottom
         ) {
-            if (!isCurrentUserMessage) {
+            if (!isMine) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(message.author.profilePictureUrl)
+                        .data(partner.profilePictureUrl)
                         .crossfade(true)
                         .transformations(CircleCropTransformation())
                         .build(),
@@ -161,26 +160,36 @@ fun MessageBubble(
 
 @Composable
 fun MessageInput() {
-    OutlinedTextField(
-        value = "",
-        onValueChange = {},
-        placeholder = { Text("Napiš zprávu...") },
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp) // Increased padding around the input field
-            .windowInsetsPadding(NavigationBarDefaults.windowInsets)
-    )
+            .windowInsetsPadding(NavigationBarDefaults.windowInsets),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            placeholder = { Text("Napiš zprávu...") },
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        IconButton(onClick = { /* Handle attaching any file */ }) {
+            Icon(
+                imageVector = Icons.Default.AttachFile,
+                contentDescription = "Attach any file"
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun ConversationScreenPreview() {
-    val currentUser = sampleUsers[0]
     val conversation = ChatState().conversations[0]
     ConversationScreen(
         navController = NavController(LocalContext.current),
-        conversation = conversation,
-        currentUser = currentUser
+        conversation = conversation
     )
 }

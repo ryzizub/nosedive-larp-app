@@ -97,10 +97,17 @@ fun PostItem(post: FeedState.Post) {
                         )
                     }
                 }
-                if (post.comments.isNotEmpty()) {
+                val remainingCommentCount = post.comments.size - 1
+                if (remainingCommentCount > 0) {
+                    val text = when (remainingCommentCount) {
+                        1 -> "další komentář"
+                        2,3,4 -> "dalších komentáře"
+                        else -> "dalších komentářů"
+                    }
                     Text(
-                        "Komentáře (${post.comments.size})",
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.primary),
+                        "$remainingCommentCount $text",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
