@@ -1,5 +1,7 @@
 package me.vavra.dive.ratings // Changed package name
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,8 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.theme.Rate
 import me.vavra.dive.common.ui.Avatar
@@ -47,7 +47,6 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyRatingsScreen(
-    navController: NavController,
     state: MyRatingsState
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -55,10 +54,11 @@ fun MyRatingsScreen(
 
     Scaffold(
         topBar = {
+            val activity = LocalActivity.current as ComponentActivity?
             TopAppBar(
                 title = { Text("Moje hodnocení") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Zpět")
                     }
                 }
@@ -149,7 +149,6 @@ private fun formatDate(timestamp: Long): String {
 fun MyRatingsScreenPreview() {
     DiveTheme {
         MyRatingsScreen(
-            navController = rememberNavController(),
             state = MyRatingsState()
         )
     }

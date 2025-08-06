@@ -1,5 +1,7 @@
 package me.vavra.dive.feed
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -30,8 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.MessageInput
@@ -39,7 +39,6 @@ import me.vavra.dive.common.ui.MessageInput
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CommentsScreen(
-    navController: NavController,
     post: FeedState.Post
 ) {
     val listState = rememberLazyListState()
@@ -51,10 +50,11 @@ fun CommentsScreen(
 
     Scaffold(
         topBar = {
+            val activity = LocalActivity.current as ComponentActivity?
             TopAppBar(
                 title = { Text("Komentáře") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Back")
                     }
                 }
@@ -111,11 +111,8 @@ fun CommentItem(comment: FeedState.Comment) {
 @Preview(showBackground = true)
 @Composable
 fun PostDetailScreenPreview() {
-    val navController = rememberNavController()
-
     DiveTheme {
         CommentsScreen(
-            navController = navController,
             post = FeedState().posts.first()
         )
     }

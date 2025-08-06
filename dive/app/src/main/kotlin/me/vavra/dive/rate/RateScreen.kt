@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import me.vavra.dive.NavDestination
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.StarRating
 
@@ -40,7 +41,7 @@ fun RateScreen(
                     if (swipeOffset > 150) {
                         navController.popBackStack()
                     } else if (swipeOffset < -150) {
-                        navController.navigate("rated/${state.ratedUser.id}")
+                        navController.navigate(NavDestination.Rated(state.ratedUser.id))
                     }
                 }
 

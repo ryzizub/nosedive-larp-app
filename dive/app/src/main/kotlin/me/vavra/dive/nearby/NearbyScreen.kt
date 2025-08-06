@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import me.vavra.dive.NavDestination
 import me.vavra.dive.User
 import me.vavra.dive.common.ui.UserRating
 
@@ -21,7 +22,7 @@ fun NearbyScreen(navController: NavController, modifier: Modifier = Modifier) {
         modifier,
         viewModel.state,
         onUserSelected = {
-            navController.navigate("rate/${it.id}")
+            navController.navigate(NavDestination.Rate(it.id))
         })
 }
 

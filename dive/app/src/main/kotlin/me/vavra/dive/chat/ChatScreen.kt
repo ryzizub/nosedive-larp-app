@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import me.vavra.dive.NavDestination
 import me.vavra.dive.User
 
 @Composable
@@ -33,7 +34,7 @@ fun ChatScreen(modifier: Modifier, navController: NavController, chatState: Chat
         modifier,
         chatState,
         onUserSelected = {
-            navController.navigate("conversation/${it.id}")
+            navController.navigate(NavDestination.Conversation(it.id))
         })
 }
 

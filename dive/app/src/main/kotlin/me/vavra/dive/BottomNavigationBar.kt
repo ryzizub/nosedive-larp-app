@@ -10,20 +10,22 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 
 enum class BottomNavItem(
     val label: String,
     val icon: ImageVector,
-    val route: String
+    val destination: NavDestination
 ) {
-    Nearby("Nearby", Icons.Default.Place, "nearby"),
-    Feed("Feed", Icons.AutoMirrored.Default.List, "feed"),
-    Chat("Chat", Icons.Default.ChatBubble, "chat")
+    Nearby("Nearby", Icons.Default.Place, NavDestination.Nearby),
+    Feed("Feed", Icons.AutoMirrored.Default.List, NavDestination.Feed),
+    Chat("Chat", Icons.Default.ChatBubble, NavDestination.Chat)
 }
 
 @Composable
 fun BottomNavigationBar(
-    selectedItemRoute: String?,
+    currentTab: BottomNavItem?,
     onTabSelected: (BottomNavItem) -> Unit
 ) {
     NavigationBar {
@@ -31,11 +33,15 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
-                selected = selectedItemRoute == item.route,
+                selected = item == currentTab,
                 onClick = {
                     onTabSelected(item)
                 }
             )
         }
     }
+}
+
+fun androidx.navigation.NavDestination.toBottomNavItem(): BottomNavItem {
+    return BottomNavItem.entries.first { entry -> this.hierarchy.any { it.hasRoute(entry.destination::class) } }
 }

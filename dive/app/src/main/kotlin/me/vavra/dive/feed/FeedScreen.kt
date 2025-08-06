@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import me.vavra.dive.NavDestination
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.StarRating
 import me.vavra.dive.common.ui.UserRating
@@ -42,7 +43,7 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController, state: Feed
     ) {
         items(state.posts) { post ->
             PostItem(post = post) {
-                navController.navigate("comments/${post.id}")
+                navController.navigate(NavDestination.Comments(post.id))
             }
         }
         item {

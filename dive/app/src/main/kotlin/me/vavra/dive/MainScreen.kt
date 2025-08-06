@@ -2,10 +2,6 @@
 
 package me.vavra.dive
 
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,11 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
+import com.stefanoq21.material3.navigation.ModalBottomSheetLayout
+import com.stefanoq21.material3.navigation.bottomSheet
+import com.stefanoq21.material3.navigation.rememberBottomSheetNavigator
 import me.vavra.dive.chat.ChatScreen
 import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
@@ -82,114 +80,68 @@ private fun LoadingScreen() {
 
 @Composable
 private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = "nearby",
-        enterTransition = {
-            slideIntoContainer(
-                towards = SlideDirection.Up,
-                animationSpec = tween(500)
-            )
-        },
-        exitTransition = {
-            slideOutOfContainer(
-                towards = SlideDirection.Up,
-                animationSpec = tween(500)
-            )
-        },
-        popEnterTransition = {
-            slideIntoContainer(
-                towards = SlideDirection.Down,
-                animationSpec = tween(500)
-            )
-        },
-        popExitTransition = {
-            slideOutOfContainer(
-                towards = SlideDirection.Down,
-                animationSpec = tween(500)
-            )
-        }
+    val bottomSheetNavigator = rememberBottomSheetNavigator(skipPartiallyExpanded = true)
+    val navController = rememberNavController(bottomSheetNavigator)
+    ModalBottomSheetLayout(
+        modifier = Modifier.fillMaxSize(),
+        bottomSheetNavigator = bottomSheetNavigator,
+        dragHandle = {}
     ) {
-        composable(
-            "nearby",
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
-            BottomNavigation(navController, user, onLoggedOut) {
-                NearbyScreen(navController, Modifier.padding(it))
+        NavHost(
+            navController = navController,
+            startDestination = NavDestination.Nearby,
+        ) {
+            composable<NavDestination.Nearby> {
+                BottomNavigation(navController, user, onLoggedOut) {
+                    NearbyScreen(navController, Modifier.padding(it))
+                }
             }
-        }
-        composable(
-            "feed",
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
-            BottomNavigation(navController, user, onLoggedOut, {
-                FeedScreen(Modifier.padding(it), navController, FeedState())
-            })
-        }
-        composable(
-            "chat",
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
-            BottomNavigation(navController, user, onLoggedOut, {
-                ChatScreen(Modifier.padding(it), navController, ChatState())
-            })
-        }
-        composable(
-            route = "conversation/{partnerId}",
-            arguments = listOf(navArgument("partnerId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val partnerId = backStackEntry.arguments?.getString("partnerId")
-            val conversation = ChatState().conversations.find { it.partner.id == partnerId }
-            ConversationScreen(
-                navController = navController,
-                conversation = checkNotNull(conversation)
-            )
-        }
-        composable(
-            route = "comments/{postId}",
-            arguments = listOf(navArgument("postId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val postId = backStackEntry.arguments?.getString("postId")
-            val post = FeedState().posts.find { it.id == postId }
-            CommentsScreen(
-                navController = navController,
-                post = checkNotNull(post)
-            )
-        }
-        composable(route = "ratings") {
-            MyRatingsScreen(navController, MyRatingsState())
-        }
-        composable(
-            route = "rate/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId")
-            val ratedUser = sampleUsers.find { it.id == userId }
-            if (ratedUser != null) {
-                RateScreen(
-                    navController = navController,
-                    RateState(user, ratedUser)
+            composable<NavDestination.Feed> {
+                BottomNavigation(navController, user, onLoggedOut, {
+                    FeedScreen(Modifier.padding(it), navController, FeedState())
+                })
+            }
+            composable<NavDestination.Chat> {
+                BottomNavigation(navController, user, onLoggedOut, {
+                    ChatScreen(Modifier.padding(it), navController, ChatState())
+                })
+            }
+            bottomSheet<NavDestination.Conversation> { backStackEntry ->
+                val partnerId = backStackEntry.toRoute<NavDestination.Conversation>().partnerId
+                val conversation = ChatState().conversations.find { it.partner.id == partnerId }
+                ConversationScreen(
+                    conversation = checkNotNull(conversation)
                 )
             }
-        }
-        composable(
-            route = "rated/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId")
-            val ratedUser = sampleUsers.find { it.id == userId }
-            if (ratedUser != null) {
-                RatedScreen(
-                    navController = navController,
-                    RateState(user, ratedUser)
+            bottomSheet<NavDestination.Comments> { backStackEntry ->
+                val postId = backStackEntry.toRoute<NavDestination.Comments>().postId
+                val post = FeedState().posts.find { it.id == postId }
+                CommentsScreen(
+                    post = checkNotNull(post)
                 )
+            }
+            bottomSheet<NavDestination.Ratings> {
+                MyRatingsScreen( MyRatingsState())
+            }
+            bottomSheet<NavDestination.Rate> { backStackEntry ->
+                val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
+                val ratedUser = sampleUsers.find { it.id == userId }
+                if (ratedUser != null) {
+                    RateScreen(
+                        navController = navController,
+                        RateState(user, ratedUser)
+                    )
+                }
+            }
+            bottomSheet<NavDestination.Rated> { backStackEntry ->
+                val userId = backStackEntry.toRoute<NavDestination.Rated>().userId
+                val ratedUser = sampleUsers.find { it.id == userId }
+                if (ratedUser != null) {
+                    RatedScreen(
+                        navController = navController,
+                        RateState(user, ratedUser)
+                    )
+                }
             }
         }
     }
@@ -202,11 +154,11 @@ private fun BottomNavigation(
     onLogout: () -> Unit,
     content: @Composable ((PaddingValues) -> Unit)
 ) {
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    val currentDestination = navController.currentBackStackEntry?.destination?.toBottomNavItem()
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(currentRoute) { item ->
-                navController.navigate(item.route) {
+            BottomNavigationBar(currentDestination) { item ->
+                navController.navigate(item.destination) {
                     popUpTo(navController.graph.startDestinationId) {
                         saveState = true
                     }
@@ -228,7 +180,7 @@ private fun BottomNavigation(
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
                 Text(
-                    text = " $currentRoute",
+                    text = " ${currentDestination?.label?.lowercase()}",
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
@@ -237,7 +189,7 @@ private fun BottomNavigation(
             }
         },
         floatingActionButton = {
-            if (currentRoute == "feed" || currentRoute == "chat") {
+            if (currentDestination == BottomNavItem.Feed || currentDestination == BottomNavItem.Chat) {
                 FloatingActionButton(onClick = { /* TODO: Navigate to create post screen */ }) {
                     Icon(Icons.Filled.Add, "Add post")
                 }
@@ -268,7 +220,7 @@ private fun UserMenu(navController: NavController, loggedInUser: User, onLoggedO
         ) {
             DropdownMenuItem(
                 text = { Text("Moje hodnocení") },
-                onClick = { navController.navigate("ratings") }
+                onClick = { navController.navigate(NavDestination.Ratings) }
             )
             DropdownMenuItem(
                 text = { Text("Odhlásit") },

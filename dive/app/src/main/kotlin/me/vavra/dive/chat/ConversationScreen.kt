@@ -1,5 +1,7 @@
 package me.vavra.dive.chat
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
@@ -47,7 +48,6 @@ import me.vavra.dive.common.ui.MessageInput
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ConversationScreen(
-    navController: NavController,
     conversation: ChatState.Conversation
 ) {
     val listState = rememberLazyListState()
@@ -60,11 +60,12 @@ fun ConversationScreen(
 
     Scaffold(
         topBar = {
+            val activity = LocalActivity.current as ComponentActivity?
             TopAppBar(
                 title = { Text(conversation.partner.name + " (" + conversation.partner.mainRating + ")") },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack()
+                        activity?.onBackPressedDispatcher?.onBackPressed()
                     }) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
@@ -160,7 +161,6 @@ fun MessageBubble(
 fun ConversationScreenPreview() {
     val conversation = ChatState().conversations[0]
     ConversationScreen(
-        navController = NavController(LocalContext.current),
         conversation = conversation
     )
 }
