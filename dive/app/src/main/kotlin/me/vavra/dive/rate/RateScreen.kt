@@ -52,13 +52,16 @@ fun RateScreen() {
     val viewModel = viewModel<RateViewModel>()
     RateScreenContent(viewModel.state, onSend = {
         viewModel.sendRating()
+    }, onRatingChanged = {
+        viewModel.changeStars(it)
     })
 }
 
 @Composable
 private fun RateScreenContent(
     state: RateState,
-    onSend: () -> Unit
+    onSend: () -> Unit = {},
+    onRatingChanged: (Int) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -77,73 +80,127 @@ private fun RateScreenContent(
                 .align(Alignment.Center)
                 .padding(horizontal = 20.dp)
         ) {
-            Text(
-                state.currentUser.nameVokativ + ",",
-                modifier = Modifier.align(CenterHorizontally),
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(
-                "zde můžeš ohodnotit",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.align(CenterHorizontally)
-            )
+            when (state.progress) {
+                RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
+                    Text(
+                        state.currentUser.nameVokativ + ",",
+                        modifier = Modifier.align(CenterHorizontally),
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Text(
+                        "zde můžeš ohodnotit",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                }
+
+                RateState.Progress.SUCCESS, RateState.Progress.FAIL -> {
+                    Text(
+                        "Hodnocení",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                    Text(
+                        state.ratedUser.nameGenitiv,
+                        modifier = Modifier.align(CenterHorizontally),
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(32.dp))
             Avatar(state.ratedUser, 200.dp, modifier = Modifier.align(CenterHorizontally))
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                state.ratedUser.nameAkuzativ,
-                modifier = Modifier.align(CenterHorizontally),
-                style = MaterialTheme.typography.displayMedium
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            StarRating(modifier = Modifier.align(CenterHorizontally))
-            Spacer(modifier = Modifier.height(32.dp))
+            when (state.progress) {
+                RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
+                    Text(
+                        state.ratedUser.nameAkuzativ,
+                        modifier = Modifier.align(CenterHorizontally),
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+
+                RateState.Progress.SUCCESS -> {
+                    Text(
+                        "odesláno",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                }
+
+                RateState.Progress.FAIL -> {
+                    Text(
+                        "se nepodařilo odeslat.",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Zkontrolujte připojení.",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                }
+            }
+
+            if (state.progress != RateState.Progress.FAIL) {
+                Spacer(modifier = Modifier.height(32.dp))
+                StarRating(modifier = Modifier.align(CenterHorizontally), interactive = state.progress == RateState.Progress.INITIAL, onRatingChanged = onRatingChanged)
+            }
 
             when (state.progress) {
                 RateState.Progress.SENDING -> {
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)) {
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.width(16.dp))
-                        Text("Odesílám hodnocení")
+                        Text("Odesílám")
                     }
                 }
 
                 RateState.Progress.INITIAL -> {
-                    ListItem(
-                        headlineContent = { Text("Odeslat", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        supportingContent = { Text("táhnutím nahoru", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
-                        leadingContent = { Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "Odeslat") },
-                        trailingContent = { Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "Odeslat") },
-                        modifier = Modifier
-                            .offset { IntOffset(0, listItemOffsetY.value.roundToInt()) }
-                            .draggable(
-                                orientation = Orientation.Vertical,
-                                state = rememberDraggableState { delta ->
-                                    scope.launch {
-                                        // Allow dragging upwards without a hard limit,
-                                        // but not below its original position (0f).
-                                        val newOffset = (listItemOffsetY.value + delta).coerceAtMost(0f)
-                                        listItemOffsetY.snapTo(newOffset)
-                                    }
-                                },
-                                onDragStopped = { velocity ->
-                                    scope.launch {
-                                        val currentOffset = listItemOffsetY.value
-                                        // If dragged beyond screen height based threshold, or with significant upward velocity
-                                        if (currentOffset < sendThresholdPx || velocity < -400f) { // -400f is an example velocity threshold
-                                            onSend()
-                                        } else {
-                                            // Snap back to original position if not dragged enough
-                                            listItemOffsetY.animateTo(0f, animationSpec = tween(300))
+                    Spacer(modifier = Modifier.height(32.dp))
+                    if (state.stars > 0) {
+                        ListItem(
+                            headlineContent = { Text("Odeslat", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                            supportingContent = { Text("táhnutím nahoru", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
+                            leadingContent = { Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "Odeslat") },
+                            trailingContent = { Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "Odeslat") },
+                            modifier = Modifier
+                                .offset { IntOffset(0, listItemOffsetY.value.roundToInt()) }
+                                .draggable(
+                                    orientation = Orientation.Vertical,
+                                    state = rememberDraggableState { delta ->
+                                        scope.launch {
+                                            // Allow dragging upwards without a hard limit,
+                                            // but not below its original position (0f).
+                                            val newOffset = (listItemOffsetY.value + delta).coerceAtMost(0f)
+                                            listItemOffsetY.snapTo(newOffset)
+                                        }
+                                    },
+                                    onDragStopped = { velocity ->
+                                        scope.launch {
+                                            val currentOffset = listItemOffsetY.value
+                                            // If dragged beyond screen height based threshold, or with significant upward velocity
+                                            if (currentOffset < sendThresholdPx || velocity < -400f) { // -400f is an example velocity threshold
+                                                onSend()
+                                            } else {
+                                                // Snap back to original position if not dragged enough
+                                                listItemOffsetY.animateTo(0f, animationSpec = tween(300))
+                                            }
                                         }
                                     }
-                                }
-                            )
-                            .border(
-                                BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
-                                shape = RoundedCornerShape(2.dp)
-                            )
-                    )
+                                )
+                                .border(
+                                    BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+                                    shape = RoundedCornerShape(2.dp)
+                                )
+                                .height(64.dp)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(64.dp))
+                    }
                 }
 
                 else -> { /* nothing */
@@ -155,13 +212,69 @@ private fun RateScreenContent(
 
 @Preview
 @Composable
-fun RateScreenPreview() {
+fun RateScreenInitialPreview() {
     DiveTheme {
         RateScreenContent(
             state = RateState(
                 currentUser = sampleUsers[0],
                 ratedUser = sampleUsers[1]
-            ), onSend = {}
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+fun RateScreenInitialStarsPreview() {
+    DiveTheme {
+        RateScreenContent(
+            state = RateState(
+                currentUser = sampleUsers[0],
+                ratedUser = sampleUsers[1],
+                stars = 3
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+fun RateScreenSendingPreview() {
+    DiveTheme {
+        RateScreenContent(
+            state = RateState(
+                currentUser = sampleUsers[0],
+                ratedUser = sampleUsers[1],
+                progress = RateState.Progress.SENDING
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+fun RateScreenSuccessPreview() {
+    DiveTheme {
+        RateScreenContent(
+            state = RateState(
+                currentUser = sampleUsers[0],
+                ratedUser = sampleUsers[1],
+                progress = RateState.Progress.SUCCESS
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+fun RateScreenFailPreview() {
+    DiveTheme {
+        RateScreenContent(
+            state = RateState(
+                currentUser = sampleUsers[0],
+                ratedUser = sampleUsers[1],
+                progress = RateState.Progress.FAIL
+            )
         )
     }
 }

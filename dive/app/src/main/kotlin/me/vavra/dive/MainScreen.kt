@@ -138,6 +138,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                 }
             }
         }
+
     }
 }
 

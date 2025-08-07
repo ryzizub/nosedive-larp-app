@@ -16,12 +16,16 @@ class RateViewModel: ViewModel() {
     fun sendRating() {
         state = state.copy(progress = RateState.Progress.SENDING)
         viewModelScope.launch {
-            delay(1000)
+            delay(2000)
             if (Math.random() > 0.5) {
                 state = state.copy(progress = RateState.Progress.SUCCESS)
             } else {
                 state = state.copy(progress = RateState.Progress.FAIL)
             }
         }
+    }
+
+    fun changeStars(stars: Int) {
+        state = state.copy(stars = stars)
     }
 }

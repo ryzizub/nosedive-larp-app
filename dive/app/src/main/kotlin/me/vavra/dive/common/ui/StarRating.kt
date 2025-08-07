@@ -12,15 +12,19 @@ import com.gowtham.ratingbar.RatingBarStyle
 import me.vavra.dive.common.theme.Rate
 
 @Composable
-fun StarRating(modifier: Modifier = Modifier) {
+fun StarRating(modifier: Modifier = Modifier, interactive: Boolean, onRatingChanged: (Int) -> Unit) {
     var stars: Float by remember { mutableFloatStateOf(0f) }
     RatingBar(
         value = stars,
         style = RatingBarStyle.Stroke(activeColor = Rate, width = 3f),
-        onValueChange = { stars = it },
+        onValueChange = {
+            if (interactive) {
+                stars = it
+            }
+        },
         size = 46.dp,
         spaceBetween = 6.dp,
-        onRatingChanged = { /*TODO*/ },
+        onRatingChanged = { onRatingChanged(it.toInt()) },
         modifier = modifier
     )
 }

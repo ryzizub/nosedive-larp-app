@@ -97,7 +97,7 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        StarRating(modifier = Modifier.align(CenterHorizontally))
+        StarRating(modifier = Modifier.align(CenterHorizontally), interactive = true, {})
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
