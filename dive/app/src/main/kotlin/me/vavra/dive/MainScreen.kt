@@ -48,12 +48,9 @@ import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
-import me.vavra.dive.feed.sampleUsers
 import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
 import me.vavra.dive.rate.RateScreen
-import me.vavra.dive.rate.RateState
-import me.vavra.dive.rate.RatedScreen
 import me.vavra.dive.ratings.MyRatingsScreen
 import me.vavra.dive.ratings.MyRatingsState
 
@@ -126,16 +123,6 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             bottomSheet<NavDestination.Rate> { backStackEntry ->
                 val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
                 RateScreen()
-            }
-            bottomSheet<NavDestination.Rated> { backStackEntry ->
-                val userId = backStackEntry.toRoute<NavDestination.Rated>().userId
-                val ratedUser = sampleUsers.find { it.id == userId }
-                if (ratedUser != null) {
-                    RatedScreen(
-                        navController = navController,
-                        RateState(user, ratedUser)
-                    )
-                }
             }
         }
 
