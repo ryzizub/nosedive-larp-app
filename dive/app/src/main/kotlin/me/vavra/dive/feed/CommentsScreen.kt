@@ -1,7 +1,5 @@
 package me.vavra.dive.feed
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -16,15 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -34,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.Avatar
+import me.vavra.dive.common.ui.BottomSheetTopBar
 import me.vavra.dive.common.ui.MessageInput
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -50,15 +44,7 @@ fun CommentsScreen(
 
     Scaffold(
         topBar = {
-            val activity = LocalActivity.current as ComponentActivity?
-            TopAppBar(
-                title = { Text("Komentáře") },
-                navigationIcon = {
-                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Back")
-                    }
-                }
-            )
+            BottomSheetTopBar("Komentáře")
         },
         bottomBar = {
             MessageInput("Napiš komentář")

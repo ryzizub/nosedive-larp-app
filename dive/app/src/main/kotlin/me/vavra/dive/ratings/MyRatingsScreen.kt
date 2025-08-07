@@ -1,7 +1,5 @@
 package me.vavra.dive.ratings // Changed package name
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,17 +13,14 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.theme.Rate
 import me.vavra.dive.common.ui.Avatar
+import me.vavra.dive.common.ui.BottomSheetTopBar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,15 +50,7 @@ fun MyRatingsScreen(
 
     Scaffold(
         topBar = {
-            val activity = LocalActivity.current as ComponentActivity?
-            TopAppBar(
-                title = { Text("Moje hodnocení") },
-                navigationIcon = {
-                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Zpět")
-                    }
-                }
-            )
+            BottomSheetTopBar("Moje hodnocení")
         }
     ) { paddingValues ->
         Column(modifier = Modifier

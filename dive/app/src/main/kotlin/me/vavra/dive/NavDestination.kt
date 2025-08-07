@@ -17,4 +17,6 @@ sealed class NavDestination {
     object Ratings : NavDestination()
     @Serializable
     data class Rate(val userId: String) : NavDestination()
+    @Serializable
+    object NewPost: NavDestination()
 }

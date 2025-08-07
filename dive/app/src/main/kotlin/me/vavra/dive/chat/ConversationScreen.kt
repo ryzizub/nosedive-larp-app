@@ -35,6 +35,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
+import me.vavra.dive.common.ui.BottomSheetTopBar
 import me.vavra.dive.common.ui.MessageInput
 
 
@@ -53,7 +54,7 @@ fun ConversationScreen(
 
     Scaffold(
         topBar = {
-
+            BottomSheetTopBar(conversation.partner.name + " (" + conversation.partner.mainRating + ")")
         },
         bottomBar = {
             MessageInput("Napiš zprávu")

@@ -48,6 +48,7 @@ import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
 import me.vavra.dive.feed.FeedState
+import me.vavra.dive.feed.NewPostScreen
 import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
 import me.vavra.dive.rate.RateScreen
@@ -124,6 +125,9 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                 val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
                 RateScreen()
             }
+            bottomSheet<NavDestination.NewPost> {
+                NewPostScreen()
+            }
         }
 
     }
@@ -172,8 +176,14 @@ private fun BottomNavigation(
         },
         floatingActionButton = {
             if (currentDestination == BottomNavItem.Feed || currentDestination == BottomNavItem.Chat) {
-                FloatingActionButton(onClick = { /* TODO: Navigate to create post screen */ }) {
-                    Icon(Icons.Filled.Add, "Add post")
+                FloatingActionButton(onClick = {
+                    if (currentDestination == BottomNavItem.Feed) {
+                        navController.navigate(NavDestination.NewPost)
+                    } else {
+                        // TODO: new conversation
+                    }
+                }) {
+                    Icon(Icons.Filled.Add, "Add")
                 }
             }
         }
