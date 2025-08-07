@@ -121,17 +121,11 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                 )
             }
             bottomSheet<NavDestination.Ratings> {
-                MyRatingsScreen( MyRatingsState())
+                MyRatingsScreen(MyRatingsState())
             }
             bottomSheet<NavDestination.Rate> { backStackEntry ->
                 val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
-                val ratedUser = sampleUsers.find { it.id == userId }
-                if (ratedUser != null) {
-                    RateScreen(
-                        navController = navController,
-                        RateState(user, ratedUser)
-                    )
-                }
+                RateScreen()
             }
             bottomSheet<NavDestination.Rated> { backStackEntry ->
                 val userId = backStackEntry.toRoute<NavDestination.Rated>().userId

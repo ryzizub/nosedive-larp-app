@@ -6,7 +6,12 @@ data class RateState(
     val currentUser: User,
     val ratedUser: User,
     val stars: Int = 0,
-    val sent: Boolean = false,
-    val success: Boolean = false,
-    val fail: Boolean = false
-)
+    val progress: Progress = Progress.INITIAL
+) {
+    enum class Progress {
+        INITIAL,
+        SENDING,
+        SUCCESS,
+        FAIL
+    }
+}
