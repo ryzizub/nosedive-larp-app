@@ -19,4 +19,6 @@ sealed class NavDestination {
     data class Rate(val userId: String) : NavDestination()
     @Serializable
     object NewPost: NavDestination()
+    @Serializable
+    object NewChat: NavDestination()
 }

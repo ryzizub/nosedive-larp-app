@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -57,6 +58,7 @@ fun NewPostScreenContent(
     onChangeImageUri: (Uri) -> Unit = {},
     onSend: () -> Unit = { }
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     when (state.progress) {
         NewPostState.Progress.INITIAL, NewPostState.Progress.SENDING -> {
 
@@ -101,7 +103,7 @@ fun NewPostScreenContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(1f)
-                                .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)),
                             contentScale = ContentScale.Crop
                         )
                     } else {
@@ -109,11 +111,14 @@ fun NewPostScreenContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(1f)
-                                .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Button(
-                                onClick = { imagePickerLauncher.launch("image/*") },
+                                onClick = {
+                                    imagePickerLauncher.launch("image/*")
+                                    keyboardController?.hide()
+                                },
                                 enabled = state.progress == NewPostState.Progress.INITIAL
                             ) {
                                 Text("Vybrat fotku")
@@ -130,6 +135,7 @@ fun NewPostScreenContent(
                 }
             }
         }
+
         NewPostState.Progress.SUCCESS, NewPostState.Progress.FAIL -> {
             val activity = LocalActivity.current as ComponentActivity?
             activity?.onBackPressedDispatcher?.onBackPressed()

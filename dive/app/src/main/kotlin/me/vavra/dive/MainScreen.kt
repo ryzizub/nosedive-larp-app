@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
@@ -43,6 +45,7 @@ import com.stefanoq21.material3.navigation.rememberBottomSheetNavigator
 import me.vavra.dive.chat.ChatScreen
 import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
+import me.vavra.dive.chat.NewChatScreen
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
@@ -83,6 +86,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
     ModalBottomSheetLayout(
         modifier = Modifier.fillMaxSize(),
         bottomSheetNavigator = bottomSheetNavigator,
+        sheetModifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
         dragHandle = {}
     ) {
         NavHost(
@@ -127,6 +131,9 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             }
             bottomSheet<NavDestination.NewPost> {
                 NewPostScreen()
+            }
+            bottomSheet<NavDestination.NewChat> {
+                NewChatScreen(navController)
             }
         }
 
@@ -180,7 +187,7 @@ private fun BottomNavigation(
                     if (currentDestination == BottomNavItem.Feed) {
                         navController.navigate(NavDestination.NewPost)
                     } else {
-                        // TODO: new conversation
+                        navController.navigate(NavDestination.NewChat)
                     }
                 }) {
                     Icon(Icons.Filled.Add, "Add")
@@ -212,7 +219,10 @@ private fun UserMenu(navController: NavController, loggedInUser: User, onLoggedO
         ) {
             DropdownMenuItem(
                 text = { Text("Moje hodnocení") },
-                onClick = { navController.navigate(NavDestination.Ratings) }
+                onClick = {
+                    navController.navigate(NavDestination.Ratings)
+                    expanded = false
+                }
             )
             DropdownMenuItem(
                 text = { Text("Odhlásit") },

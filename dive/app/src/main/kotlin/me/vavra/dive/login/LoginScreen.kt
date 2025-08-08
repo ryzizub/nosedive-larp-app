@@ -71,7 +71,6 @@ fun LoginScreen(
             ExposedDropdownMenuBox(
                 expanded = runDropdownExpanded,
                 onExpandedChange = { runDropdownExpanded = !runDropdownExpanded },
-                modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
                     value = selectedRun,
@@ -88,7 +87,6 @@ fun LoginScreen(
                 ExposedDropdownMenu(
                     expanded = runDropdownExpanded,
                     onDismissRequest = { runDropdownExpanded = false },
-                    modifier = Modifier.fillMaxWidth()
                 ) {
                     runOptions.forEach { runName ->
                         DropdownMenuItem(
