@@ -44,9 +44,11 @@ class MessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        val storage = Storage(application)
-        GlobalScope.launch {
-            Database.updateNotificationsToken(storage.getRunId(), token)
+        if (Auth.isSignedIn()) {
+            val storage = Storage(application)
+            GlobalScope.launch {
+                Database.updateNotificationsToken(storage.getRunId(), token)
+            }
         }
     }
 

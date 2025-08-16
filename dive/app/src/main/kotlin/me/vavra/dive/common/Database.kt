@@ -13,6 +13,7 @@ import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import me.vavra.dive.Run
 import me.vavra.dive.User
 import java.math.RoundingMode
@@ -68,35 +69,20 @@ object Database {
         )
     }
 
-    fun addRating(
-        app: Application,
+    suspend fun addRating(
         runId: String,
         from: String,
         to: String,
-        stars: Int,
-        onSuccess: () -> Unit,
-        onFail: () -> Unit
+        stars: Int
     ) {
-        if (isOnline(app)) {
-            reference.child("ratings/$runId").push().updateChildren(
-                hashMapOf(
-                    "from" to from,
-                    "to" to to,
-                    "stars" to stars,
-                    "createdAt" to ServerValue.TIMESTAMP
-                )
-            ).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    onSuccess()
-                } else {
-                    Log.e("Dive", "Failed to send rating", it.exception)
-                    onFail()
-                }
-            }
-        } else {
-            Log.w("Dive", "offline")
-            onFail()
-        }
+        reference.child("ratings/$runId").push().updateChildren(
+            hashMapOf(
+                "from" to from,
+                "to" to to,
+                "stars" to stars,
+                "createdAt" to ServerValue.TIMESTAMP
+            )
+        ).await()
     }
 
     fun updateNotificationsToken(runId: String, token: String) {
@@ -121,7 +107,7 @@ object Database {
         return formatted.substring(3, 5)
     }
 
-    private fun isOnline(app: Application): Boolean {
+    fun isOnline(app: Application): Boolean {
         val connectivityManager = app.getSystemService(ConnectivityManager::class.java)
         val currentNetwork = connectivityManager.activeNetwork
         val caps = connectivityManager.getNetworkCapabilities(currentNetwork)

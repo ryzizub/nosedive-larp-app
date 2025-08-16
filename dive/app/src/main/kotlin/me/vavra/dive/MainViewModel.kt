@@ -16,7 +16,7 @@ import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Storage
 
-class MainViewModel(private val app: Application): AndroidViewModel(app) {
+class MainViewModel(private val app: Application) : AndroidViewModel(app) {
 
     var state: MainState by mutableStateOf(MainState.Loading)
         private set
@@ -41,13 +41,15 @@ class MainViewModel(private val app: Application): AndroidViewModel(app) {
         return this.copy(name = this.name.split(" ")[0])
     }
 
-    fun login(runId: String, password: String) {
+    fun login(runId: String, password: String, onSuccess: () -> Unit) {
         val loggedOutState = state
         state = MainState.Loading
         viewModelScope.launch {
             storage.saveRunId(runId)
             val success = Auth.login(runId, password)
-            if (!success) {
+            if (success) {
+                onSuccess()
+            } else {
                 state = loggedOutState
             }
         }

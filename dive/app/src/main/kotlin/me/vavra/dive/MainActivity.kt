@@ -22,12 +22,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MainScreen(viewModel.state, onLogin = { runId, password ->
-                viewModel.login(runId, password)
+                viewModel.login(runId, password, onSuccess = {
+                    askNotificationPermission()
+                })
             }, onLogout = {
                 viewModel.logOut()
             })
         }
-        askNotificationPermission()
     }
 
     private val requestPermissionLauncher = registerForActivityResult(

@@ -30,9 +30,13 @@ object Auth {
         return Firebase.auth.uid ?: throw IllegalStateException("User not logged in")
     }
 
+    fun isSignedIn(): Boolean {
+        return Firebase.auth.currentUser != null
+    }
+
     suspend fun login(runId: String, password: String): Boolean {
-        withContext(Dispatchers.IO) {
-            try {
+        return withContext(Dispatchers.IO) {
+            return@withContext try {
                 val url =
                     URL("https://europe-west1-nosedive-larp.cloudfunctions.net/login?password=$password&run=$runId")
                 val connection = url.openConnection() as HttpURLConnection
@@ -49,14 +53,18 @@ object Auth {
                     if (!invalidPassword) {
                         Firebase.auth.signInWithCustomToken(token).await()
                         updateNotificationsToken(runId)
-                        return@withContext true
+                        true
+                    } else {
+                         false
                     }
+                } else {
+                    false
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()
+                false
             }
         }
-        return false
     }
 
     private suspend fun updateNotificationsToken(runId: String) {
