@@ -1,5 +1,7 @@
+//
 // Runs
-parh /runs {
+//
+path /runs {
     read() { true }
     write() { isAuditor() }
 }
