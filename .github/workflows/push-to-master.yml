@@ -32,7 +32,7 @@ jobs:
             cd admin
             sed -i "s/bot_token_from_ci/$SLACK_BOT_TOKEN/" src/environments/environment.ts
             npm install
-            sudo npm install -g @angular/cli
+            sudo npm install -g @angular/cli@^7
             firebase experiments:enable webframeworks
             ng deploy
         env: 

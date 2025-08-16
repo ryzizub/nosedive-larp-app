@@ -27,8 +27,8 @@ object Database {
     private val ratingFormat =
         DecimalFormat("0.000").apply { this.roundingMode = RoundingMode.HALF_UP }
 
-    fun observeNearbyUsers(): Flow<List<User>> {
-        val query = reference.child("nearbyUsers")
+    fun observeNearbyUsers(runId: String): Flow<List<User>> {
+        val query = reference.child("users/$runId")
         return query.snapshots.map { list ->
             list.children.map { snapshot ->
                 snapshot.toUser()
@@ -36,8 +36,8 @@ object Database {
         }
     }
 
-    fun observeUser(userId: String): Flow<User> {
-        return reference.child("nearbyUsers").child(userId).snapshots.map {
+    fun observeUser(runId: String, userId: String): Flow<User> {
+        return reference.child("users/$runId").child(userId).snapshots.map {
             it.toUser()
         }
     }
@@ -64,12 +64,13 @@ object Database {
             totalRating = totalRating,
             mainRating = totalRating.formatToOnceDecimal(),
             detailedRating = totalRating.extractThirdAndFourthDecimal(),
-            isVisible = checkNotNull(child("isVisible").getValue<Boolean>())
+            isNearby = checkNotNull(child("isNearby").getValue<Boolean>())
         )
     }
 
     fun addRating(
         app: Application,
+        runId: String,
         from: String,
         to: String,
         stars: Int,
@@ -77,7 +78,7 @@ object Database {
         onFail: () -> Unit
     ) {
         if (isOnline(app)) {
-            reference.child("ratings").push().updateChildren(
+            reference.child("ratings/$runId").push().updateChildren(
                 hashMapOf(
                     "from" to from,
                     "to" to to,
@@ -98,11 +99,11 @@ object Database {
         }
     }
 
-    fun updateNotificationsToken(token: String) {
+    fun updateNotificationsToken(runId: String, token: String) {
         val uid = Firebase.auth.uid
         if (uid != null) {
             Log.d("FCM token", token)
-            reference.child("userSecrets").child(uid).updateChildren(
+            reference.child("userSecrets/$runId").child(uid).updateChildren(
                 hashMapOf(
                     "notificationsToken" to token
                 ) as Map<String, Any>

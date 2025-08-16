@@ -61,7 +61,7 @@ import me.vavra.dive.ratings.MyRatingsState
 
 
 @Composable
-fun MainScreen(state: MainState, onLogin: (String) -> Unit, onLogout: () -> Unit) {
+fun MainScreen(state: MainState, onLogin: (String, String) -> Unit, onLogout: () -> Unit) {
     DiveTheme {
         when (state) {
             MainState.Loading -> LoadingScreen()

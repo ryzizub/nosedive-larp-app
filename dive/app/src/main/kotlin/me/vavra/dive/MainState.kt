@@ -2,8 +2,12 @@ package me.vavra.dive
 
 sealed class MainState {
     object Loading : MainState()
-    data class LoggedIn(val user: User = User("", "", "", "", "", "", 0.0, "", "", false)): MainState()
-    data class LoggedOut(val runs: List<Run>): MainState()
+    data class LoggedIn(
+        val user: User,
+        val runId: String
+    ) : MainState()
+
+    data class LoggedOut(val runs: List<Run>) : MainState()
 }
 
 data class User(
@@ -16,7 +20,7 @@ data class User(
     val totalRating: Double,
     val mainRating: String,
     val detailedRating: String,
-    val isVisible: Boolean
+    val isNearby: Boolean
 )
 
 data class Run(

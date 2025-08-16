@@ -21,8 +21,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MainScreen(viewModel.state, onLogin = {
-                viewModel.login(it)
+            MainScreen(viewModel.state, onLogin = { runId, password ->
+                viewModel.login(runId, password)
             }, onLogout = {
                 viewModel.logOut()
             })

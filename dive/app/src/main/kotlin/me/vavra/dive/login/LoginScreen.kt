@@ -40,7 +40,7 @@ import me.vavra.dive.common.theme.DiveTheme
 @Composable
 fun LoginScreen(
     state: MainState.LoggedOut,
-    onLogin: (String) -> Unit,
+    onLogin: (String, String) -> Unit,
 ) {
     var selectedRun by remember { mutableStateOf(state.runs.first()) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -114,7 +114,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
-                onClick = { onLogin(password.text) },
+                onClick = { onLogin(selectedRun.id, password.text) },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(text = "Přihlásit se")
@@ -127,6 +127,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     DiveTheme {
-        LoginScreen(MainState.LoggedOut(listOf(Run("6", "6. běh"))), onLogin = {})
+        LoginScreen(MainState.LoggedOut(listOf(Run("6", "6. běh"))), onLogin = { _, _ -> })
     }
 }

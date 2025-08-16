@@ -15,6 +15,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.vavra.dive.MainActivity
 import me.vavra.dive.R
 import kotlin.random.Random
@@ -42,7 +44,10 @@ class MessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Database.updateNotificationsToken(token)
+        val storage = Storage(application)
+        GlobalScope.launch {
+            Database.updateNotificationsToken(storage.getRunId(), token)
+        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

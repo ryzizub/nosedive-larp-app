@@ -68,7 +68,7 @@ fun UserRatingPreview() {
         totalRating = 4.5,
         mainRating = "4.5",
         detailedRating = "25",
-        isVisible = true
+        isNearby = true
     )
     UserRating(user)
 }
