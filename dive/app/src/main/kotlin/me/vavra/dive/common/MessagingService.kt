@@ -15,7 +15,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import me.vavra.dive.Database
 import me.vavra.dive.MainActivity
 import me.vavra.dive.R
 import kotlin.random.Random

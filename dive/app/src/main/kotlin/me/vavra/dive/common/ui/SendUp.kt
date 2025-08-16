@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -111,7 +110,7 @@ fun SendUp(modifier: Modifier = Modifier, canSend: Boolean, sending: Boolean, on
                 .fillMaxWidth()
                 .height(64.dp)
         ) {
-            CircularProgressIndicator()
+            InlinedLoadingIndicator()
             Spacer(modifier = Modifier.width(16.dp))
             Text("Odesílám")
         }

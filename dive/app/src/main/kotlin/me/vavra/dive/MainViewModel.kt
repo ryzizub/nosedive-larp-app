@@ -9,10 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Auth
+import me.vavra.dive.common.Database
 
 class MainViewModel: ViewModel() {
 
@@ -23,7 +23,7 @@ class MainViewModel: ViewModel() {
         viewModelScope.launch {
             Auth.observeUserId().flatMapLatest { userId ->
                 if (userId == null) {
-                    flowOf( MainState.LoggedOut)
+                    Database.observeRuns().map { MainState.LoggedOut(it) }
                 } else {
                     Database.observeUser(userId).map { MainState.LoggedIn(it.shortenName()) }
                 }
@@ -38,11 +38,12 @@ class MainViewModel: ViewModel() {
     }
 
     fun login(password: String) {
+        val loggedOutState = state
         state = MainState.Loading
         viewModelScope.launch {
             val success = Auth.login(password)
             if (!success) {
-                state = MainState.LoggedOut
+                state = loggedOutState
             }
         }
     }

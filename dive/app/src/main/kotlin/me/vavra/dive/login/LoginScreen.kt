@@ -32,15 +32,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import me.vavra.dive.MainState
+import me.vavra.dive.Run
 import me.vavra.dive.common.theme.DiveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    state: MainState.LoggedOut,
     onLogin: (String) -> Unit,
 ) {
-    val runOptions = listOf("6. běh (6.4.2025)", "7. běh (10.10.2025)", "8. běh (11.10.2025)")
-    var selectedRun by remember { mutableStateOf(runOptions[0]) }
+    var selectedRun by remember { mutableStateOf(state.runs.first()) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var runDropdownExpanded by remember { mutableStateOf(false) }
 
@@ -73,7 +75,7 @@ fun LoginScreen(
                 onExpandedChange = { runDropdownExpanded = !runDropdownExpanded },
             ) {
                 OutlinedTextField(
-                    value = selectedRun,
+                    value = selectedRun.name,
                     onValueChange = { /* Read-only, value selected from dropdown */ },
                     label = { Text("Vyberte běh") },
                     readOnly = true,
@@ -88,11 +90,11 @@ fun LoginScreen(
                     expanded = runDropdownExpanded,
                     onDismissRequest = { runDropdownExpanded = false },
                 ) {
-                    runOptions.forEach { runName ->
+                    state.runs.forEach { run ->
                         DropdownMenuItem(
-                            text = { Text(runName) },
+                            text = { Text(run.name) },
                             onClick = {
-                                selectedRun = runName
+                                selectedRun = run
                                 runDropdownExpanded = false
                             }
                         )
@@ -125,6 +127,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     DiveTheme {
-        LoginScreen(onLogin = {})
+        LoginScreen(MainState.LoggedOut(listOf(Run("6", "6. běh"))), onLogin = {})
     }
 }

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import me.vavra.dive.Database
+import me.vavra.dive.common.Database
 import me.vavra.dive.common.Auth
 
 class NewChatViewModel() : ViewModel() {

@@ -1,4 +1,4 @@
-package me.vavra.dive
+package me.vavra.dive.common
 
 import android.app.Application
 import android.net.ConnectivityManager
@@ -13,6 +13,8 @@ import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.vavra.dive.Run
+import me.vavra.dive.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -37,6 +39,14 @@ object Database {
     fun observeUser(userId: String): Flow<User> {
         return reference.child("nearbyUsers").child(userId).snapshots.map {
             it.toUser()
+        }
+    }
+
+    fun observeRuns(): Flow<List<Run>> {
+        return reference.child("runs").snapshots.map { list ->
+            list.children.map { snapshot ->
+                Run(checkNotNull(snapshot.key), checkNotNull(snapshot.child("name").getValue<String>()))
+            }
         }
     }
 

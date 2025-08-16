@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +47,7 @@ import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
 import me.vavra.dive.chat.NewChatScreen
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
@@ -65,18 +66,15 @@ fun MainScreen(state: MainState, onLogin: (String) -> Unit, onLogout: () -> Unit
         when (state) {
             MainState.Loading -> LoadingScreen()
             is MainState.LoggedIn -> LoggedInScreen(state.user, onLogout)
-            MainState.LoggedOut -> LoginScreen(onLogin)
+            is MainState.LoggedOut -> LoginScreen(state, onLogin)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-    }
+    CenteredLoadingIndicator()
 }
 
 @Composable

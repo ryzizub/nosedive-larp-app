@@ -2,7 +2,6 @@ package me.vavra.dive.feed
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -14,11 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +29,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import me.vavra.dive.NavDestination
 import me.vavra.dive.common.theme.DiveTheme
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.StarRating
 import me.vavra.dive.common.ui.UserRating
 
@@ -127,9 +125,7 @@ fun ColumnScope.Post(post: FeedState.Post) {
     ) {
         val painterState = painter.state
         if (painterState is AsyncImagePainter.State.Loading || painterState is AsyncImagePainter.State.Error) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            CenteredLoadingIndicator()
         } else {
             SubcomposeAsyncImageContent()
         }

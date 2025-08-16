@@ -1,8 +1,14 @@
+// Runs
+parh /runs {
+    read() { true }
+    write() { isAuditor() }
+}
+
 //
 // Nearby users
 //
 
-path /nearbyUsers {
+path /users/{run_id} {
     read() { true }
     write() { isAuditor()}
     path /{user_id} {
@@ -14,7 +20,7 @@ path /nearbyUsers {
 // User secrets
 //
 
-path /userSecrets {
+path /userSecrets/{run_id} {
     path /{user_id} is Secret {
       index() {["password"]}
       read() { isCurrentUser(user_id) }
@@ -39,7 +45,7 @@ type Token extends String {
 // Ratings
 //
 
-path /ratings {
+path /ratings/{run_id} {
 
   write() { isAuditor() }
 
@@ -64,16 +70,7 @@ type Rating {
 // Reports
 //
 
-path /reports {
-  read() { isAuditor() }
-  write() { isAuditor() }
-}
-
-// 
-// Config
-//
-
-path /config {
+path /reports/{run_id} {
   read() { isAuditor() }
   write() { isAuditor() }
 }
