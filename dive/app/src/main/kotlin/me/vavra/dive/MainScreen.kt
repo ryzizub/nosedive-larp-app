@@ -57,7 +57,6 @@ import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
 import me.vavra.dive.rate.RateScreen
 import me.vavra.dive.ratings.MyRatingsScreen
-import me.vavra.dive.ratings.MyRatingsState
 
 
 @Composable
@@ -120,8 +119,8 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
                     post = checkNotNull(post)
                 )
             }
-            bottomSheet<NavDestination.Ratings> {
-                MyRatingsScreen(MyRatingsState())
+            bottomSheet<NavDestination.MyRatings> {
+                MyRatingsScreen()
             }
             bottomSheet<NavDestination.Rate> { backStackEntry ->
                 val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
@@ -218,7 +217,7 @@ private fun UserMenu(navController: NavController, loggedInUser: User, onLoggedO
             DropdownMenuItem(
                 text = { Text("Moje hodnocení") },
                 onClick = {
-                    navController.navigate(NavDestination.Ratings)
+                    navController.navigate(NavDestination.MyRatings)
                     expanded = false
                 }
             )

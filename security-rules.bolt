@@ -48,13 +48,14 @@ type Token extends String {
 //
 
 path /ratings/{run_id} {
+  
+  index() {["from", "to"]}
+    
+  read() { query.orderByChild == "to" && query.equalTo == auth.uid || query.orderByChild == "from" && query.equalTo == auth.uid }
 
   write() { isAuditor() }
 
   path /{rating_id} is Rating {
-    index() {["from", "to"]}
-    
-    read() { query.orderByChild == "to" && query.equalTo == auth.uid || query.orderByChild == "from" && query.equalTo == auth.uid }
 
     write() { isInsert(this) && this.from == auth.uid }
   }

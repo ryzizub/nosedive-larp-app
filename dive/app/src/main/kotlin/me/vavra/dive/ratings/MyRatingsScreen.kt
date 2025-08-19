@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -29,9 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import me.vavra.dive.common.theme.DiveTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.vavra.dive.common.theme.Rate
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.BottomSheetTopBar
@@ -42,10 +42,14 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyRatingsScreen(
-    state: MyRatingsState
-) {
+fun MyRatingsScreen() {
+    val viewModel = viewModel<MyRatingsViewModel>()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    LaunchedEffect(selectedTabIndex) {
+        if (selectedTabIndex == 1) {
+            viewModel.loadRatingsByMe()
+        }
+    }
     val tabs = listOf("Obdržená hodnocení", "Odeslaná hodnocení")
 
     Scaffold(
@@ -69,8 +73,8 @@ fun MyRatingsScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
             when (selectedTabIndex) {
-                0 -> RatingsList(ratings = state.ratingsOfMe)
-                1 -> RatingsList(ratings = state.ratingsByMe)
+                0 -> RatingsList(ratings = viewModel.state.ratingsOfMe)
+                1 -> RatingsList(ratings = viewModel.state.ratingsByMe)
             }
         }
     }
@@ -130,15 +134,5 @@ private fun formatDate(timestamp: Long): String {
     val date = Date(timestamp)
     val format = SimpleDateFormat("d.M. HH:mm", Locale.getDefault())
     return format.format(date)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MyRatingsScreenPreview() {
-    DiveTheme {
-        MyRatingsScreen(
-            state = MyRatingsState()
-        )
-    }
 }
 

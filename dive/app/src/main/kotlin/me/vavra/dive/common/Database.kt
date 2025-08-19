@@ -85,6 +85,18 @@ object Database {
         ).await()
     }
 
+    fun observeRatingsFrom(runId: String, userId: String): Flow<List<Rating>> {
+        return reference.child("ratings/$runId").orderByChild("from").equalTo(userId).snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.getValue<Rating>()
+            }
+        }
+    }
+
+    fun observeRatingsTo(runId: String, userId: String) {
+
+    }
+
     fun updateNotificationsToken(runId: String, token: String) {
         val uid = Firebase.auth.uid
         if (uid != null) {
@@ -113,4 +125,11 @@ object Database {
         val caps = connectivityManager.getNetworkCapabilities(currentNetwork)
         return caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) ?: false
     }
+
+    class Rating(
+        val from: String,
+        val to: String,
+        val stars: Int,
+        val createdAt: Long
+    )
 }

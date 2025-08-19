@@ -11,10 +11,10 @@ export let login = functions.region('europe-west1').https.onRequest(async (reque
     await doLogin(request.query["run"] as string, request.query["password"] as string, response)
 })
 
-export let processRating = functions.region('europe-west1').database.ref("ratings/{ratingId}").onCreate(async (snap, context) => {
-    await doProcessRating(snap)
+export let processRating = functions.region('europe-west1').database.ref("ratings/{runId}/{ratingId}").onCreate(async (snap, context) => {
+    await doProcessRating(snap, context.params.runId)
 })
 
-export let processReport = functions.region('europe-west1').database.ref("reports/{reportId}").onCreate(async (snap, context) => {
-    await doProcessReport(snap)
+export let processReport = functions.region('europe-west1').database.ref("reports/{runId}/{reportId}").onCreate(async (snap, context) => {
+    await doProcessReport(snap, context.params.runId)
 })
