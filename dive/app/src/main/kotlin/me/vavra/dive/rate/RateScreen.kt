@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -18,13 +19,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.Avatar
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.SendUp
 import me.vavra.dive.common.ui.StarRating
 import me.vavra.dive.feed.sampleUsers
 
 @Composable
-fun RateScreen() {
+fun RateScreen(userId: String) {
     val viewModel = viewModel<RateViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.load(userId)
+    }
     RateScreenContent(viewModel.state, onSend = {
         viewModel.sendRating()
     }, onRatingChanged = {
@@ -42,89 +47,93 @@ private fun RateScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 20.dp)
-        ) {
-            when (state.progress) {
-                RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
-                    Text(
-                        state.currentUser.nameVokativ + ",",
-                        modifier = Modifier.align(CenterHorizontally),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                    Text(
-                        "zde můžeš ohodnotit",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(CenterHorizontally)
-                    )
-                }
+        if (state.currentUser == null || state.ratedUser == null) {
+            CenteredLoadingIndicator()
+        } else {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 20.dp)
+            ) {
+                when (state.progress) {
+                    RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
+                        Text(
+                            state.currentUser.nameVokativ + ",",
+                            modifier = Modifier.align(CenterHorizontally),
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Text(
+                            "zde můžeš ohodnotit",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.align(CenterHorizontally)
+                        )
+                    }
 
-                RateState.Progress.SUCCESS, RateState.Progress.FAIL -> {
-                    Text(
-                        "Hodnocení",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(CenterHorizontally)
-                    )
-                    Text(
-                        state.ratedUser.nameGenitiv,
-                        modifier = Modifier.align(CenterHorizontally),
-                        style = MaterialTheme.typography.displayMedium
-                    )
+                    RateState.Progress.SUCCESS, RateState.Progress.FAIL -> {
+                        Text(
+                            "Hodnocení",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.align(CenterHorizontally)
+                        )
+                        Text(
+                            state.ratedUser.nameGenitiv,
+                            modifier = Modifier.align(CenterHorizontally),
+                            style = MaterialTheme.typography.displayMedium
+                        )
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            Avatar(state.ratedUser, 200.dp, modifier = Modifier.align(CenterHorizontally))
-            Spacer(modifier = Modifier.height(16.dp))
-            when (state.progress) {
-                RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
-                    Text(
-                        state.ratedUser.nameAkuzativ,
-                        modifier = Modifier.align(CenterHorizontally),
-                        style = MaterialTheme.typography.displayMedium
-                    )
-                }
-
-                RateState.Progress.SUCCESS -> {
-                    Text(
-                        "odesláno",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(CenterHorizontally)
-                    )
-                }
-
-                RateState.Progress.FAIL -> {
-                    Text(
-                        "se nepodařilo odeslat.",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "Zkontrolujte připojení.",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.align(CenterHorizontally)
-                    )
-                }
-            }
-
-            if (state.progress != RateState.Progress.FAIL) {
                 Spacer(modifier = Modifier.height(32.dp))
-                StarRating(
-                    modifier = Modifier.align(CenterHorizontally),
-                    interactive = state.progress == RateState.Progress.INITIAL,
-                    onRatingChanged = onRatingChanged
+                Avatar(state.ratedUser, 200.dp, modifier = Modifier.align(CenterHorizontally))
+                Spacer(modifier = Modifier.height(16.dp))
+                when (state.progress) {
+                    RateState.Progress.INITIAL, RateState.Progress.SENDING -> {
+                        Text(
+                            state.ratedUser.nameAkuzativ,
+                            modifier = Modifier.align(CenterHorizontally),
+                            style = MaterialTheme.typography.displayMedium
+                        )
+                    }
+
+                    RateState.Progress.SUCCESS -> {
+                        Text(
+                            "odesláno",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.align(CenterHorizontally)
+                        )
+                    }
+
+                    RateState.Progress.FAIL -> {
+                        Text(
+                            "se nepodařilo odeslat.",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.align(CenterHorizontally)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Zkontrolujte připojení.",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.align(CenterHorizontally)
+                        )
+                    }
+                }
+
+                if (state.progress != RateState.Progress.FAIL) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    StarRating(
+                        modifier = Modifier.align(CenterHorizontally),
+                        interactive = state.progress == RateState.Progress.INITIAL,
+                        onRatingChanged = onRatingChanged
+                    )
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                SendUp(
+                    canSend = state.progress == RateState.Progress.INITIAL && state.stars > 0,
+                    sending = state.progress == RateState.Progress.SENDING,
+                    onSend = onSend
                 )
             }
-            Spacer(modifier = Modifier.height(32.dp))
-            SendUp(
-                canSend = state.progress == RateState.Progress.INITIAL && state.stars > 0,
-                sending = state.progress == RateState.Progress.SENDING,
-                onSend = onSend
-            )
         }
     }
 }

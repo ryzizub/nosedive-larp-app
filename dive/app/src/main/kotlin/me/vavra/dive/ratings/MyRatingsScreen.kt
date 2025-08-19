@@ -56,7 +56,7 @@ fun MyRatingsScreen(
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)) {
-            PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
+            PrimaryTabRow(selectedTabIndex = selectedTabIndex, containerColor = MaterialTheme.colorScheme.background) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTabIndex == index,

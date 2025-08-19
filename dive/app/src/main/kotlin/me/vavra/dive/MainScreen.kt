@@ -125,7 +125,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             }
             bottomSheet<NavDestination.Rate> { backStackEntry ->
                 val userId = backStackEntry.toRoute<NavDestination.Rate>().userId
-                RateScreen()
+                RateScreen(userId)
             }
             bottomSheet<NavDestination.NewPost> {
                 NewPostScreen()

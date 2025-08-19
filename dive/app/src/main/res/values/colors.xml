@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#DFABA9</color>
+    <color name="nosedive1">#dfaba9</color>
+    <color name="nosedive2">#dcafb3</color>
 </resources>
