@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -46,6 +45,9 @@ fun MyRatingsScreen() {
     val viewModel = viewModel<MyRatingsViewModel>()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     LaunchedEffect(selectedTabIndex) {
+        if (selectedTabIndex == 0) {
+            viewModel.loadRatingsOfMe()
+        }
         if (selectedTabIndex == 1) {
             viewModel.loadRatingsByMe()
         }
@@ -82,17 +84,6 @@ fun MyRatingsScreen() {
 
 @Composable
 fun RatingsList(ratings: List<MyRatingsState.Rating>) {
-    if (ratings.isEmpty()) {
-        Text(
-            text = "Zatím žádná hodnocení.",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .wrapContentSize(Alignment.Center)
-        )
-        return
-    }
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(ratings) { rating ->
             RatingListItem(rating = rating)

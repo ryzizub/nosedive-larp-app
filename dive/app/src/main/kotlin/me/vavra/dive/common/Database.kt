@@ -86,15 +86,19 @@ object Database {
     }
 
     fun observeRatingsFrom(runId: String, userId: String): Flow<List<Rating>> {
-        return reference.child("ratings/$runId").orderByChild("from").equalTo(userId).snapshots.map {
+        return loadRatings(runId, userId, "from")
+    }
+
+    fun observeRatingsTo(runId: String, userId: String): Flow<List<Rating>> {
+        return loadRatings(runId, userId, "to")
+    }
+
+    private fun loadRatings(runId: String, userId: String, orderByChild: String): Flow<List<Rating>> {
+        return reference.child("ratings/$runId").orderByChild(orderByChild).equalTo(userId).snapshots.map {
             it.children.mapNotNull { snap ->
                 snap.getValue<Rating>()
             }
         }
-    }
-
-    fun observeRatingsTo(runId: String, userId: String) {
-
     }
 
     fun updateNotificationsToken(runId: String, token: String) {
@@ -127,9 +131,9 @@ object Database {
     }
 
     class Rating(
-        val from: String,
-        val to: String,
-        val stars: Int,
-        val createdAt: Long
+        val from: String = "",
+        val to: String = "",
+        val stars: Int = 0,
+        val createdAt: Long = 0
     )
 }

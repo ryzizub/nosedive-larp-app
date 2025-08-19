@@ -16,28 +16,47 @@ import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Storage
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MyRatingsViewModel(private val app: Application) : AndroidViewModel(app) {
     var state: MyRatingsState by mutableStateOf(MyRatingsState())
         private set
     val storage = Storage(app)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
+    fun loadRatingsOfMe() {
+        loadRatings(ofMe = true) {
+            state = state.copy(ratingsOfMe = it)
+        }
+    }
+
     fun loadRatingsByMe() {
+        loadRatings(ofMe = false) {
+            state = state.copy(ratingsByMe = it)
+        }
+    }
+
+    private fun loadRatings(ofMe: Boolean, onLoaded: (List<MyRatingsState.Rating>)->Unit) {
         viewModelScope.launch {
             val runId = storage.getRunId()
-            Database.observeRatingsFrom(runId, Auth.getUserId()).flatMapLatest { ratings ->
+            val query = if (ofMe) {
+                Database.observeRatingsTo(runId, Auth.getUserId())
+            } else {
+                Database.observeRatingsFrom(runId, Auth.getUserId())
+            }
+            query.flatMapLatest { ratings ->
                 if (ratings.isEmpty()) {
                     return@flatMapLatest flowOf(listOf())
                 }
                 combine(ratings.map { rating ->
-                    Database.observeUser(runId, rating.to).map { user ->
+                    val userId = if (ofMe) rating.from else rating.to
+                    Database.observeUser(runId, userId).map { user ->
                         MyRatingsState.Rating(user, rating.stars, rating.createdAt)
                     }
                 }) {
-                    it.toList()
+                    it.reversed().toList()
                 }
             }.collect {
-                state = state.copy(ratingsByMe = it)
+                onLoaded(it)
             }
         }
     }
