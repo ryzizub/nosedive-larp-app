@@ -8,6 +8,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import me.vavra.dive.R
+import me.vavra.dive.common.Audio
 import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Storage
@@ -16,6 +18,7 @@ class RateViewModel(private val app: Application): AndroidViewModel(app) {
     var state: RateState by mutableStateOf(RateState())
         private set
     val storage = Storage(app)
+    val audio = Audio(app)
 
     fun load(userId: String) {
         viewModelScope.launch {
@@ -35,14 +38,17 @@ class RateViewModel(private val app: Application): AndroidViewModel(app) {
             viewModelScope.launch {
                 val runId = storage.getRunId()
                 Database.addRating(runId, checkNotNull(state.currentUser).id, checkNotNull(state.ratedUser).id, state.stars)
+                audio.play(R.raw.swoosh)
                 state = state.copy(progress = RateState.Progress.SUCCESS)
             }
         } else {
+            audio.play(R.raw.error)
             state = state.copy(progress = RateState.Progress.FAIL)
         }
     }
 
     fun changeStars(stars: Int) {
+        audio.play(R.raw.rate)
         state = state.copy(stars = stars)
     }
 }
