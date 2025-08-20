@@ -13,9 +13,7 @@ path /runs {
 path /users/{run_id} {
     read() { true }
     write() { isAuditor()}
-    path /{user_id} {
-      index() {["delegate", "isVisible", "totalRating"]}
-    }
+    index() {["delegate", "isVisible", "totalRating"]}
 }
 
 //
@@ -23,8 +21,10 @@ path /users/{run_id} {
 //
 
 path /userSecrets/{run_id} {
+  
+    index() {["password"]}
+
     path /{user_id} is Secret {
-      index() {["password"]}
       read() { isCurrentUser(user_id) }
       write() { isCurrentUser(user_id) }
     }
@@ -56,7 +56,6 @@ path /ratings/{run_id} {
   write() { isAuditor() }
 
   path /{rating_id} is Rating {
-
     write() { isInsert(this) && this.from == auth.uid }
   }
 }
@@ -78,12 +77,42 @@ path /reports/{run_id} {
   write() { isAuditor() }
 }
 
+// 
+// Posts
+//
+
+path /posts/{run_id} {
+    
+  read() { isSignedIn() }
+
+  write() { isAuditor() }
+
+  path /{post_id} is Post {
+    write() { isInsert(this) && this.from == auth.uid }
+  }
+}
+
+type Post {
+  author: Id,
+  text: PostText,
+  createdAt: Number,
+  pictureUrl: Url
+}
+
+type PostText extends String {
+    validate() { hasMaxLength(this, 9999) }
+} 
+
 //
 // Common
 //
 
 type Id extends String {
     validate() { hasMaxLength(this, 50) }
+}
+
+type Url extends String {
+    validate() { hasMaxLength(this, 999) }
 }
 
 hasMaxLength(text, length) {
