@@ -103,6 +103,29 @@ type PostText extends String {
     validate() { hasMaxLength(this, 9999) }
 } 
 
+// 
+// Post ratings
+//
+
+path /postRatings/{run_id}/{post_id} {
+  
+  index() {["from"]}
+    
+  read() { true }
+
+  write() { isAuditor() }
+
+  path /{rating_id} is PostRating {
+    write() { isInsert(this) && this.from == auth.uid }
+  }
+}
+
+type PostRating {
+  from: Id,
+  createdAt: Number,
+  stars: Number
+}
+
 //
 // Common
 //
