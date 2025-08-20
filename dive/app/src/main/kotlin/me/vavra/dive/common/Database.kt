@@ -85,6 +85,21 @@ object Database {
         ).await()
     }
 
+    suspend fun addPost(
+        runId: String,
+        text: String,
+        pictureUrl: String,
+    ) {
+        reference.child("ratings/$runId").push().updateChildren(
+            hashMapOf(
+                "author" to Auth.getUserId(),
+                "text" to text,
+                "pictureUrl" to pictureUrl,
+                "createdAt" to ServerValue.TIMESTAMP
+            )
+        ).await()
+    }
+
     fun observeRatingsFrom(runId: String, userId: String): Flow<List<Rating>> {
         return loadRatings(runId, userId, "from")
     }
