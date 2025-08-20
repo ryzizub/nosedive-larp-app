@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -34,18 +35,24 @@ import me.vavra.dive.common.ui.StarRating
 import me.vavra.dive.common.ui.UserRating
 
 @Composable
-fun FeedScreen(modifier: Modifier, navController: NavHostController, state: FeedState) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(state.posts) { post ->
-            PostItem(post = post) {
-                navController.navigate(NavDestination.Comments(post.id))
+fun FeedScreen(modifier: Modifier, navController: NavHostController) {
+    val viewModel = viewModel<FeedViewModel>()
+    val state = viewModel.state
+    if (state.isLoading) {
+        CenteredLoadingIndicator()
+    } else {
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(state.posts) { post ->
+                PostItem(post = post) {
+                    navController.navigate(NavDestination.Comments(post.id))
+                }
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(48.dp))
+            item {
+                Spacer(modifier = Modifier.height(48.dp))
+            }
         }
     }
 }
@@ -59,39 +66,36 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
             onPostClicked()
         }) {
             Post(post)
-            if (post.comments.isNotEmpty()) {
-                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
-                    post.comments.take(1)
-                        .forEach { comment -> // Show only the first comment preview
-                            Row {
-                                Text(
-                                    "${comment.user.name} (${comment.user.mainRating}): ",
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    comment.text,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+                post.comments.take(1)
+                    .forEach { comment -> // Show only the first comment preview
+                        Row {
+                            Text(
+                                "${comment.user.name} (${comment.user.mainRating}): ",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                comment.text,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
-                    val remainingCommentCount = post.comments.size - 1
-                    if (remainingCommentCount > 0) {
-                        val text = when (remainingCommentCount) {
-                            1 -> "další komentář"
-                            2, 3, 4 -> "dalších komentáře"
-                            else -> "dalších komentářů"
-                        }
-                        Text(
-                            "$remainingCommentCount $text",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
                     }
+                val remainingCommentCount = post.comments.size - 1
+                val text = when (remainingCommentCount) {
+                    -1, 0 -> "Přidat komentář"
+                    1 -> "$remainingCommentCount další komentář"
+                    2, 3, 4 -> "$remainingCommentCount další komentáře"
+                    else -> "$remainingCommentCount dalších komentářů"
                 }
+                Text(
+                    text,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -106,7 +110,7 @@ fun ColumnScope.Post(post: FeedState.Post) {
     UserRating(post.user, modifier = Modifier.padding(horizontal = 20.dp))
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = post.caption,
+        text = post.text,
         style = MaterialTheme.typography.bodyLarge,
         modifier = Modifier
             .fillMaxWidth()

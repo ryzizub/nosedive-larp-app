@@ -19,7 +19,7 @@ class NewChatViewModel(private val app: Application): AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             val userId = Auth.getUserId()
-            Database.observeNearbyUsers(storage.getRunId()).collect { users ->
+            Database.observeUsers(storage.getRunId()).collect { users ->
                 state = state.copy(
                     users = users.sortedBy { it.name }
                         .filter { it.id != userId }

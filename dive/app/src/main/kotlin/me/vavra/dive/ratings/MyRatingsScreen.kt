@@ -34,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import me.vavra.dive.common.theme.Rate
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.BottomSheetTopBar
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,6 +54,7 @@ fun MyRatingsScreen() {
         }
     }
     val tabs = listOf("Obdržená hodnocení", "Odeslaná hodnocení")
+    val state = viewModel.state
 
     Scaffold(
         topBar = {
@@ -74,9 +76,13 @@ fun MyRatingsScreen() {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            when (selectedTabIndex) {
-                0 -> RatingsList(ratings = viewModel.state.ratingsOfMe)
-                1 -> RatingsList(ratings = viewModel.state.ratingsByMe)
+            if (state.isLoading) {
+                CenteredLoadingIndicator()
+            } else {
+                when (selectedTabIndex) {
+                    0 -> RatingsList(ratings = state.ratingsOfMe)
+                    1 -> RatingsList(ratings = state.ratingsByMe)
+                }
             }
         }
     }

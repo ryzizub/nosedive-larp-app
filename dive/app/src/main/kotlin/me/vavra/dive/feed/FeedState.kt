@@ -42,36 +42,8 @@ val sampleUsers = listOf(
 )
 
 data class FeedState(
-    val posts: List<Post> = listOf(
-        Post(
-            id = "post2",
-            user = sampleUsers[1], // Naomi
-            imageUrl = "https://picsum.photos/seed/wedding_main/1080/1080",
-            caption = "Cítím se TAK vděčná za všechny, kdo přišli na mou #svatbusnů! Byla to rozhodně událost 4.9+! Tolik lásky! 🥰💍",
-            comments = listOf(
-                Comment("comment2_1", sampleUsers[0], "OMG Naomi, bylo to TO NEJLEPŠÍ! Tak zasloužené! 💖💖💖", System.currentTimeMillis() - 50000),
-                Comment("comment2_2", sampleUsers[1], "Bezchybná oslava lásky. Pět hvězd po všech stránkách! 🌟")
-            ),
-        ), Post(
-            id = "post1",
-            user = sampleUsers[0],
-            imageUrl = "https://picsum.photos/seed/coffee_main/1080/1080",
-            caption = "Naprosto jsem si zamilovala ranní kávu! ☕️ Takový #požehnaný start do #perfektníhodne! Posílám 5hvězdičkovou energii všem! ✨",
-            comments = listOf(
-                Comment("comment1_1", sampleUsers[1], "Vypadá to úžasně, Lacie! Mám za tebe takovou radost! ❤️", System.currentTimeMillis() - 100000),
-                Comment("comment1_2", sampleUsers[2], "Opravdová inspirace. Tvá pozitivita je nakažlivá! ⭐⭐⭐⭐⭐")
-            ),
-        ),
-        Post(
-            id = "post3",
-            user = sampleUsers[2], // Chester (lower rating)
-            imageUrl = "https://picsum.photos/seed/lunch_main/1080/1080",
-            caption = "Můj dnešní oběd. Byl tak nějak v pohodě, myslím. Snažím se zůstat pozitivní! #oběd #jídlo",
-            comments = listOf(
-                Comment("comment3_1", sampleUsers[0], "Drž se, Chestere! Každý den je nová příležitost pro 5hvězdičkový zážitek! Posílám pozitivní energii! 😊", System.currentTimeMillis() - 20000)
-            ),
-        )
-    )
+    val posts: List<Post> = listOf(),
+    val isLoading: Boolean = true
 ) {
     data class Comment(
         val id: String,
@@ -84,7 +56,7 @@ data class FeedState(
         val id: String,
         val user: User,
         val imageUrl: String,
-        val caption: String,
+        val text: String,
         val comments: List<Comment>
     )
 }

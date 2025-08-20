@@ -97,7 +97,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             }
             composable<NavDestination.Feed> {
                 BottomNavigation(navController, user, onLoggedOut, {
-                    FeedScreen(Modifier.padding(it), navController, FeedState())
+                    FeedScreen(Modifier.padding(it), navController)
                 })
             }
             composable<NavDestination.Chat> {

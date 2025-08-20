@@ -25,17 +25,18 @@ class MyRatingsViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun loadRatingsOfMe() {
         loadRatings(ofMe = true) {
-            state = state.copy(ratingsOfMe = it)
+            state = state.copy(ratingsOfMe = it, isLoading = false)
         }
     }
 
     fun loadRatingsByMe() {
         loadRatings(ofMe = false) {
-            state = state.copy(ratingsByMe = it)
+            state = state.copy(ratingsByMe = it, isLoading = false)
         }
     }
 
     private fun loadRatings(ofMe: Boolean, onLoaded: (List<MyRatingsState.Rating>)->Unit) {
+        state = state.copy(isLoading = true)
         viewModelScope.launch {
             val runId = storage.getRunId()
             val query = if (ofMe) {
