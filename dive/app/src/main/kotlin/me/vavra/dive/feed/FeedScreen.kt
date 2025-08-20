@@ -29,6 +29,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import me.vavra.dive.NavDestination
+import me.vavra.dive.common.Auth
 import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.StarRating
@@ -46,9 +47,11 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(state.posts) { post ->
-                PostItem(post = post) {
+                PostItem(post = post, onPostClicked =  {
                     navController.navigate(NavDestination.Comments(post.id))
-                }
+                }, onPostRated = {
+                    viewModel.rate(post.id, it)
+                })
             }
             item {
                 Spacer(modifier = Modifier.height(48.dp))
@@ -58,7 +61,7 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
 }
 
 @Composable
-fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
+fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)-> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -98,8 +101,10 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit) {
                 )
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        StarRating(modifier = Modifier.align(CenterHorizontally), interactive = true, {})
+        if (post.user.id != Auth.getUserId()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            StarRating(modifier = Modifier.align(CenterHorizontally), interactive = true, onPostRated)
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 }

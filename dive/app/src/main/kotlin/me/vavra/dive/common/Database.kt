@@ -67,16 +67,37 @@ object Database {
         }
     }
 
+    fun observePostRating(runId: String, postId: String): Flow<Int?> {
+        return reference.child("postRatings/$runId/$postId").orderByChild("from").equalTo(Auth.getUserId()).snapshots.map {
+            it.children.map { snap ->
+                snap.child("stars").getValue<Int>()
+            }.firstOrNull()
+        }
+    }
+
     suspend fun addRating(
         runId: String,
-        from: String,
         to: String,
         stars: Int
     ) {
         reference.child("ratings/$runId").push().updateChildren(
             hashMapOf(
-                "from" to from,
+                "from" to Auth.getUserId(),
                 "to" to to,
+                "stars" to stars,
+                "createdAt" to ServerValue.TIMESTAMP
+            )
+        ).await()
+    }
+
+    suspend fun addPostRating(
+        runId: String,
+        postId: String,
+        stars: Int
+    ) {
+        reference.child("postRatings/$runId/$postId").push().updateChildren(
+            hashMapOf(
+                "from" to Auth.getUserId(),
                 "stars" to stars,
                 "createdAt" to ServerValue.TIMESTAMP
             )
