@@ -57,7 +57,8 @@ data class FeedState(
         val user: User,
         val imageUrl: String,
         val text: String,
-        val stars: Int?,
+        val stars: Int,
+        val rated: Boolean,
         val comments: List<Comment>
     )
 }

@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -19,7 +21,8 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
 
     var state: FeedState by mutableStateOf(FeedState())
         private set
-    val storage = Storage(app)
+    private val storage = Storage(app)
+    private var rateJobs: MutableMap<String, Job> = mutableMapOf()
 
     init {
         viewModelScope.launch {
@@ -33,7 +36,8 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
                         Database.observeUser(runId, post.author),
                         Database.observePostRating(runId, post.id)
                     ) { user, stars ->
-                        FeedState.Post(post.id, user, post.pictureUrl, post.text, stars, listOf())
+                        val rated = stars != null
+                        FeedState.Post(post.id, user, post.pictureUrl, post.text, stars ?: 0, rated, listOf())
                     }
                 }) {
                     it.reversed().toList()
@@ -45,7 +49,10 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     fun rate(postId: String, stars: Int) {
-        viewModelScope.launch {
+        state = state.copy(posts = state.posts.map { if (it.id == postId) it.copy(stars = stars) else it })
+        rateJobs[postId]?.cancel()
+        rateJobs[postId] = viewModelScope.launch {
+            delay(2000)
             val runId = storage.getRunId()
             Database.addPostRating(runId, postId, stars)
         }

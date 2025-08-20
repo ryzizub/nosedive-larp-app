@@ -123,6 +123,7 @@ private fun RateScreenContent(
                     Spacer(modifier = Modifier.height(32.dp))
                     StarRating(
                         modifier = Modifier.align(CenterHorizontally),
+                        stars = state.stars,
                         interactive = state.progress == RateState.Progress.INITIAL,
                         onRatingChanged = onRatingChanged
                     )

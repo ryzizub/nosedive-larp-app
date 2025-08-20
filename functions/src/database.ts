@@ -39,6 +39,17 @@ export async function doProcessRating(snap: DataSnapshot, runId: String) {
   }
 }
 
+export async function doProcessPostRating(snap: DataSnapshot, runId: String, postId: String) {
+  const rating = snap.val();
+  const post = (await admin.database().ref("posts/" + runId + "/" + postId).once("value")).val()
+  await admin.database().ref("ratings/"+runId).push().set({
+    "from": rating.from,
+    "to": post.author,
+    "createdAt": rating.createdAt,
+    "stars": rating.stars
+  })
+}
+
 export async function doProcessReport(snap: DataSnapshot, runId: String) {
   const report = snap.val();
   await admin.database().ref("users/" + runId + "/" + report.victim).transaction(

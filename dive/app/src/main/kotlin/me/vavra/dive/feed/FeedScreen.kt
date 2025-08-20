@@ -103,7 +103,8 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)
         }
         if (post.user.id != Auth.getUserId()) {
             Spacer(modifier = Modifier.height(8.dp))
-            StarRating(modifier = Modifier.align(CenterHorizontally), interactive = true, onPostRated)
+            val interactive = !post.rated
+            StarRating(modifier = Modifier.align(CenterHorizontally), stars = post.stars, interactive = interactive, onPostRated)
         }
         Spacer(modifier = Modifier.height(8.dp))
     }
