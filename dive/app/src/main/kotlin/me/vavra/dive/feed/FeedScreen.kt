@@ -146,6 +146,6 @@ fun ColumnScope.Post(post: FeedState.Post) {
 @Composable
 fun PostItemPreview() {
     DiveTheme {
-        PostItem(post = FeedState().posts.first(), {})
+        PostItem(post = FeedState().posts.first(), {}, { _ ->})
     }
 }

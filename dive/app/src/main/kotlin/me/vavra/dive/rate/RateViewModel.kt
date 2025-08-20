@@ -37,7 +37,7 @@ class RateViewModel(private val app: Application): AndroidViewModel(app) {
         if (Database.isOnline(app)) {
             viewModelScope.launch {
                 val runId = storage.getRunId()
-                Database.addRating(runId, checkNotNull(state.currentUser).id, checkNotNull(state.ratedUser).id, state.stars)
+                Database.addRating(runId, checkNotNull(state.ratedUser).id, state.stars)
                 audio.play(R.raw.swoosh)
                 state = state.copy(progress = RateState.Progress.SUCCESS)
             }
