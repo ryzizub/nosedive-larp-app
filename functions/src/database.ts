@@ -42,12 +42,14 @@ export async function doProcessRating(snap: DataSnapshot, runId: String) {
 export async function doProcessPostRating(snap: DataSnapshot, runId: String, postId: String) {
   const rating = snap.val();
   const post = (await admin.database().ref("posts/" + runId + "/" + postId).once("value")).val()
+  console.log("post="+JSON.stringify(post))
   await admin.database().ref("ratings/"+runId).push().set({
     "from": rating.from,
     "to": post.author,
     "createdAt": rating.createdAt,
     "stars": rating.stars
   })
+  console.log("rating added")
 }
 
 export async function doProcessReport(snap: DataSnapshot, runId: String) {

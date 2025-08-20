@@ -24,19 +24,10 @@ path /userSecrets/{run_id} {
   
     index() {["password"]}
 
-    path /{user_id} is Secret {
+    path /{user_id}/notificationsToken is Token {
       read() { isCurrentUser(user_id) }
       write() { isCurrentUser(user_id) }
     }
-}
-
-type Secret {
-  password: Password,
-  notificationsToken: Token
-}
-
-type Password extends String {
-    validate() { hasMaxLength(this, 100) }
 }
 
 type Token extends String {
