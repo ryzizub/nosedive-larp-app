@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.vavra.dive.common.Database
@@ -31,6 +32,7 @@ import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.BottomSheetTopBar
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.MessageInput
+import me.vavra.dive.common.ui.OpenAttachmentButton
 
 @Composable
 fun CommentsScreen(postId: String) {
@@ -90,6 +92,7 @@ fun CommentsScreenContent(
     }
 }
 
+
 @Composable
 fun CommentItem(comment: Database.Message) {
     Row(
@@ -110,6 +113,30 @@ fun CommentItem(comment: Database.Message) {
                 text = comment.text,
                 style = MaterialTheme.typography.bodyMedium
             )
+            OpenAttachmentButton(comment.attachmentUrl)
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Preview
+@Composable
+fun CommentsScreenContentPreview() {
+    val post = FeedState.Post(
+        id = "1",
+        user = sampleUsers[0],
+        imageUrl = "https://example.com/image.jpg",
+        text = "This is a sample post.",
+        stars = 4,
+        rated = false,
+        comments = listOf(
+            Database.Message(
+                text = "Great post!",
+                author = sampleUsers[1],
+                attachmentUrl = "",
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    )
+    CommentsScreenContent(post = post, sendingComment = false, onAddComment = { _, _ -> })
 }

@@ -243,14 +243,14 @@ object Database {
     data class RawMessage(
         val text: String = "",
         val author: String = "",
-        val attachmentUrl: String = "",
+        val attachmentUrl: String? = null,
         val createdAt: Long = 0
     )
 
     data class Message(
         val text: String,
         val author: User,
-        val attachmentUrl: String,
+        val attachmentUrl: String?,
         val createdAt: Long
     )
 }

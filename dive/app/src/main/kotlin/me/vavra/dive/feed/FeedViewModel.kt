@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Database.toMessages
@@ -34,7 +35,7 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
                     return@flatMapLatest flowOf(listOf())
                 }
                 combine(posts.map { post ->
-                    post.toFeedPost(runId)
+                    post.toFeedPost(runId).map { it.copy(comments = it.comments.reversed()) }
                 }) {
                     it.reversed().toList()
                 }
