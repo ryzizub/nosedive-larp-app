@@ -85,14 +85,32 @@ path /posts/{run_id} {
 
 type Post {
   author: Id,
-  text: PostText,
+  text: LongText,
   createdAt: Number,
   pictureUrl: Url
 }
 
-type PostText extends String {
-    validate() { hasMaxLength(this, 9999) }
-} 
+// 
+// Posts comments
+//
+
+path /postComments/{run_id}/{post_id} {
+    
+  read() { isSignedIn() }
+
+  write() { isAuditor() }
+
+  path /{comment_id} is PostComment {
+    write() { isInsert(this) && this.author == auth.uid }
+  }
+}
+
+type PostComment {
+  author: Id,
+  text: LongText,
+  createdAt: Number,
+  attachmentUrl: Url
+}
 
 // 
 // Post ratings
@@ -128,6 +146,10 @@ type Id extends String {
 type Url extends String {
     validate() { hasMaxLength(this, 999) }
 }
+
+type LongText extends String {
+    validate() { hasMaxLength(this, 9999) }
+} 
 
 hasMaxLength(text, length) {
     text.length <= length
