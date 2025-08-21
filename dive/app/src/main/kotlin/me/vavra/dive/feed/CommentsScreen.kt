@@ -1,5 +1,6 @@
 package me.vavra.dive.feed
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -23,17 +24,36 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import me.vavra.dive.common.theme.DiveTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import me.vavra.dive.common.Database
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.BottomSheetTopBar
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.MessageInput
+
+@Composable
+fun CommentsScreen(postId: String) {
+    val viewModel = viewModel<CommentsViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.load(postId)
+    }
+    val state = viewModel.state
+    if (state.post == null) {
+        CenteredLoadingIndicator()
+    } else {
+        CommentsScreenContent(state.post, state.sendingComment, onAddComment = { text, attachmentUrl ->
+            viewModel.addComment(text, attachmentUrl)
+        })
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun CommentsScreen(
-    post: FeedState.Post
+fun CommentsScreenContent(
+    post: FeedState.Post,
+    sendingComment: Boolean,
+    onAddComment: (String, Uri?)-> Unit
 ) {
     val listState = rememberLazyListState()
     LaunchedEffect(post.comments.size, WindowInsets.isImeVisible) {
@@ -47,7 +67,7 @@ fun CommentsScreen(
             BottomSheetTopBar("Komentáře")
         },
         bottomBar = {
-            MessageInput("Napiš komentář")
+            MessageInput("Napiš komentář", sendingComment, onAddComment)
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
@@ -71,18 +91,18 @@ fun CommentsScreen(
 }
 
 @Composable
-fun CommentItem(comment: FeedState.Comment) {
+fun CommentItem(comment: Database.Message) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Avatar(comment.user, 40.dp)
+        Avatar(comment.author, 40.dp)
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
-                text = comment.user.name+" ("+comment.user.mainRating+")",
+                text = comment.author.name + " (" + comment.author.mainRating + ")",
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -91,15 +111,5 @@ fun CommentItem(comment: FeedState.Comment) {
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PostDetailScreenPreview() {
-    DiveTheme {
-        CommentsScreen(
-            post = FeedState().posts.first()
-        )
     }
 }

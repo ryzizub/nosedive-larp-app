@@ -11,7 +11,11 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import com.google.firebase.database.snapshots
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import me.vavra.dive.Run
@@ -67,11 +71,42 @@ object Database {
         }
     }
 
+    fun observePost(runId: String, postId: String): Flow<Post> {
+        return reference.child("posts/$runId/$postId").snapshots.map { snap ->
+            snap.getValue<Post>()?.copy(id = checkNotNull(snap.key)) as Post
+        }
+    }
+
     fun observePostRating(runId: String, postId: String): Flow<Int?> {
         return reference.child("postRatings/$runId/$postId").orderByChild("from").equalTo(Auth.getUserId()).snapshots.map {
             it.children.map { snap ->
                 snap.child("stars").getValue<Int>()
             }.firstOrNull()
+        }
+    }
+
+    fun observePostComments(runId: String, postId: String): Flow<List<RawMessage>> {
+        return reference.child("postComments/$runId/$postId").snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.getValue<RawMessage>()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun Flow<List<RawMessage>>.toMessages(runId: String): Flow<List<Message>> {
+        return this.flatMapLatest { rawMessages ->
+            if (rawMessages.isEmpty()) {
+                flowOf(listOf())
+            } else {
+                combine(rawMessages.map { rawMessage ->
+                    observeUser(runId, rawMessage.author).map {
+                        Message(rawMessage.text, it, rawMessage.attachmentUrl, rawMessage.createdAt)
+                    }
+                }) {
+                    it.toList()
+                }
+            }
         }
     }
 
@@ -99,6 +134,22 @@ object Database {
             hashMapOf(
                 "from" to Auth.getUserId(),
                 "stars" to stars,
+                "createdAt" to ServerValue.TIMESTAMP
+            )
+        ).await()
+    }
+
+    suspend fun addPostComment(
+        runId: String,
+        postId: String,
+        text: String,
+        attachmentUrl: String?
+    ) {
+        reference.child("postComments/$runId/$postId").push().updateChildren(
+            hashMapOf(
+                "author" to Auth.getUserId(),
+                "text" to text,
+                "attachmentUrl" to attachmentUrl,
                 "createdAt" to ServerValue.TIMESTAMP
             )
         ).await()
@@ -187,5 +238,19 @@ object Database {
         val author: String = "",
         val pictureUrl: String = "",
         val createdAt: Long = 0
+    )
+
+    data class RawMessage(
+        val text: String = "",
+        val author: String = "",
+        val attachmentUrl: String = "",
+        val createdAt: Long = 0
+    )
+
+    data class Message(
+        val text: String,
+        val author: User,
+        val attachmentUrl: String,
+        val createdAt: Long
     )
 }

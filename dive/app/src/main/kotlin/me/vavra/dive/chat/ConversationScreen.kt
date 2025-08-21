@@ -57,7 +57,7 @@ fun ConversationScreen(
             BottomSheetTopBar(conversation.partner.name + " (" + conversation.partner.mainRating + ")")
         },
         bottomBar = {
-            MessageInput("Napiš zprávu")
+            MessageInput("Napiš zprávu", false,{ _, _ -> })
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->

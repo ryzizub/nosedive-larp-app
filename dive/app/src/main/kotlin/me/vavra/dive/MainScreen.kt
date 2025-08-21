@@ -51,7 +51,6 @@ import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.UserRating
 import me.vavra.dive.feed.CommentsScreen
 import me.vavra.dive.feed.FeedScreen
-import me.vavra.dive.feed.FeedState
 import me.vavra.dive.feed.NewPostScreen
 import me.vavra.dive.login.LoginScreen
 import me.vavra.dive.nearby.NearbyScreen
@@ -114,10 +113,7 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             }
             bottomSheet<NavDestination.Comments> { backStackEntry ->
                 val postId = backStackEntry.toRoute<NavDestination.Comments>().postId
-                val post = FeedState().posts.find { it.id == postId }
-                CommentsScreen(
-                    post = checkNotNull(post)
-                )
+                CommentsScreen(postId)
             }
             bottomSheet<NavDestination.MyRatings> {
                 MyRatingsScreen()

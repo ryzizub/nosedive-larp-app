@@ -74,7 +74,7 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)
                     .forEach { comment -> // Show only the first comment preview
                         Row {
                             Text(
-                                "${comment.user.name} (${comment.user.mainRating}): ",
+                                "${comment.author.name} (${comment.author.mainRating}): ",
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.bodySmall
                             )

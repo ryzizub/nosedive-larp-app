@@ -1,6 +1,7 @@
 package me.vavra.dive.feed
 
 import me.vavra.dive.User
+import me.vavra.dive.common.Database
 
 val sampleUsers = listOf(
     User(
@@ -45,12 +46,6 @@ data class FeedState(
     val posts: List<Post> = listOf(),
     val isLoading: Boolean = true
 ) {
-    data class Comment(
-        val id: String,
-        val user: User,
-        val text: String,
-        val timestamp: Long = System.currentTimeMillis()
-    )
 
     data class Post(
         val id: String,
@@ -59,6 +54,6 @@ data class FeedState(
         val text: String,
         val stars: Int,
         val rated: Boolean,
-        val comments: List<Comment>
+        val comments: List<Database.Message>
     )
 }
