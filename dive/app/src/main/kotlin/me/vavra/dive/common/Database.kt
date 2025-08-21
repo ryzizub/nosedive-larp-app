@@ -93,6 +93,30 @@ object Database {
         }
     }
 
+    fun observeUserConversations(runId: String): Flow<List<String>> {
+        return reference.child("userConversations/$runId").child(Auth.getUserId()).snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.key
+            }
+        }
+    }
+
+    fun observeConversationUsers(runId: String, conversationId: String): Flow<List<String>> {
+        return reference.child("conversationUsers/$runId/$conversationId").snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.key
+            }
+        }
+    }
+
+    fun observeConversationMessages(runId: String, conversationId: String): Flow<List<RawMessage>> {
+        return reference.child("conversationMessages/$runId/$conversationId").snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.getValue<RawMessage>()
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun Flow<List<RawMessage>>.toMessages(runId: String): Flow<List<Message>> {
         return this.flatMapLatest { rawMessages ->

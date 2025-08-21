@@ -100,16 +100,9 @@ path /postComments/{run_id}/{post_id} {
 
   write() { isAuditor() }
 
-  path /{comment_id} is PostComment {
+  path /{comment_id} is Message {
     write() { isInsert(this) && this.author == auth.uid }
   }
-}
-
-type PostComment {
-  author: Id,
-  text: LongText,
-  createdAt: Number,
-  attachmentUrl: Url | Null
 }
 
 // 
@@ -135,9 +128,42 @@ type PostRating {
   stars: Number
 }
 
+// 
+// Chat conversations
+//
+
+path /userConversations/{run_id}/{user_id} {
+    
+  read() { isCurrentUser(user_id) }
+
+  write() { isAuditor() }
+
+  path /{conversation_id} is Boolean {
+    write() { isInsert(this) }
+  }
+}
+
+path /conversationMessages/{run_id}/{conversation_id} {
+    
+  read() { isSignedIn() }
+
+  write() { isAuditor() }
+
+  path /{message_id} is Message {
+    write() { isInsert(this) && this.author == auth.uid }
+  }
+}
+
 //
 // Common
 //
+
+type Message {
+  author: Id,
+  text: LongText,
+  createdAt: Number,
+  attachmentUrl: Url | Null
+}
 
 type Id extends String {
     validate() { hasMaxLength(this, 50) }
