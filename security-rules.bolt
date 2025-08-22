@@ -132,6 +132,17 @@ type PostRating {
 // Chat conversations
 //
 
+path /conversationUsers/{run_id}/{conversation_id} {
+    
+  read() { isSignedIn() }
+
+  write() { isAuditor() }
+
+  path /{user_id} is Boolean {
+    write() { isInsert(this) }
+  }
+}
+
 path /userConversations/{run_id}/{user_id} {
     
   read() { isCurrentUser(user_id) }
