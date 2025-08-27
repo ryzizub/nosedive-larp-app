@@ -11,15 +11,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Database.toMessages
 import me.vavra.dive.common.Storage
+import me.vavra.dive.common.flatMapItems
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
 
     var state: FeedState by mutableStateOf(FeedState())
@@ -30,23 +28,19 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             val runId = storage.getRunId()
-            Database.observePosts(runId).flatMapLatest { posts ->
-                if (posts.isEmpty()) {
-                    return@flatMapLatest flowOf(listOf())
-                }
-                combine(posts.map { post ->
-                    post.toFeedPost(runId).map { it.copy(comments = it.comments.reversed()) }
-                }) {
-                    it.reversed().toList()
-                }
-            }.collect {
-                state = state.copy(posts = it, isLoading = false)
+            Database.observePosts(runId).flatMapItems { post ->
+                post.toFeedPost(runId).map { it.copy(comments = it.comments.reversed()) }
             }
+                .map { it.reversed() }
+                .collect {
+                    state = state.copy(posts = it, isLoading = false)
+                }
         }
     }
 
     fun rate(postId: String, stars: Int) {
-        state = state.copy(posts = state.posts.map { if (it.id == postId) it.copy(stars = stars) else it })
+        state =
+            state.copy(posts = state.posts.map { if (it.id == postId) it.copy(stars = stars) else it })
         rateJobs[postId]?.cancel()
         rateJobs[postId] = viewModelScope.launch {
             delay(2000)

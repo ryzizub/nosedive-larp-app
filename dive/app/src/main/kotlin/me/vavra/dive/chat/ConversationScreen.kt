@@ -29,19 +29,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.User
+import me.vavra.dive.common.Auth
+import me.vavra.dive.common.Database
 import me.vavra.dive.common.ui.BottomSheetTopBar
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.MessageInput
 
 
+@Composable
+fun ConversationScreen(conversationId: String) {
+    val viewModel = viewModel<ConversationViewModel>()
+    LaunchedEffect(conversationId) {
+        viewModel.load(conversationId)
+    }
+    val state = viewModel.state
+    if (state.isLoading) {
+        CenteredLoadingIndicator()
+    } else {
+        ConversationScreenContent(checkNotNull(state.conversation))
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ConversationScreen(
+fun ConversationScreenContent(
     conversation: ChatState.Conversation
 ) {
     val listState = rememberLazyListState()
@@ -57,7 +74,7 @@ fun ConversationScreen(
             BottomSheetTopBar(conversation.partner.name + " (" + conversation.partner.mainRating + ")")
         },
         bottomBar = {
-            MessageInput("Napiš zprávu", false,{ _, _ -> })
+            MessageInput("Napiš zprávu", false, { _, _ -> })
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
@@ -73,7 +90,7 @@ fun ConversationScreen(
                 MessageBubble(
                     message = message,
                     partner = conversation.partner,
-                    isMine = message.isMine
+                    isMine = message.author.id == Auth.getUserId()
                 )
             }
         }
@@ -82,7 +99,7 @@ fun ConversationScreen(
 
 @Composable
 fun MessageBubble(
-    message: ChatState.Message,
+    message: Database.Message,
     partner: User,
     isMine: Boolean
 ) {
@@ -134,14 +151,4 @@ fun MessageBubble(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun ConversationScreenPreview() {
-    val conversation = ChatState().conversations[0]
-    ConversationScreen(
-        conversation = conversation
-    )
 }

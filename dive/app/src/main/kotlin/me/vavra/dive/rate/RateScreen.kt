@@ -14,20 +14,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import me.vavra.dive.common.theme.DiveTheme
 import me.vavra.dive.common.ui.Avatar
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.SendUp
 import me.vavra.dive.common.ui.StarRating
-import me.vavra.dive.feed.sampleUsers
 
 @Composable
 fun RateScreen(userId: String) {
     val viewModel = viewModel<RateViewModel>()
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userId) {
         viewModel.load(userId)
     }
     RateScreenContent(viewModel.state, onSend = {
@@ -136,74 +133,5 @@ private fun RateScreenContent(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun RateScreenInitialPreview() {
-    DiveTheme {
-        RateScreenContent(
-            state = RateState(
-                currentUser = sampleUsers[0],
-                ratedUser = sampleUsers[1]
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-fun RateScreenInitialStarsPreview() {
-    DiveTheme {
-        RateScreenContent(
-            state = RateState(
-                currentUser = sampleUsers[0],
-                ratedUser = sampleUsers[1],
-                stars = 3
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-fun RateScreenSendingPreview() {
-    DiveTheme {
-        RateScreenContent(
-            state = RateState(
-                currentUser = sampleUsers[0],
-                ratedUser = sampleUsers[1],
-                progress = RateState.Progress.SENDING
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-fun RateScreenSuccessPreview() {
-    DiveTheme {
-        RateScreenContent(
-            state = RateState(
-                currentUser = sampleUsers[0],
-                ratedUser = sampleUsers[1],
-                progress = RateState.Progress.SUCCESS
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-fun RateScreenFailPreview() {
-    DiveTheme {
-        RateScreenContent(
-            state = RateState(
-                currentUser = sampleUsers[0],
-                ratedUser = sampleUsers[1],
-                progress = RateState.Progress.FAIL
-            )
-        )
     }
 }

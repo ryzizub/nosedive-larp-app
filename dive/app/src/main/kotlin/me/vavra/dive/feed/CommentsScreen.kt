@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.vavra.dive.common.Database
@@ -37,7 +36,7 @@ import me.vavra.dive.common.ui.OpenAttachmentButton
 @Composable
 fun CommentsScreen(postId: String) {
     val viewModel = viewModel<CommentsViewModel>()
-    LaunchedEffect(Unit) {
+    LaunchedEffect(postId) {
         viewModel.load(postId)
     }
     val state = viewModel.state
@@ -116,27 +115,4 @@ fun CommentItem(comment: Database.Message) {
             OpenAttachmentButton(comment.attachmentUrl)
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Preview
-@Composable
-fun CommentsScreenContentPreview() {
-    val post = FeedState.Post(
-        id = "1",
-        user = sampleUsers[0],
-        imageUrl = "https://example.com/image.jpg",
-        text = "This is a sample post.",
-        stars = 4,
-        rated = false,
-        comments = listOf(
-            Database.Message(
-                text = "Great post!",
-                author = sampleUsers[1],
-                attachmentUrl = "",
-                createdAt = System.currentTimeMillis()
-            )
-        )
-    )
-    CommentsScreenContent(post = post, sendingComment = false, onAddComment = { _, _ -> })
 }

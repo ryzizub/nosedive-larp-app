@@ -50,7 +50,10 @@ object Database {
     fun observeRuns(): Flow<List<Run>> {
         return reference.child("runs").snapshots.map { list ->
             list.children.map { snapshot ->
-                Run(checkNotNull(snapshot.key), checkNotNull(snapshot.child("name").getValue<String>()))
+                Run(
+                    checkNotNull(snapshot.key),
+                    checkNotNull(snapshot.child("name").getValue<String>())
+                )
             }
         }
     }
@@ -78,7 +81,8 @@ object Database {
     }
 
     fun observePostRating(runId: String, postId: String): Flow<Int?> {
-        return reference.child("postRatings/$runId/$postId").orderByChild("from").equalTo(Auth.getUserId()).snapshots.map {
+        return reference.child("postRatings/$runId/$postId").orderByChild("from")
+            .equalTo(Auth.getUserId()).snapshots.map {
             it.children.map { snap ->
                 snap.child("stars").getValue<Int>()
             }.firstOrNull()
@@ -117,19 +121,10 @@ object Database {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun Flow<List<RawMessage>>.toMessages(runId: String): Flow<List<Message>> {
-        return this.flatMapLatest { rawMessages ->
-            if (rawMessages.isEmpty()) {
-                flowOf(listOf())
-            } else {
-                combine(rawMessages.map { rawMessage ->
-                    observeUser(runId, rawMessage.author).map {
-                        Message(rawMessage.text, it, rawMessage.attachmentUrl, rawMessage.createdAt)
-                    }
-                }) {
-                    it.toList()
-                }
+        return flatMapItems { rawMessage ->
+            observeUser(runId, rawMessage.author).map {
+                Message(rawMessage.text, it, rawMessage.attachmentUrl, rawMessage.createdAt)
             }
         }
     }
@@ -213,8 +208,26 @@ object Database {
         return caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) ?: false
     }
 
-    private fun loadRatings(runId: String, userId: String, orderByChild: String): Flow<List<Rating>> {
-        return reference.child("ratings/$runId").orderByChild(orderByChild).equalTo(userId).snapshots.map {
+    suspend fun addConversation(runId: String, partnerId: String): String {
+        val conversationId = checkNotNull(reference.child("conversationUsers/$runId").push().key)
+        val userId = Auth.getUserId()
+        val updates = hashMapOf<String, Any>(
+            "/conversationUsers/$conversationId/$userId" to true,
+            "/conversationUsers/$conversationId/$partnerId" to true,
+            "/userConversations/$runId/$userId/$conversationId" to true,
+            "/userConversations/$runId/$partnerId/$conversationId" to true
+        )
+        reference.updateChildren(updates).await()
+        return conversationId
+    }
+
+    private fun loadRatings(
+        runId: String,
+        userId: String,
+        orderByChild: String
+    ): Flow<List<Rating>> {
+        return reference.child("ratings/$runId").orderByChild(orderByChild)
+            .equalTo(userId).snapshots.map {
             it.children.mapNotNull { snap ->
                 snap.getValue<Rating>()
             }
@@ -277,4 +290,19 @@ object Database {
         val attachmentUrl: String?,
         val createdAt: Long
     )
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+inline fun <A, reified B> Flow<List<A>>.flatMapItems(crossinline transformItem: (A) -> Flow<B>): Flow<List<B>> {
+    return this.flatMapLatest { list ->
+        if (list.isEmpty()) {
+            flowOf(listOf())
+        } else {
+            combine(list.map { item ->
+                transformItem(item)
+            }) {
+                it.toList()
+            }
+        }
+    }
 }

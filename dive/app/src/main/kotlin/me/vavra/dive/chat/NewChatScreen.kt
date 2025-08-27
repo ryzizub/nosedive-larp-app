@@ -16,17 +16,25 @@ import androidx.navigation.NavController
 import me.vavra.dive.NavDestination
 import me.vavra.dive.User
 import me.vavra.dive.common.ui.BottomSheetTopBar
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.UserRating
 
 @Composable
 fun NewChatScreen(navController: NavController, modifier: Modifier = Modifier) {
     val viewModel = viewModel<NewChatViewModel>()
-    NewChatScreenContent(
-        modifier,
-        viewModel.state,
-        onUserSelected = {
-            navController.navigate(NavDestination.Conversation(it.id))
-        })
+    val state = viewModel.state
+    if (state.isLoading) {
+        CenteredLoadingIndicator()
+    } else {
+        NewChatScreenContent(
+            modifier,
+            viewModel.state,
+            onUserSelected = { user ->
+                viewModel.selectUser(user.id) {
+                    navController.navigate(NavDestination.Conversation(it))
+                }
+            })
+    }
 }
 
 @Composable

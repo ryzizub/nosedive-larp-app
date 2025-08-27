@@ -5,9 +5,11 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -42,6 +44,18 @@ class Storage(private val context: Application) {
     suspend fun saveRunId(runId: String) {
         context.dataStore.edit { settings ->
             settings[RUN_ID_KEY] = runId
+        }
+    }
+
+    fun observeConversationReadCount(runId: String, conversationId: String): Flow<Int> {
+        return context.dataStore.data.map { preferences ->
+            preferences[intPreferencesKey("conversation_read_count_${runId}_$conversationId")] ?: 0
+        }.distinctUntilChanged()
+    }
+
+    suspend fun saveConversationReadCount(runId: String, conversationId: String, count: Int) {
+        context.dataStore.edit { settings ->
+            settings[intPreferencesKey("conversation_read_count_${runId}_$conversationId")] = count
         }
     }
 }

@@ -43,7 +43,6 @@ import com.stefanoq21.material3.navigation.ModalBottomSheetLayout
 import com.stefanoq21.material3.navigation.bottomSheet
 import com.stefanoq21.material3.navigation.rememberBottomSheetNavigator
 import me.vavra.dive.chat.ChatScreen
-import me.vavra.dive.chat.ChatState
 import me.vavra.dive.chat.ConversationScreen
 import me.vavra.dive.chat.NewChatScreen
 import me.vavra.dive.common.theme.DiveTheme
@@ -101,15 +100,12 @@ private fun LoggedInScreen(user: User, onLoggedOut: () -> Unit) {
             }
             composable<NavDestination.Chat> {
                 BottomNavigation(navController, user, onLoggedOut, {
-                    ChatScreen(Modifier.padding(it), navController, ChatState())
+                    ChatScreen(Modifier.padding(it), navController)
                 })
             }
             bottomSheet<NavDestination.Conversation> { backStackEntry ->
-                val partnerId = backStackEntry.toRoute<NavDestination.Conversation>().partnerId
-                val conversation = ChatState().conversations.find { it.partner.id == partnerId }
-                ConversationScreen(
-                    conversation = checkNotNull(conversation)
-                )
+                val conversationId = backStackEntry.toRoute<NavDestination.Conversation>().conversationId
+                ConversationScreen(conversationId)
             }
             bottomSheet<NavDestination.Comments> { backStackEntry ->
                 val postId = backStackEntry.toRoute<NavDestination.Comments>().postId

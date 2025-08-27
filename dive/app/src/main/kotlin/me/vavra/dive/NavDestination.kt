@@ -10,7 +10,7 @@ sealed class NavDestination {
     @Serializable
     object Chat : NavDestination()
     @Serializable
-    data class Conversation(val partnerId: String) : NavDestination()
+    data class Conversation(val conversationId: String) : NavDestination()
     @Serializable
     data class Comments(val postId: String) : NavDestination()
     @Serializable

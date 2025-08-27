@@ -21,21 +21,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.NavDestination
 import me.vavra.dive.User
+import me.vavra.dive.common.ui.CenteredLoadingIndicator
 
 @Composable
-fun ChatScreen(modifier: Modifier, navController: NavController, chatState: ChatState) {
-    ChatScreenContent(
-        modifier,
-        chatState,
-        onUserSelected = {
-            navController.navigate(NavDestination.Conversation(it.id))
-        })
+fun ChatScreen(modifier: Modifier, navController: NavController) {
+    val viewModel = viewModel<ChatViewModel>()
+    val state = viewModel.state
+    if (state.isLoading) {
+        CenteredLoadingIndicator()
+    } else {
+        ChatScreenContent(
+            modifier,
+            state,
+            onUserSelected = {
+                navController.navigate(NavDestination.Conversation(it.id))
+            })
+    }
 }
 
 @Composable

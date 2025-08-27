@@ -4,7 +4,8 @@ import me.vavra.dive.User
 import me.vavra.dive.common.Database
 
 data class ChatState(
-    val conversations: List<Conversation> = listOf()
+    val conversations: List<Conversation> = listOf(),
+    val isLoading: Boolean = true
 ) {
     data class Conversation(
         val partner: User,

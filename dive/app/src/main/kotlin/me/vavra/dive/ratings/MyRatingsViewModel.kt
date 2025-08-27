@@ -7,16 +7,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Storage
+import me.vavra.dive.common.flatMapItems
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MyRatingsViewModel(private val app: Application) : AndroidViewModel(app) {
     var state: MyRatingsState by mutableStateOf(MyRatingsState())
         private set
@@ -35,7 +32,7 @@ class MyRatingsViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun loadRatings(ofMe: Boolean, onLoaded: (List<MyRatingsState.Rating>)->Unit) {
+    private fun loadRatings(ofMe: Boolean, onLoaded: (List<MyRatingsState.Rating>) -> Unit) {
         state = state.copy(isLoading = true)
         viewModelScope.launch {
             val runId = storage.getRunId()
@@ -44,21 +41,15 @@ class MyRatingsViewModel(private val app: Application) : AndroidViewModel(app) {
             } else {
                 Database.observeRatingsFrom(runId, Auth.getUserId())
             }
-            query.flatMapLatest { ratings ->
-                if (ratings.isEmpty()) {
-                    return@flatMapLatest flowOf(listOf())
+            query.flatMapItems { rating ->
+                val userId = if (ofMe) rating.from else rating.to
+                Database.observeUser(runId, userId).map { user ->
+                    MyRatingsState.Rating(user, rating.stars, rating.createdAt)
                 }
-                combine(ratings.map { rating ->
-                    val userId = if (ofMe) rating.from else rating.to
-                    Database.observeUser(runId, userId).map { user ->
-                        MyRatingsState.Rating(user, rating.stars, rating.createdAt)
-                    }
-                }) {
-                    it.reversed().toList()
+            }.map { it.reversed() }
+                .collect {
+                    onLoaded(it)
                 }
-            }.collect {
-                onLoaded(it)
-            }
         }
     }
 }
