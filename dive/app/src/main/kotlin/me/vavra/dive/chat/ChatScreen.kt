@@ -40,7 +40,7 @@ fun ChatScreen(modifier: Modifier, navController: NavController) {
         ChatScreenContent(
             modifier,
             state,
-            onUserSelected = {
+            onConversationSelected = {
                 navController.navigate(NavDestination.Conversation(it.id))
             })
     }
@@ -50,7 +50,7 @@ fun ChatScreen(modifier: Modifier, navController: NavController) {
 private fun ChatScreenContent(
     modifier: Modifier,
     state: ChatState,
-    onUserSelected: (User) -> Unit
+    onConversationSelected: (ChatState.Conversation) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -59,7 +59,7 @@ private fun ChatScreenContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onUserSelected(it.partner) }
+                    .clickable { onConversationSelected(it) }
                     .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Conversation(it)
@@ -89,14 +89,16 @@ private fun RowScope.Conversation(conversation: ChatState.Conversation) {
             style = MaterialTheme.typography.titleMedium,
             fontWeight = if (conversation.unread) FontWeight.Bold else null
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = conversation.messages.last().text,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = if (conversation.unread) FontWeight.Bold else null,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        if (conversation.messages.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = conversation.messages.last().text,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (conversation.unread) FontWeight.Bold else null,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

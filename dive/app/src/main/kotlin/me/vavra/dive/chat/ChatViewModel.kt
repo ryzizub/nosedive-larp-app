@@ -27,7 +27,9 @@ class ChatViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val runId = storage.getRunId()
             Database.observeUserConversations(runId)
-                .flatMapItems { it.observeConversation(runId, storage) }
+                .flatMapItems {
+                    it.observeConversation(runId, storage)
+                }
                 .collect {
                     state = state.copy(conversations = it, isLoading = false)
                 }
@@ -46,7 +48,7 @@ fun String.observeConversation(runId: String, storage: Storage): Flow<ChatState.
     }.flatMapLatest { (users, messages, readCount) ->
         val partnerId = users.first { it != Auth.getUserId() }
         Database.observeUser(runId, partnerId).map { partner ->
-            ChatState.Conversation(partner, messages, readCount != messages.size)
+            ChatState.Conversation(this, partner, messages, readCount != messages.size)
         }
     }
 }

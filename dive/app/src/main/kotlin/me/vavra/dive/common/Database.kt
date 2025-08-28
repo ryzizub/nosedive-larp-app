@@ -212,10 +212,10 @@ object Database {
         val conversationId = checkNotNull(reference.child("conversationUsers/$runId").push().key)
         val userId = Auth.getUserId()
         val updates = hashMapOf<String, Any>(
-            "/conversationUsers/$conversationId/$userId" to true,
-            "/conversationUsers/$conversationId/$partnerId" to true,
-            "/userConversations/$runId/$userId/$conversationId" to true,
-            "/userConversations/$runId/$partnerId/$conversationId" to true
+            "conversationUsers/$runId/$conversationId/$userId" to true,
+            "conversationUsers/$runId/$conversationId/$partnerId" to true,
+            "userConversations/$runId/$userId/$conversationId" to true,
+            "userConversations/$runId/$partnerId/$conversationId" to true
         )
         reference.updateChildren(updates).await()
         return conversationId

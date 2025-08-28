@@ -8,6 +8,7 @@ data class ChatState(
     val isLoading: Boolean = true
 ) {
     data class Conversation(
+        val id: String,
         val partner: User,
         val messages: List<Database.Message>,
         val unread: Boolean
