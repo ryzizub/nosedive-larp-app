@@ -1,5 +1,6 @@
 package me.vavra.dive.chat
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import me.vavra.dive.common.Database
 import me.vavra.dive.common.ui.BottomSheetTopBar
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.MessageInput
+import me.vavra.dive.common.ui.OpenAttachmentButton
 
 
 @Composable
@@ -52,17 +54,20 @@ fun ConversationScreen(conversationId: String) {
     if (state.isLoading) {
         CenteredLoadingIndicator()
     } else {
-        ConversationScreenContent(checkNotNull(state.conversation))
+        ConversationScreenContent(state, onSendMessage = { text, attachmentUrl ->
+            viewModel.sendMessage(text, attachmentUrl)
+        })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ConversationScreenContent(
-    conversation: ChatState.Conversation
+    state: ConversationState,
+    onSendMessage: (String, Uri?) -> Unit
 ) {
     val listState = rememberLazyListState()
-
+    val conversation = checkNotNull(state.conversation)
     LaunchedEffect(conversation.messages.size, WindowInsets.isImeVisible) {
         if (conversation.messages.isNotEmpty()) {
             listState.animateScrollToItem(conversation.messages.size - 1)
@@ -74,7 +79,7 @@ fun ConversationScreenContent(
             BottomSheetTopBar(conversation.partner.name + " (" + conversation.partner.mainRating + ")")
         },
         bottomBar = {
-            MessageInput("Napiš zprávu", false, { _, _ -> })
+            MessageInput("Napiš zprávu", state.sendingMessage, onSendMessage)
         },
         modifier = Modifier.imePadding()
     ) { paddingValues ->
@@ -143,11 +148,14 @@ fun MessageBubble(
                     .background(bubbleColor)
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                Text(
-                    text = message.text,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = textColor
-                )
+                Column {
+                    Text(
+                        text = message.text,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = textColor
+                    )
+                    OpenAttachmentButton(message.attachmentUrl, tonal = false)
+                }
             }
         }
     }

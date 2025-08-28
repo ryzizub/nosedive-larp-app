@@ -174,6 +174,22 @@ object Database {
         ).await()
     }
 
+    suspend fun addChatMessage(
+        runId: String,
+        conversationId: String,
+        text: String,
+        attachmentUrl: String?
+    ) {
+        reference.child("conversationMessages/$runId/$conversationId").push().updateChildren(
+            hashMapOf(
+                "author" to Auth.getUserId(),
+                "text" to text,
+                "attachmentUrl" to attachmentUrl,
+                "createdAt" to ServerValue.TIMESTAMP
+            )
+        ).await()
+    }
+
     suspend fun addPost(
         runId: String,
         text: String,

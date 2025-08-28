@@ -8,6 +8,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,11 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 
 @Composable
-fun OpenAttachmentButton(url: String?) {
+fun OpenAttachmentButton(url: String?, tonal: Boolean = false) {
     if (url != null) {
         Spacer(modifier = Modifier.height(8.dp))
         val activity = LocalActivity.current
-        FilledTonalButton(onClick = {
+        val onClick: () -> Unit = {
             val webpage: Uri = url.toUri()
             val intent = Intent(Intent.ACTION_VIEW, webpage)
             try {
@@ -27,6 +28,11 @@ fun OpenAttachmentButton(url: String?) {
             } catch (e: ActivityNotFoundException) {
                 Toast.makeText(activity, "Tuto přílohu nelze otevřít", Toast.LENGTH_LONG).show()
             }
-        }) { Text("Otevřít přílohu") }
+        }
+        if (tonal) {
+            FilledTonalButton(onClick = onClick) { Text("Otevřít přílohu") }
+        } else {
+            OutlinedButton(onClick = onClick) { Text("Otevřít přílohu") }
+        }
     }
 }
