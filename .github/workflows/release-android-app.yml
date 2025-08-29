@@ -30,16 +30,15 @@ jobs:
         with:
           fileName: 'dive.jks'
           encodedString: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-      - name: Change directory
-        run: cd dive
       - name: Bump version
         uses: chkfung/android-version-actions@v1.2.2
         with:
-          gradlePath: app/build.gradle
+          gradlePath: dive/app/build.gradle
           versionCode: ${{ github.run_number}}
           versionName: ${{ github.event.release.tag_name }}  
       - name: Build release app
         run: ./gradlew assembleRelease bundleRelease
+        working-directory: ./dive
         env:
           RELEASE_KEYSTORE_PATH: ${{ steps.release_cert.outputs.filePath }}
           RELEASE_KEY_ALIAS: dive
@@ -49,12 +48,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: app/build/outputs
+          path: dive/app/build/outputs
       - name: Upload to Play Store Internal track
         uses: r0adkll/upload-google-play@v1.1.3
         with:
           packageName: me.vavra.dive
-          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: dive/app/build/outputs/bundle/release/app-release.aab
           track: internal
           serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
           changesNotSentForReview: false   
