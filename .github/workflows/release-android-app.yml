@@ -33,7 +33,7 @@ jobs:
       - name: Bump version
         uses: chkfung/android-version-actions@v1.2.2
         with:
-          gradlePath: app/dive/build.gradle
+          gradlePath: dive/app/build.gradle
           versionCode: ${{ github.run_number}}
           versionName: ${{ github.event.release.tag_name }}  
       - name: Build release app
