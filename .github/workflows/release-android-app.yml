@@ -30,10 +30,12 @@ jobs:
         with:
           fileName: 'dive.jks'
           encodedString: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+      - name: Change directory
+        run: cd dive
       - name: Bump version
         uses: chkfung/android-version-actions@v1.2.2
         with:
-          gradlePath: dive/app/build.gradle
+          gradlePath: app/build.gradle
           versionCode: ${{ github.run_number}}
           versionName: ${{ github.event.release.tag_name }}  
       - name: Build release app
