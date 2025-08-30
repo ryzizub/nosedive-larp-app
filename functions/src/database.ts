@@ -1,7 +1,7 @@
 import admin = require("firebase-admin");
 import { DataSnapshot } from "firebase-functions/lib/v1/providers/database";
 
-export async function doProcessRating(snap: DataSnapshot, runId: String) {
+export async function doProcessRating(snap: DataSnapshot, runId: string) {
   const rating = snap.val();
   const raterUser = (await admin.database().ref("users/" + runId + "/" + rating.from).once("value")).val()
   // change rating
@@ -39,7 +39,7 @@ export async function doProcessRating(snap: DataSnapshot, runId: String) {
   }
 }
 
-export async function doProcessPostRating(snap: DataSnapshot, runId: String, postId: String) {
+export async function doProcessPostRating(snap: DataSnapshot, runId: string, postId: string) {
   const rating = snap.val();
   const post = (await admin.database().ref("posts/" + runId + "/" + postId).once("value")).val()
   await admin.database().ref("ratings/" + runId).push().set({
@@ -50,7 +50,7 @@ export async function doProcessPostRating(snap: DataSnapshot, runId: String, pos
   })
 }
 
-export async function doProcessReport(snap: DataSnapshot, runId: String) {
+export async function doProcessReport(snap: DataSnapshot, runId: string) {
   const report = snap.val();
   await admin.database().ref("users/" + runId + "/" + report.victim).transaction(
     victimUser => {
@@ -85,7 +85,7 @@ export async function doProcessReport(snap: DataSnapshot, runId: String) {
   }
 }
 
-export async function doProcessChatMessage(snap: DataSnapshot, runId: String, conversationId: String) {
+export async function doProcessChatMessage(snap: DataSnapshot, runId: string, conversationId: string) {
   const chatMessage = snap.val();
   console.log("chatMessage="+chatMessage)
   const author = (await admin.database().ref("users/" + runId + "/" + chatMessage.author).once("value")).val()
