@@ -102,11 +102,11 @@ export async function doProcessChatMessage(snap: DataSnapshot, runId: string, co
   }
   const message = {
     data: {
-      authorName: author.name,
-      authorPictureUrl: author.profilePictureUrl,
-      messageText: chatMessage.text,
-      attachmentUrl: chatMessage.attachmentUrl,
-      conversationId: conversationId
+      authorName: String(author.name),
+      authorPictureUrl: String(author.profilePictureUrl),
+      messageText: String(chatMessage.text),
+      attachmentUrl: String(chatMessage.attachmentUrl),
+      conversationId: String(conversationId)
     },
     android: androidConfig,
     token: token
