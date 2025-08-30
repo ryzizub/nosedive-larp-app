@@ -92,7 +92,7 @@ export async function doProcessChatMessage(snap: DataSnapshot, runId: string, co
   console.log("author="+JSON.stringify(author))
   const conversationUsers = (await admin.database().ref("conversationUsers/" + runId + "/" + conversationId).once("value")).val()
   console.log("conversationUsers="+JSON.stringify(conversationUsers))
-  const otherUserId = conversationUsers.keys().find((userId: string) => userId != chatMessage.author)
+  const otherUserId = Object.keys(conversationUsers).find((userId: string) => userId != chatMessage.author)
   console.log("otherUSERid="+JSON.stringify(otherUserId))
   // send notification
   const token = (await admin.database().ref("userSecrets/" + runId + "/" + otherUserId + "/notificationsToken").once("value")).val()
