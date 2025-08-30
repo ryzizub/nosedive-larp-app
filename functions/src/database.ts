@@ -100,13 +100,12 @@ export async function doProcessChatMessage(snap: DataSnapshot, runId: string, co
   const androidConfig: admin.messaging.AndroidConfig = {
     priority: 'high'
   }
-  const attachmentUrl = (chatMessage.attachmentUrl) ? chatMessage.attachmentUrl : null
   const message = {
     data: {
       authorName: author.name,
       authorPictureUrl: author.profilePictureUrl,
       messageText: chatMessage.text,
-      attachmentUrl: attachmentUrl,
+      attachmentUrl: String(chatMessage.attachmentUrl),
       conversationId: conversationId
     },
     android: androidConfig,

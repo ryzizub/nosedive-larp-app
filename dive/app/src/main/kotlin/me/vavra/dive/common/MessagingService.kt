@@ -129,7 +129,7 @@ class MessagingService : FirebaseMessagingService() {
             putExtra("conversationId", conversationId)
         }
         val contentPendingIntent: PendingIntent =
-            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         // reply
         val remoteInput: RemoteInput = RemoteInput.Builder("replyText")
             .setLabel("Odpovědět")
@@ -152,7 +152,7 @@ class MessagingService : FirebaseMessagingService() {
         val openAttachmentAction = if (attachmentUrl != null) {
             val openAttachmentIntent = Files.getOpenAttachmentIntent(attachmentUrl)
             val openAttachmentPendingIntent: PendingIntent =
-                PendingIntent.getActivity(this, 0, openAttachmentIntent, PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.getActivity(this, 0, openAttachmentIntent, PendingIntent.FLAG_MUTABLE)
             NotificationCompat.Action.Builder(R.drawable.ic_open_attachment, "Otevřít přílohu", openAttachmentPendingIntent)
                 .addRemoteInput(remoteInput)
                 .build()
