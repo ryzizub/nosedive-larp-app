@@ -25,8 +25,6 @@ class MainActivity : ComponentActivity() {
                 viewModel.login(runId, password, onSuccess = {
                     askNotificationPermission()
                 })
-            }, onLogout = {
-                viewModel.logOut()
             })
         }
     }

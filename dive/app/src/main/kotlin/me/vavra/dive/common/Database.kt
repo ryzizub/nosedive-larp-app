@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import me.vavra.dive.Run
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

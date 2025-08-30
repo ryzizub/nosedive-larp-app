@@ -1,6 +1,6 @@
 package me.vavra.dive.feed
 
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 import me.vavra.dive.common.Database
 
 data class FeedState(

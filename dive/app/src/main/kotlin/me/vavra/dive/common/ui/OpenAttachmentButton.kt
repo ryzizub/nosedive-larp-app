@@ -1,8 +1,6 @@
 package me.vavra.dive.common.ui
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import me.vavra.dive.common.Files
 
 @Composable
 fun OpenAttachmentButton(url: String?, tonal: Boolean = false) {
@@ -21,8 +19,7 @@ fun OpenAttachmentButton(url: String?, tonal: Boolean = false) {
         Spacer(modifier = Modifier.height(8.dp))
         val activity = LocalActivity.current
         val onClick: () -> Unit = {
-            val webpage: Uri = url.toUri()
-            val intent = Intent(Intent.ACTION_VIEW, webpage)
+            val intent = Files.getOpenAttachmentIntent(url)
             try {
                 activity?.startActivity(intent)
             } catch (e: ActivityNotFoundException) {

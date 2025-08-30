@@ -1,6 +1,6 @@
 package me.vavra.dive.ratings
 
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 
 data class MyRatingsState(
     val ratingsOfMe: List<Rating> = listOf(),

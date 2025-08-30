@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.vavra.dive.common.Auth
@@ -28,17 +29,12 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
                 if (userId == null) {
                     Database.observeRuns().map { MainState.LoggedOut(it) }
                 } else {
-                    val runId = storage.getRunId()
-                    Database.observeUser(runId, userId).map { MainState.LoggedIn(it.shortenName(), runId) }
+                    flowOf(MainState.LoggedIn)
                 }
             }.collect {
                 state = it
             }
         }
-    }
-
-    private fun User.shortenName(): User {
-        return this.copy(name = this.name.split(" ")[0])
     }
 
     fun login(runId: String, password: String, onSuccess: () -> Unit) {
@@ -53,9 +49,5 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
                 state = loggedOutState
             }
         }
-    }
-
-    fun logOut() {
-        Auth.logout()
     }
 }

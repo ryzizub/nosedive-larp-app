@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import me.vavra.dive.NavDestination
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 import me.vavra.dive.common.ui.BottomSheetTopBar
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 import me.vavra.dive.common.ui.UserRating

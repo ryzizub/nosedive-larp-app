@@ -1,4 +1,4 @@
-package me.vavra.dive
+package me.vavra.dive.bottom
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import me.vavra.dive.NavDestination
 
 enum class BottomNavItem(
     val label: String,

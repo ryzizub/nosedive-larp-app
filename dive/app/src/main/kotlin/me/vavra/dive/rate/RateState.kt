@@ -1,6 +1,6 @@
 package me.vavra.dive.rate
 
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 
 data class RateState(
     val currentUser: User? = null,

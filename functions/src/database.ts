@@ -42,7 +42,7 @@ export async function doProcessRating(snap: DataSnapshot, runId: String) {
 export async function doProcessPostRating(snap: DataSnapshot, runId: String, postId: String) {
   const rating = snap.val();
   const post = (await admin.database().ref("posts/" + runId + "/" + postId).once("value")).val()
-  await admin.database().ref("ratings/"+runId).push().set({
+  await admin.database().ref("ratings/" + runId).push().set({
     "from": rating.from,
     "to": post.author,
     "createdAt": rating.createdAt,
@@ -83,4 +83,34 @@ export async function doProcessReport(snap: DataSnapshot, runId: String) {
       }
     )
   }
+}
+
+export async function doProcessChatMessage(snap: DataSnapshot, runId: String, conversationId: String) {
+  const chatMessage = snap.val();
+  console.log("chatMessage="+chatMessage)
+  const author = (await admin.database().ref("users/" + runId + "/" + chatMessage.author).once("value")).val()
+  console.log("author="+author)
+  const conversationUsers = (await admin.database().ref("conversationUsers/" + runId + "/" + conversationId).once("value")).val()
+  console.log("conversationUsers="+conversationUsers)
+  const otherUserId = conversationUsers.keys().find((userId: string) => userId != chatMessage.author)
+  console.log("otherUSERid="+otherUserId)
+  // send notification
+  const token = (await admin.database().ref("userSecrets/" + runId + "/" + otherUserId + "/notificationsToken").once("value")).val()
+  console.log("token="+token)
+  const androidConfig: admin.messaging.AndroidConfig = {
+    priority: 'high'
+  }
+  const message = {
+    data: {
+      authorName: author.name,
+      authorPictureUrl: author.profilePictureUrl,
+      messageText: chatMessage.text,
+      attachmentUrl: chatMessage.attachmentUrl,
+      conversationId: conversationId
+    },
+    android: androidConfig,
+    token: token
+  };
+  console.log("message=" + JSON.stringify(message))
+  await admin.messaging().send(message)
 }

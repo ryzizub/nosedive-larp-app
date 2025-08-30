@@ -27,7 +27,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import me.vavra.dive.NavDestination
-import me.vavra.dive.User
 import me.vavra.dive.common.ui.CenteredLoadingIndicator
 
 @Composable

@@ -35,7 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import me.vavra.dive.User
+import me.vavra.dive.bottom.User
 import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.ui.BottomSheetTopBar
