@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
@@ -59,7 +60,7 @@ class MessagingService : FirebaseMessagingService() {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build()
-        val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/message.mp3".toUri()
+        val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/message".toUri()
         channel.setSound(sound, audioAttributes)
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
@@ -119,17 +120,10 @@ class MessagingService : FirebaseMessagingService() {
     private fun showChatNotification(data: Map<String, String>) {
         val authorName = data["authorName"]
         val authorPictureUrl = data["authorPictureUrl"]
-        val messageText = data["messageText"]
-        val attachmentUrl = data["attachmentUrl"]
-        val conversationId = data["conversationId"]
+        val attachmentUrl = if (data["attachmentUrl"] == "undefined") null else data["attachmentUrl"]
+        val messageText = if (attachmentUrl == null ) data["messageText"] else data["messageText"]+" (obsahuje přílohu)"
+        val conversationId = checkNotNull(data["conversationId"])
         val numericConversationId = conversationId.hashCode()
-        // content
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("conversationId", conversationId)
-        }
-        val contentPendingIntent: PendingIntent =
-            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         // reply
         val remoteInput: RemoteInput = RemoteInput.Builder("replyText")
             .setLabel("Odpovědět")
@@ -148,17 +142,6 @@ class MessagingService : FirebaseMessagingService() {
             .setSemanticAction(SEMANTIC_ACTION_REPLY)
             .addRemoteInput(remoteInput)
             .build()
-        // open attachment
-        val openAttachmentAction = if (attachmentUrl != null) {
-            val openAttachmentIntent = Files.getOpenAttachmentIntent(attachmentUrl)
-            val openAttachmentPendingIntent: PendingIntent =
-                PendingIntent.getActivity(this, 0, openAttachmentIntent, PendingIntent.FLAG_MUTABLE)
-            NotificationCompat.Action.Builder(R.drawable.ic_open_attachment, "Otevřít přílohu", openAttachmentPendingIntent)
-                .addRemoteInput(remoteInput)
-                .build()
-        } else {
-            null
-        }
         GlobalScope.launch {
             val person = Person.Builder().setName(authorName).setIcon(getPersonIcon(authorPictureUrl)).build()
             val message = NotificationCompat.MessagingStyle.Message(messageText, System.currentTimeMillis(), person)
@@ -166,13 +149,9 @@ class MessagingService : FirebaseMessagingService() {
                 .setSmallIcon(R.drawable.ic_notification_chat)
                 .setStyle(
                     NotificationCompat.MessagingStyle(person).addMessage(message)
-                ).setContentIntent(contentPendingIntent)
+                ).setContentIntent(getConversationPendingIntent(this@MessagingService, conversationId))
                 .addAction(replyAction)
-                .apply {
-                    if (openAttachmentAction != null) {
-                        addAction(openAttachmentAction)
-                    }
-                }.setAutoCancel(true)
+                .setAutoCancel(true)
                 .build()
             with(NotificationManagerCompat.from(this@MessagingService)) {
                 if (ActivityCompat.checkSelfPermission(
@@ -180,6 +159,7 @@ class MessagingService : FirebaseMessagingService() {
                         Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
+                    Log.d("xxx", "firing $numericConversationId")
                     notify(numericConversationId, notification)
                 }
             }
@@ -206,6 +186,16 @@ class MessagingService : FirebaseMessagingService() {
                 })
                 .build()
             Coil.imageLoader(this).enqueue(request)
+        }
+    }
+
+    companion object {
+        fun getConversationPendingIntent(context: Context, conversationId: String): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java).apply {
+                action = Intent.ACTION_VIEW
+                setData("dive://conversation/$conversationId".toUri())
+            }
+            return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
         }
     }
 }

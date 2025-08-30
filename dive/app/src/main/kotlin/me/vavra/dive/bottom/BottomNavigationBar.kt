@@ -44,5 +44,5 @@ fun BottomNavigationBar(
 }
 
 fun androidx.navigation.NavDestination.toBottomNavItem(): BottomNavItem {
-    return BottomNavItem.entries.first { entry -> this.hierarchy.any { it.hasRoute(entry.destination::class) } }
+    return BottomNavItem.entries.firstOrNull { entry -> this.hierarchy.any { it.hasRoute(entry.destination::class) } } ?: BottomNavItem.Nearby
 }

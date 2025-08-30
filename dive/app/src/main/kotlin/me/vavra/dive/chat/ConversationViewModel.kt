@@ -23,7 +23,7 @@ class ConversationViewModel(private val app: Application) : AndroidViewModel(app
         viewModelScope.launch {
             val runId = storage.getRunId()
             conversationId.observeConversation(runId, storage).collect { conversation ->
-                state = state.copy(conversation = conversation, isLoading = false)
+                state = state.copy(conversation = conversation.copy(messages = conversation.messages.reversed()), isLoading = false)
                 storage.saveConversationReadCount(runId, conversationId, conversation.messages.size)
             }
         }

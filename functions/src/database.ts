@@ -87,16 +87,11 @@ export async function doProcessReport(snap: DataSnapshot, runId: string) {
 
 export async function doProcessChatMessage(snap: DataSnapshot, runId: string, conversationId: string) {
   const chatMessage = snap.val();
-  console.log("chatMessage="+JSON.stringify(chatMessage))
   const author = (await admin.database().ref("users/" + runId + "/" + chatMessage.author).once("value")).val()
-  console.log("author="+JSON.stringify(author))
   const conversationUsers = (await admin.database().ref("conversationUsers/" + runId + "/" + conversationId).once("value")).val()
-  console.log("conversationUsers="+JSON.stringify(conversationUsers))
   const otherUserId = Object.keys(conversationUsers).find((userId: string) => userId != chatMessage.author)
-  console.log("otherUSERid="+JSON.stringify(otherUserId))
   // send notification
   const token = (await admin.database().ref("userSecrets/" + runId + "/" + otherUserId + "/notificationsToken").once("value")).val()
-  console.log("token="+JSON.stringify(token))
   const androidConfig: admin.messaging.AndroidConfig = {
     priority: 'high'
   }

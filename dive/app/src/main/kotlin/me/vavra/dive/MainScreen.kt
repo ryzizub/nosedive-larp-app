@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.stefanoq21.material3.navigation.ModalBottomSheetLayout
 import com.stefanoq21.material3.navigation.bottomSheet
@@ -79,7 +80,9 @@ private fun LoggedInScreen() {
                     ChatScreen(Modifier.padding(it), navController)
                 })
             }
-            bottomSheet<NavDestination.Conversation> { backStackEntry ->
+            bottomSheet<NavDestination.Conversation>(deepLinks = listOf(
+                navDeepLink { uriPattern = "dive://conversation/{conversationId}" }
+            )) { backStackEntry ->
                 val conversationId = backStackEntry.toRoute<NavDestination.Conversation>().conversationId
                 ConversationScreen(conversationId)
             }

@@ -70,7 +70,7 @@ fun ConversationScreenContent(
     val conversation = checkNotNull(state.conversation)
     LaunchedEffect(conversation.messages.size, WindowInsets.isImeVisible) {
         if (conversation.messages.isNotEmpty()) {
-            listState.animateScrollToItem(conversation.messages.size - 1)
+            listState.animateScrollToItem(0)
         }
     }
 
@@ -85,6 +85,7 @@ fun ConversationScreenContent(
     ) { paddingValues ->
         LazyColumn(
             state = listState,
+            reverseLayout = true,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
