@@ -112,7 +112,7 @@ fun CommentItem(comment: Database.Message) {
                 text = comment.text,
                 style = MaterialTheme.typography.bodyMedium
             )
-            OpenAttachmentButton(comment.attachmentUrl)
+            OpenAttachmentButton(comment.attachmentUrl, tonal = true)
         }
     }
 }

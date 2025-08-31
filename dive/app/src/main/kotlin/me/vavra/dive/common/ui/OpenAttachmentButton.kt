@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import me.vavra.dive.common.Files
 
 @Composable
-fun OpenAttachmentButton(url: String?, tonal: Boolean = false) {
+fun OpenAttachmentButton(url: String?, tonal: Boolean) {
     if (url != null) {
         Spacer(modifier = Modifier.height(8.dp))
         val activity = LocalActivity.current
