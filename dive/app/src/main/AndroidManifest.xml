@@ -25,6 +25,18 @@
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="dive" android:host="conversation" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="dive" android:host="feed" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="dive" android:host="comments" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="dive" android:host="ratings" />
+            </intent-filter>
         </activity>
 
         <service

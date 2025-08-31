@@ -109,3 +109,27 @@ export async function doProcessChatMessage(snap: DataSnapshot, runId: string, co
   console.log("message=" + JSON.stringify(message))
   await admin.messaging().send(message)
 }
+
+export async function doProcessComment(snap: DataSnapshot, runId: string, postId: string) {
+  const comment = snap.val();
+  const author = (await admin.database().ref("users/" + runId + "/" + comment.author).once("value")).val()
+  const postAuthor = (await admin.database().ref("posts/" + runId + "/" + postId + "/author").once("value")).val()
+  // send notification
+  const token = (await admin.database().ref("userSecrets/" + runId + "/" + postAuthor + "/notificationsToken").once("value")).val()
+  const androidConfig: admin.messaging.AndroidConfig = {
+    priority: 'high'
+  }
+  const message = {
+    data: {
+      authorName: author.name,
+      authorPictureUrl: author.profilePictureUrl,
+      messageText: comment.text,
+      attachmentUrl: String(comment.attachmentUrl),
+      postId: postId
+    },
+    android: androidConfig,
+    token: token
+  };
+  console.log("message=" + JSON.stringify(message))
+  await admin.messaging().send(message)
+}

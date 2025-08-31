@@ -70,7 +70,9 @@ private fun LoggedInScreen() {
                     NearbyScreen(navController, Modifier.padding(it))
                 }
             }
-            composable<NavDestination.Feed> {
+            composable<NavDestination.Feed>(deepLinks = listOf(
+                navDeepLink { uriPattern = "dive://feed" }
+            )) {
                 BottomNavigation(navController, {
                     FeedScreen(Modifier.padding(it), navController)
                 })
@@ -86,11 +88,15 @@ private fun LoggedInScreen() {
                 val conversationId = backStackEntry.toRoute<NavDestination.Conversation>().conversationId
                 ConversationScreen(conversationId)
             }
-            bottomSheet<NavDestination.Comments> { backStackEntry ->
+            bottomSheet<NavDestination.Comments>(deepLinks = listOf(
+                navDeepLink { uriPattern = "dive://comments/{postId}" }
+            )) { backStackEntry ->
                 val postId = backStackEntry.toRoute<NavDestination.Comments>().postId
                 CommentsScreen(postId)
             }
-            bottomSheet<NavDestination.MyRatings> {
+            bottomSheet<NavDestination.MyRatings>(deepLinks = listOf(
+                navDeepLink { uriPattern = "dive://ratings" }
+            )) {
                 MyRatingsScreen()
             }
             bottomSheet<NavDestination.Rate> { backStackEntry ->

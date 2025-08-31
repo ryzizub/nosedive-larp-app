@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -39,28 +40,23 @@ class MessagingService : FirebaseMessagingService() {
     override fun onCreate() {
         super.onCreate()
         for (stars in 1..5) {
-            val channel = NotificationChannel(
-                stars.toString(),
-                "Hodnocení " + "⭐".repeat(stars),
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                .build()
-            val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/star$stars".toUri()
-            channel.setSound(sound, audioAttributes)
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            createChannel(stars.toString(), "⭐".repeat(stars), "star$stars")
         }
+        createChannel("chat", "Zprávy v chatu", "message")
+        createChannel("comments", "Komentáře", "comment")
+        createChannel("news", "Důležité zprávy", "news")
+    }
+
+    private fun createChannel(id: String, name: String, sound: String) {
         val channel = NotificationChannel(
-            "chat",
-            "Zprávy v chatu",
+            id,
+            name,
             NotificationManager.IMPORTANCE_HIGH
         )
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build()
-        val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/message".toUri()
+        val sound = "${ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/raw/$sound".toUri()
         channel.setSound(sound, audioAttributes)
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
@@ -78,30 +74,27 @@ class MessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.d("Dive", message.data.toString())
+        Log.d("xxx", message.data.toString())
         if (message.data.contains("fromNameGenitiv")) {
             showRatingNotification(message.data)
         } else if (message.data.contains("conversationId")) {
             showChatNotification(message.data)
+        } else if (message.data.contains("postId")) {
+            showCommentNotification(message.data)
+        } else if (message.data.contains("postText")) {
+            showImportantPostNotification(message.data)
         }
-
     }
 
     private fun showRatingNotification(data: Map<String, String>) {
         val nameGenitiv = data["fromNameGenitiv"]
         val stars = data["stars"]?.toInt() ?: 0
         val starsEmoji = "⭐".repeat(stars)
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent =
-            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
         val builder = NotificationCompat.Builder(this, stars.toString())
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Hodnocení od $nameGenitiv")
             .setContentText(starsEmoji)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(getRatingsPendingIntent(this))
             .setAutoCancel(true)
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
@@ -111,8 +104,7 @@ class MessagingService : FirebaseMessagingService() {
             ) {
                 return
             }
-            val notificationId = Random.Default.nextInt()
-            notify(notificationId, builder.build())
+            notify(1, builder.build())
         }
     }
 
@@ -121,7 +113,7 @@ class MessagingService : FirebaseMessagingService() {
         val authorName = data["authorName"]
         val authorPictureUrl = data["authorPictureUrl"]
         val attachmentUrl = if (data["attachmentUrl"] == "undefined") null else data["attachmentUrl"]
-        val messageText = if (attachmentUrl == null ) data["messageText"] else data["messageText"]+" (obsahuje přílohu)"
+        val messageText = if (attachmentUrl == null) data["messageText"] else data["messageText"] + " (obsahuje přílohu)"
         val conversationId = checkNotNull(data["conversationId"])
         val numericConversationId = conversationId.hashCode()
         // reply
@@ -143,7 +135,7 @@ class MessagingService : FirebaseMessagingService() {
             .addRemoteInput(remoteInput)
             .build()
         GlobalScope.launch {
-            val person = Person.Builder().setName(authorName).setIcon(getPersonIcon(authorPictureUrl)).build()
+            val person = Person.Builder().setName(authorName).setIcon(getPersonIconCompat(authorPictureUrl)).build()
             val message = NotificationCompat.MessagingStyle.Message(messageText, System.currentTimeMillis(), person)
             val notification = NotificationCompat.Builder(this@MessagingService, "chat")
                 .setSmallIcon(R.drawable.ic_notification_chat)
@@ -152,6 +144,7 @@ class MessagingService : FirebaseMessagingService() {
                 ).setContentIntent(getConversationPendingIntent(this@MessagingService, conversationId))
                 .addAction(replyAction)
                 .setAutoCancel(true)
+                .setGroup("chat")
                 .build()
             with(NotificationManagerCompat.from(this@MessagingService)) {
                 if (ActivityCompat.checkSelfPermission(
@@ -159,14 +152,72 @@ class MessagingService : FirebaseMessagingService() {
                         Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    Log.d("xxx", "firing $numericConversationId")
                     notify(numericConversationId, notification)
                 }
             }
         }
     }
 
-    private suspend fun getPersonIcon(
+    private fun showCommentNotification(data: Map<String, String>) {
+        val authorName = data["authorName"]
+        val authorPictureUrl = data["authorPictureUrl"]
+        val attachmentUrl = if (data["attachmentUrl"] == "undefined") null else data["attachmentUrl"]
+        val messageText = if (attachmentUrl == null) data["messageText"] else data["messageText"] + " (obsahuje přílohu)"
+        val postId = checkNotNull(data["postId"])
+        val numericPostId = postId.hashCode()
+        GlobalScope.launch {
+            val person = Person.Builder().setName(authorName).setIcon(getPersonIconCompat(authorPictureUrl)).build()
+            val message = NotificationCompat.MessagingStyle.Message(messageText, System.currentTimeMillis(), person)
+            val notification = NotificationCompat.Builder(this@MessagingService, "comments")
+                .setSmallIcon(R.drawable.ic_notification_feed)
+                .setStyle(
+                    NotificationCompat.MessagingStyle(person).addMessage(message)
+                ).setContentIntent(getCommentsPendingIntent(this@MessagingService, postId))
+                .setAutoCancel(true)
+                .setGroup("comments")
+                .build()
+            with(NotificationManagerCompat.from(this@MessagingService)) {
+                if (ActivityCompat.checkSelfPermission(
+                        this@MessagingService,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    notify(numericPostId, notification)
+                }
+            }
+        }
+    }
+
+
+    private fun showImportantPostNotification(data: Map<String, String>) {
+        val authorName = data["authorName"]
+        val authorPictureUrl = data["authorPictureUrl"]
+        val postText = data["postText"]
+        GlobalScope.launch {
+            val notification = NotificationCompat.Builder(this@MessagingService, "comments")
+                .setSmallIcon(R.drawable.ic_notification_feed)
+                .setStyle(
+                    NotificationCompat.BigTextStyle().bigText(postText)
+                )
+                .setContentIntent(getFeedPendingIntent(this@MessagingService))
+                .setContentTitle(authorName)
+                .setLargeIcon(getPersonIcon(authorPictureUrl))
+                .setAutoCancel(true)
+                .setGroup("news")
+                .build()
+            with(NotificationManagerCompat.from(this@MessagingService)) {
+                if (ActivityCompat.checkSelfPermission(
+                        this@MessagingService,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    notify(Random.nextInt(), notification)
+                }
+            }
+        }
+    }
+
+    private suspend fun getPersonIconCompat(
         imageUrl: String?
     ): IconCompat? = suspendCoroutine { continuation ->
         if (imageUrl == null) {
@@ -189,11 +240,50 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
+    private suspend fun getPersonIcon(
+        imageUrl: String?
+    ): Icon? = suspendCoroutine { continuation ->
+        if (imageUrl == null) {
+            continuation.resume(null)
+        } else {
+            val request = ImageRequest.Builder(this)
+                .data(imageUrl)
+                .target { drawable ->
+                    continuation.resume(
+                        Icon.createWithBitmap((drawable as BitmapDrawable).bitmap)
+                    )
+                }
+                .listener(object : ImageRequest.Listener {
+                    override fun onError(request: ImageRequest, result: ErrorResult) {
+                        continuation.resume(null)
+                    }
+                })
+                .build()
+            Coil.imageLoader(this).enqueue(request)
+        }
+    }
+
     companion object {
         fun getConversationPendingIntent(context: Context, conversationId: String): PendingIntent {
+            return getNotificationIntent(context, "conversation/$conversationId")
+        }
+
+        fun getCommentsPendingIntent(context: Context, postId: String): PendingIntent {
+            return getNotificationIntent(context, "comments/$postId")
+        }
+
+        fun getFeedPendingIntent(context: Context): PendingIntent {
+            return getNotificationIntent(context, "feed")
+        }
+
+        fun getRatingsPendingIntent(context: Context): PendingIntent {
+            return getNotificationIntent(context, "ratings")
+        }
+
+        private fun getNotificationIntent(context: Context, data: String): PendingIntent {
             val intent = Intent(context, MainActivity::class.java).apply {
                 action = Intent.ACTION_VIEW
-                setData("dive://conversation/$conversationId".toUri())
+                setData("dive://$data".toUri())
             }
             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
         }
