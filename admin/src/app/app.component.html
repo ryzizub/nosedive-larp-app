@@ -1,21 +1,46 @@
 <div class="container">
-  <h2>Nová CP zpráva</h2>
+  <h2>Nová chat zpráva</h2>
   <form (ngSubmit)="onMessageSubmit()" #slackForm="ngForm">
     <div class="form-group">
-      <label for="user">Uživatel</label>
-      <select class="form-control" id="user" required [(ngModel)]="state.user" name="user">
+      <label for="chatFrom">Od koho</label>
+      <select class="form-control" id="chatFrom" required [(ngModel)]="state.chatFrom" name="chatFrom">
         <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="channel">Kanál</label>
-      <select class="form-control" id="channel" required [(ngModel)]="state.channel" name="channel">
-        <option *ngFor="let channel of channels | async" [ngValue]="channel">#{{channel.name}}</option>
+      <label for="chatTo">Komu</label>
+      <select class="form-control" id="chatTo" required [(ngModel)]="state.chatTo" name="chatTo">
+        <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="text">Text</label>
-      <textarea class="form-control" id="text" required [(ngModel)]="state.text" name="text"  rows="5"></textarea>
+      <label for="chatText">Text</label>
+      <textarea class="form-control" id="chatText" required [(ngModel)]="state.chatText" name="chatText"  rows="5"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="chatAttachment">Příloha</label>
+      <input type="file" class="form-control" id="chatAttachment" [(ngModel)]="state.chatAttachment" />
+    </div>
+    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
+  </form>
+  <h2>Nový feed post</h2>
+  <form (ngSubmit)="onPostSubmit()" #slackForm="ngForm">
+    <div class="form-group">
+      <label for="feedFrom">Od koho</label>
+      <select class="form-control" id="from" required [(ngModel)]="state.feedFrom" name="feedFrom">
+        <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="feedPhoto">Fotka</label>
+      <input type="file" class="form-control" id="feedPhoto" required [(ngModel)]="state.feedPhoto" accept="image/*" />
+    </div>
+    <div class="form-group">
+      <label for="feedText">Text</label>
+      <textarea class="form-control" id="feedText" required [(ngModel)]="state.feedText" name="feedText"  rows="5"></textarea>
+    </div>
+    <div class="form-group">
+      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" />&nbsp;<label for="feedNotification">Poslat také notifikaci všem hráčům</label>
     </div>
     <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
   </form>
@@ -49,7 +74,7 @@
       <input type="number" [(ngModel)]="state.reward" id="reward" name="reward" required/>
     </div>
     <div class="form-group">
-      <label for="reason">Důvod</label><br />
+      <label for="reason">Důvod (napíše se do feedu za Dive Safety a pošle to všem hráčům notifikaci)</label><br />
       <input type="text" id="reason" name="reason" required [(ngModel)]="state.reportReason" style="width: 100%"/>
     </div>
     <button type="submit" [disabled]="!reportForm.form.valid" class="btn btn-success">Prásk!</button><br /><br />
@@ -79,21 +104,27 @@
       <input type="number" [(ngModel)]="state.ratingChange" id="ratingChange" name="ratingChange" required/>
     </div>
     <div class="form-group">
-      <label for="reason">Důvod (napíše se do #feed za SuperBlesk)</label><br />
+      <label for="reason">Důvod (napíše se do feedu za SuperBlesk a pošle to všem hráčům notifikaci)</label><br />
       <input type="text" id="reason" name="reason" required [(ngModel)]="state.ratingReason" style="width: 100%"/>
     </div>
     <button type="submit" [disabled]="!ratingForm.form.valid" class="btn btn-success">Změnit hodnocení</button><br /><br />
   </form>
-  <h2>Reset</h2>
-  <form (ngSubmit)="onResetSubmit()" #resetForm="ngForm">
+  <h2>Nový běh</h2>
+  <form (ngSubmit)="onNewRunSubmit()" #newRunForm="ngForm">
     <div class="form-group">
-      <label for="sbt">Slack bot token</label><br />
-      <input type="text" id="sbt" name="sbt" required [(ngModel)]="state.slackBotToken" style="width: 100%"/>
+      <label for="newRunId">Číslo běhu</label><br />
+      <input type="number" id="newRunId" name="newRunId" required [(ngModel)]="state.newRunId"/>
     </div>
     <div class="form-group">
-      <label for="fchid">#feed channel id</label><br />
-      <input type="text" id="fchid" name="fchid" required [(ngModel)]="state.feedChannelId" style="width: 100%"/>
+      <label for="newRunName">Název běhu</label><br />
+      <input type="text" id="newRunName" name="newRunName" required [(ngModel)]="state.newRunName"/>
     </div>
-    <button type="submit" [disabled]="!resetForm.form.valid" class="btn btn-success">Resetovat vše mezi běhy</button><br /><br />
+    <div class="form-group">
+      <label for="newRunBasedOn">Zkopírovat uživatele z běhu:</label>
+      <select class="form-control" id="newRunBasedOn" required [(ngModel)]="state.newRunBasedOn" name="newRunBasedOn">
+        <option *ngFor="let run of runs" [ngValue]="run">{{run.name}}</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="!newRunForm.form.valid" class="btn btn-success">Vytvořit nový běh</button><br /><br />
   </form>
 </div>
