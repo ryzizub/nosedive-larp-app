@@ -59,16 +59,13 @@ export class AppComponent {
       this.conversationId = null;
       return;
     }
-    console.log(`userConversations/${runId}/${fromId}`);
     firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
-      console.log(JSON.stringify(convs))
       if (!convs) {
         this.conversationId = null;
         return;
       }
       let found = false
       for (const convId of Object.keys(convs)) {
-        console.log(`conversationUsers/${runId}/${convId}/${toId}`);
         const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
         if (exists) {
           this.conversationId = convId;
