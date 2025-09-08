@@ -60,14 +60,14 @@ export class AppComponent {
       return;
     }
     console.log(`userConversations/${runId}/${fromId}`);
-    firstValueFrom(listVal(ref(this.database, `userConversations/${runId}/${fromId}`), { keyField: 'id' })).then(async (convs: any[] | null) => {
+    firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
+      console.log(JSON.stringify(convs))
       if (!convs) {
         this.conversationId = null;
         return;
       }
       let found = false
-      for (const conv of convs) {
-        const convId = conv.id;
+      for (const convId of Object.keys(convs)) {
         console.log(`conversationUsers/${runId}/${convId}/${toId}`);
         const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
         if (exists) {
