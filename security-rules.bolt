@@ -145,7 +145,7 @@ path /conversationUsers/{run_id}/{conversation_id} {
 
 path /userConversations/{run_id}/{user_id} {
     
-  read() { isCurrentUser(user_id) }
+  read() { isCurrentUser(user_id) || isAuditor() }
 
   write() { isAuditor() }
 

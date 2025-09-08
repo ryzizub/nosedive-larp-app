@@ -26,7 +26,7 @@ export class AppComponent {
     const url = new URL(window.location.href)
     const subdomain = url.hostname.split('.')[0];
     this.runId = url.searchParams.get("run")
-    this.http.get<{ token: string }>('https://europe-west1-nosedive-larp.cloudfunctions.net/login?password=' + subdomain).subscribe(response => {
+    this.http.get<{ token: string }>(`https://europe-west1-nosedive-larp.cloudfunctions.net/login?password=${subdomain}&run=${this.runId}`).subscribe(response => {
       signInWithCustomToken(this.auth, response.token).then(() => {
       })
     });
@@ -59,6 +59,7 @@ export class AppComponent {
       this.conversationId = null;
       return;
     }
+    console.log(`userConversations/${runId}/${fromId}`);
     firstValueFrom(listVal(ref(this.database, `userConversations/${runId}/${fromId}`), { keyField: 'id' })).then(async (convs: any[] | null) => {
       if (!convs) {
         this.conversationId = null;
@@ -67,6 +68,7 @@ export class AppComponent {
       let found = false
       for (const conv of convs) {
         const convId = conv.id;
+        console.log(`conversationUsers/${runId}/${convId}/${toId}`);
         const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
         if (exists) {
           this.conversationId = convId;
