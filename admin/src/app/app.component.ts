@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
+import { TmplAstRecursiveVisitor } from '@angular/compiler';
 import { Component, Injectable, inject } from '@angular/core';
 import { Auth, signInWithCustomToken } from '@angular/fire/auth';
 import { Database, listVal, query, ref, push, serverTimestamp, objectVal, update, remove } from '@angular/fire/database';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +19,7 @@ export class AppComponent {
   players: User[] = [];
   runs: Run[] = [];
   runId: string | null = null
+  conversationId: string | null = null
   state = new State()
 
   constructor(private http: HttpClient) {
@@ -49,7 +52,32 @@ export class AppComponent {
   }
 
   onConversationSubmit() {
-
+    const runId = this.runId;
+    const fromId = this.state.chatFrom?.id;
+    const toId = this.state.chatTo?.id;
+    if (!runId || !fromId || !toId || fromId === "unknown" || toId === "unknown") {
+      this.conversationId = null;
+      return;
+    }
+    firstValueFrom(listVal(ref(this.database, `userConversations/${runId}/${fromId}`), { keyField: 'id' })).then(async (convs: any[] | null) => {
+      if (!convs) {
+        this.conversationId = null;
+        return;
+      }
+      let found = false
+      for (const conv of convs) {
+        const convId = conv.id;
+        const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
+        if (exists) {
+          this.conversationId = convId;
+          found = true
+          return;
+        }
+      }
+      if (!found) {
+        this.conversationId = null;
+      }
+    });
   }
 
   onMessageSubmit() {

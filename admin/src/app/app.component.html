@@ -15,23 +15,25 @@
     </div>
     <button type="submit" [disabled]="!conversationForm.form.valid" class="btn btn-success">Načíst konverzaci</button>
   </form>
-  <h3>Nová zpráva</h3>
-  <form (ngSubmit)="onMessageSubmit()" #messageForm="ngForm">
-    <div class="form-group">
-      <label for="chatText">Text</label>
-      <textarea class="form-control" id="chatText" required [(ngModel)]="state.chatText" name="chatText"
-        rows="5"></textarea>
-    </div>
-    <div class="form-group">
-      <label for="chatAttachment">Příloha</label>
-      <input type="file" class="form-control" id="chatAttachment" [(ngModel)]="state.chatAttachment" />
-    </div>
-    <div class="form-group">
-      <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" />&nbsp;<label
-        for="chatToAll">Poslat zprávu všem hráčům (typicky organizační info od Dive Admin)</label>
-    </div>
-    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
-  </form>
+  <div *ngIf="conversationId">
+    <h3>Nová zpráva</h3>
+    <form (ngSubmit)="onMessageSubmit()" #messageForm="ngForm">
+      <div class="form-group">
+        <label for="chatText">Text</label>
+        <textarea class="form-control" id="chatText" required [(ngModel)]="state.chatText" name="chatText"
+          rows="5"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="chatAttachment">Příloha</label>
+        <input type="file" class="form-control" id="chatAttachment" [(ngModel)]="state.chatAttachment" />
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" />&nbsp;<label
+          for="chatToAll">Poslat zprávu všem hráčům (typicky organizační info od Dive Admin)</label>
+      </div>
+      <button type="submit" [disabled]="!messageForm.form.valid" class="btn btn-success">Poslat</button>
+    </form>
+  </div>
   <h2>Nový feed post</h2>
   <form (ngSubmit)="onPostSubmit()" #slackForm="ngForm">
     <div class="form-group">
