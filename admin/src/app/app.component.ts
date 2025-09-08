@@ -33,7 +33,6 @@ export class AppComponent {
         let playerUsers = (users as User[]).filter(user => !user.id.startsWith("_") || LIVE_NPC_IDS.includes(user.id)).sort((a, b) => a.name.localeCompare(b.name))
         npcUsers.push(NO_USER)
         playerUsers.push(NO_USER)
-        playerUsers.push(ALL_USERS)
         if (!this.isSame(npcUsers, this.npcs)) {
           this.npcs = npcUsers
         }
@@ -49,8 +48,11 @@ export class AppComponent {
     })
   }
 
-  onMessageSubmit() {
+  onConversationSubmit() {
 
+  }
+
+  onMessageSubmit() {
   }
 
   onPostSubmit() {
@@ -79,7 +81,7 @@ export class AppComponent {
     this.state.reportReason = ""
   }
 
-  onNewRunSubmit() {
+  onResetRunSubmit() {
     if (confirm("Fakt chceš všechno smazat a začít nový běh?")) {
       this.players.forEach(player => {
         if (player.defaultRating != undefined) {
@@ -100,6 +102,10 @@ export class AppComponent {
       remove(ref(this.database, "reports"))
       remove(ref(this.database, "ratings"))
     }
+  }
+
+  onNewRunSubmit() {
+
   }
 
   onRatingSubmit() {
@@ -137,6 +143,7 @@ export class State {
     public chatFrom: User = NO_USER,
     public chatTo: User = NO_USER,
     public chatText: string = "",
+    public chatToAll: boolean = false,
     public chatAttachment: string = "",
     public feedFrom: User = NO_USER,
     public feedPhoto: string = "",
@@ -181,7 +188,6 @@ export class Run {
 }
 
 let NO_USER = new User("unknown", "-- Nikdo --", "", undefined, undefined)
-let ALL_USERS = new User("all", "== Všem hráčům ==", "", undefined, undefined)
 let LIVE_NPC_IDS = ["_barman", "_david", "_vaclav"]
 
 

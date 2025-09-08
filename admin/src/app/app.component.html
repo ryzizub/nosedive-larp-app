@@ -1,6 +1,6 @@
 <div class="container">
-  <h2>Nová chat zpráva</h2>
-  <form (ngSubmit)="onMessageSubmit()" #slackForm="ngForm">
+  <h2>Chat</h2>
+  <form (ngSubmit)="onConversationSubmit()" #conversationForm="ngForm">
     <div class="form-group">
       <label for="chatFrom">Od koho</label>
       <select class="form-control" id="chatFrom" required [(ngModel)]="state.chatFrom" name="chatFrom">
@@ -13,13 +13,22 @@
         <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
+    <button type="submit" [disabled]="!conversationForm.form.valid" class="btn btn-success">Načíst konverzaci</button>
+  </form>
+  <h3>Nová zpráva</h3>
+  <form (ngSubmit)="onMessageSubmit()" #messageForm="ngForm">
     <div class="form-group">
       <label for="chatText">Text</label>
-      <textarea class="form-control" id="chatText" required [(ngModel)]="state.chatText" name="chatText"  rows="5"></textarea>
+      <textarea class="form-control" id="chatText" required [(ngModel)]="state.chatText" name="chatText"
+        rows="5"></textarea>
     </div>
     <div class="form-group">
       <label for="chatAttachment">Příloha</label>
       <input type="file" class="form-control" id="chatAttachment" [(ngModel)]="state.chatAttachment" />
+    </div>
+    <div class="form-group">
+      <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" />&nbsp;<label
+        for="chatToAll">Poslat zprávu všem hráčům (typicky organizační info od Dive Admin)</label>
     </div>
     <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
   </form>
@@ -37,10 +46,12 @@
     </div>
     <div class="form-group">
       <label for="feedText">Text</label>
-      <textarea class="form-control" id="feedText" required [(ngModel)]="state.feedText" name="feedText"  rows="5"></textarea>
+      <textarea class="form-control" id="feedText" required [(ngModel)]="state.feedText" name="feedText"
+        rows="5"></textarea>
     </div>
     <div class="form-group">
-      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" />&nbsp;<label for="feedNotification">Poslat také notifikaci všem hráčům</label>
+      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" />&nbsp;<label
+        for="feedNotification">Poslat také notifikaci všem hráčům</label>
     </div>
     <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
   </form>
@@ -67,15 +78,15 @@
     </div>
     <div class="form-group">
       <label for="penalty">O kolik potrestat oběť</label><br />
-      <input type="number" [(ngModel)]="state.penalty" id="penalty" name="penalty" required/>
+      <input type="number" [(ngModel)]="state.penalty" id="penalty" name="penalty" required />
     </div>
     <div class="form-group">
       <label for="reward">O kolik odměnit práskače</label><br />
-      <input type="number" [(ngModel)]="state.reward" id="reward" name="reward" required/>
+      <input type="number" [(ngModel)]="state.reward" id="reward" name="reward" required />
     </div>
     <div class="form-group">
       <label for="reason">Důvod (napíše se do feedu za Dive Safety a pošle to všem hráčům notifikaci)</label><br />
-      <input type="text" id="reason" name="reason" required [(ngModel)]="state.reportReason" style="width: 100%"/>
+      <input type="text" id="reason" name="reason" required [(ngModel)]="state.reportReason" style="width: 100%" />
     </div>
     <button type="submit" [disabled]="!reportForm.form.valid" class="btn btn-success">Prásk!</button><br /><br />
   </form>
@@ -87,7 +98,8 @@
         <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
-    <button [disabled]="!visibilityForm.form.valid" class="btn btn-success" (click)="onMakeVisible()">Zviditelnit</button>&nbsp;
+    <button [disabled]="!visibilityForm.form.valid" class="btn btn-success"
+      (click)="onMakeVisible()">Zviditelnit</button>&nbsp;
     <button [disabled]="!visibilityForm.form.valid" class="btn btn-success" (click)="onMakeInvisible()">Zmizet</button>
     <br /><br />
   </form>
@@ -101,23 +113,28 @@
     </div>
     <div class="form-group">
       <label for="ratingChange">O kolik změnit (kladné hodnoty zvýšení, záporné snížení)</label><br />
-      <input type="number" [(ngModel)]="state.ratingChange" id="ratingChange" name="ratingChange" required/>
+      <input type="number" [(ngModel)]="state.ratingChange" id="ratingChange" name="ratingChange" required />
     </div>
     <div class="form-group">
       <label for="reason">Důvod (napíše se do feedu za SuperBlesk a pošle to všem hráčům notifikaci)</label><br />
-      <input type="text" id="reason" name="reason" required [(ngModel)]="state.ratingReason" style="width: 100%"/>
+      <input type="text" id="reason" name="reason" required [(ngModel)]="state.ratingReason" style="width: 100%" />
     </div>
-    <button type="submit" [disabled]="!ratingForm.form.valid" class="btn btn-success">Změnit hodnocení</button><br /><br />
+    <button type="submit" [disabled]="!ratingForm.form.valid" class="btn btn-success">Změnit
+      hodnocení</button><br /><br />
+  </form>
+  <h2>Resetovat běh</h2>
+  <form (ngSubmit)="onResetRunSubmit()" #newRunForm="ngForm">
+    <button type="submit" class="btn">Resetovat aktuální běh</button><br /><br />
   </form>
   <h2>Nový běh</h2>
   <form (ngSubmit)="onNewRunSubmit()" #newRunForm="ngForm">
     <div class="form-group">
       <label for="newRunId">Číslo běhu</label><br />
-      <input type="number" id="newRunId" name="newRunId" required [(ngModel)]="state.newRunId"/>
+      <input type="number" id="newRunId" name="newRunId" required [(ngModel)]="state.newRunId" />
     </div>
     <div class="form-group">
       <label for="newRunName">Název běhu</label><br />
-      <input type="text" id="newRunName" name="newRunName" required [(ngModel)]="state.newRunName"/>
+      <input type="text" id="newRunName" name="newRunName" required [(ngModel)]="state.newRunName" />
     </div>
     <div class="form-group">
       <label for="newRunBasedOn">Zkopírovat uživatele z běhu:</label>
@@ -125,6 +142,6 @@
         <option *ngFor="let run of runs" [ngValue]="run">{{run.name}}</option>
       </select>
     </div>
-    <button type="submit" [disabled]="!newRunForm.form.valid" class="btn btn-success">Vytvořit nový běh</button><br /><br />
+    <button type="submit" [disabled]="!newRunForm.form.valid" class="btn">Vytvořit nový běh</button><br /><br />
   </form>
 </div>
