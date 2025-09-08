@@ -21,6 +21,7 @@ export class AppComponent {
   runId: string | null = null
   conversationId: string | null = null
   state = new State()
+  chatMessages: any[] = [];
 
   constructor(private http: HttpClient) {
     const url = new URL(window.location.href)
@@ -70,6 +71,11 @@ export class AppComponent {
         if (exists) {
           this.conversationId = convId;
           found = true
+          // Subscribe to chat messages for this conversation
+          const messagesRef = ref(this.database, `conversationMessages/${runId}/${convId}`);
+          listVal(messagesRef, { keyField: 'id' }).subscribe((msgs: any[] | null) => {
+            this.chatMessages = msgs?.slice(-10) || [];
+          });
           return;
         }
       }
