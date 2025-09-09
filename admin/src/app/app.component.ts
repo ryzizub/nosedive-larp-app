@@ -86,6 +86,12 @@ export class AppComponent {
   }
 
   onMessageSubmit() {
+    push(ref(this.database, `conversationMessages/${this.runId}/${this.conversationId}`), {
+      "author": this.state.chatFrom.id,
+      "text": this.state.chatText,
+      "attachmentUrl": this.state.chatAttachment,
+      "createdAt": serverTimestamp()
+    })
   }
 
   onPostSubmit() {
@@ -177,7 +183,7 @@ export class State {
     public chatTo: User = NO_USER,
     public chatText: string = "",
     public chatToAll: boolean = false,
-    public chatAttachment: string = "",
+    public chatAttachment: string | null = null,
     public feedFrom: User = NO_USER,
     public feedPhoto: string = "",
     public feedText: string = "",
