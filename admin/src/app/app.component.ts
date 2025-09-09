@@ -63,7 +63,8 @@ export class AppComponent {
     }
     firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
       if (!convs) {
-        this.conversationId = null;
+        await this.createConversation()
+        this.subscribeToMessages()
         return;
       }
       let found = false
@@ -72,17 +73,32 @@ export class AppComponent {
         if (exists) {
           this.conversationId = convId;
           found = true
-          // Subscribe to chat messages for this conversation
-          const messagesRef = ref(this.database, `conversationMessages/${runId}/${convId}`);
-          listVal(messagesRef, { keyField: 'id' }).subscribe((msgs: any[] | null) => {
-            this.chatMessages = msgs?.slice(-10) || [];
-          });
+          this.subscribeToMessages()
           return;
         }
       }
       if (!found) {
-        this.conversationId = null;
+        await this.createConversation()
+        this.subscribeToMessages()
       }
+    });
+  }
+
+  private async createConversation() {
+    const convRef = await push(ref(this.database, `conversationUsers/${this.runId}`))
+    this.conversationId = convRef.key
+    await update(ref(this.database), {
+      [`conversationUsers/${this.runId}/${this.conversationId}/${this.state.chatFrom.id}`]: true,
+      [`conversationUsers/${this.runId}/${this.conversationId}/${this.state.chatTo.id}`]: true,
+      [`userConversations/${this.runId}/${this.state.chatFrom.id}/${this.conversationId}`]: true,
+      [`userConversations/${this.runId}/${this.state.chatTo.id}/${this.conversationId}`]: true
+    })
+  }
+
+  private subscribeToMessages() {
+    const messagesRef = ref(this.database, `conversationMessages/${this.runId}/${this.conversationId}`);
+    listVal(messagesRef, { keyField: 'id' }).subscribe((msgs: any[] | null) => {
+      this.chatMessages = msgs?.slice(-10) || [];
     });
   }
 

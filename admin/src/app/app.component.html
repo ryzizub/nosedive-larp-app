@@ -37,7 +37,7 @@
           name="chatAttachment" />
       </div>
       <div class="form-group">
-        <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" />&nbsp;<label for="chatToAll">Poslat zprávu
+        <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" name="chatToAll" />&nbsp;<label for="chatToAll">Poslat zprávu
           všem hráčům (typicky organizační info od Dive Admin)</label>
       </div>
       <button type="submit" [disabled]="!messageForm.form.valid" class="btn btn-success" *ngIf="!state.chatUploading">Poslat</button>
@@ -48,13 +48,13 @@
   <form (ngSubmit)="onPostSubmit()" #slackForm="ngForm">
     <div class="form-group">
       <label for="feedFrom">Od koho</label>
-      <select class="form-control" id="from" required [(ngModel)]="state.feedFrom" name="feedFrom">
+      <select class="form-control" id="feedFrom" required [(ngModel)]="state.feedFrom" name="feedFrom">
         <option *ngFor="let user of npcs" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
     <div class="form-group">
       <label for="feedPhoto">Fotka</label>
-      <input type="file" class="form-control" id="feedPhoto" required [(ngModel)]="state.feedPhoto" accept="image/*" />
+      <input type="file" class="form-control" id="feedPhoto" required [(ngModel)]="state.feedPhoto" accept="image/*" name="feedPhoto" />
     </div>
     <div class="form-group">
       <label for="feedText">Text</label>
@@ -62,7 +62,7 @@
         rows="5"></textarea>
     </div>
     <div class="form-group">
-      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" />&nbsp;<label
+      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" name="feedNotification" />&nbsp;<label
         for="feedNotification">Poslat také notifikaci všem hráčům</label>
     </div>
     <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
