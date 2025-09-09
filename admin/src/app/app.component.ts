@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { TmplAstRecursiveVisitor } from '@angular/compiler';
 import { Component, Injectable, inject } from '@angular/core';
 import { Auth, signInWithCustomToken } from '@angular/fire/auth';
 import { Database, listVal, query, ref, push, serverTimestamp, objectVal, update, remove } from '@angular/fire/database';
+import { getDownloadURL, Storage, ref as storageRef, uploadBytes } from '@angular/fire/storage';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -15,6 +15,7 @@ export class AppComponent {
   title = 'admin';
   private database: Database = inject(Database);
   private auth: Auth = inject(Auth);
+  private storage: Storage = inject(Storage)
   npcs: User[] = [];
   players: User[] = [];
   runs: Run[] = [];
@@ -85,13 +86,29 @@ export class AppComponent {
     });
   }
 
-  onMessageSubmit() {
+  onChatAttachmentChange(event: any) {
+    const file = event.target.files[0];
+    this.state.chatAttachment = file ? file : null;
+  }
+
+  async onMessageSubmit() {
+    this.state.chatUploading = true
+    let downloadUrl = null
+    if (this.state.chatAttachment) {
+      const filePath = `chat_attachments/${this.runId}/${Date.now()}_${this.state.chatAttachment.name}`;
+      const fileRef = storageRef(this.storage, filePath);
+      await uploadBytes(fileRef, this.state.chatAttachment)
+      downloadUrl = await getDownloadURL(fileRef)
+    }
     push(ref(this.database, `conversationMessages/${this.runId}/${this.conversationId}`), {
       "author": this.state.chatFrom.id,
       "text": this.state.chatText,
-      "attachmentUrl": this.state.chatAttachment,
+      "attachmentUrl": downloadUrl,
       "createdAt": serverTimestamp()
     })
+    this.state.chatUploading = false
+    this.state.chatText = ""
+    this.state.chatAttachment = null
   }
 
   onPostSubmit() {
@@ -183,7 +200,8 @@ export class State {
     public chatTo: User = NO_USER,
     public chatText: string = "",
     public chatToAll: boolean = false,
-    public chatAttachment: string | null = null,
+    public chatAttachment: File | null = null,
+    public chatUploading: boolean = false,
     public feedFrom: User = NO_USER,
     public feedPhoto: string = "",
     public feedText: string = "",
