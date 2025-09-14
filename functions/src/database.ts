@@ -141,7 +141,9 @@ export async function doProcessPost(snap: DataSnapshot, runId: string, postId: s
     // send notifications to all
     let tokens: string[] = new Array<string>
     await (admin.database().ref("userSecrets/" + runId).once("value", (snap) => {
+      console.log("snap=" + JSON.stringify(snap))
       const token = snap.val().notificationsToken
+      console.log("token=" + JSON.stringify(token))
       if (token != undefined) {
         tokens.push(token)
       }

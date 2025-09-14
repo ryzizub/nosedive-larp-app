@@ -161,6 +161,7 @@ export class AppComponent {
     await this.sendPost(this.state.feedFrom.id, this.state.feedText, downloadUrl, this.state.feedNotification)
     this.state.feedUploading = false
     this.state.feedText = ""
+    this.state.feedFrom = NO_USER
     this.state.feedPhoto = null
     this.state.feedNotification = false
   }
