@@ -54,7 +54,7 @@
     </div>
     <div class="form-group">
       <label for="feedPhoto">Fotka</label>
-      <input type="file" class="form-control" id="feedPhoto" required [(ngModel)]="state.feedPhoto" accept="image/*" name="feedPhoto" />
+      <input type="file" class="form-control" id="feedPhoto" required [(ngModel)]="state.feedPhoto" (change)="onFeedPhotoChange($event)" accept="image/*" name="feedPhoto" />
     </div>
     <div class="form-group">
       <label for="feedText">Text</label>
@@ -65,7 +65,8 @@
       <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" name="feedNotification" />&nbsp;<label
         for="feedNotification">Poslat také notifikaci všem hráčům</label>
     </div>
-    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success">Poslat</button>
+    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success" *ngIf="!state.feedUploading">Poslat</button>
+    <button class="btn btn-success" disabled *ngIf="state.feedUploading">Nahrávám...</button>
   </form>
   <h2>Reportování</h2>
   <form (ngSubmit)="onReportSubmit()" #reportForm="ngForm">

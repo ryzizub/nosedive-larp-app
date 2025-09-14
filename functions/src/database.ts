@@ -133,3 +133,27 @@ export async function doProcessComment(snap: DataSnapshot, runId: string, postId
   console.log("message=" + JSON.stringify(message))
   await admin.messaging().send(message)
 }
+
+export async function doProcessPost(snap: DataSnapshot, runId: string, postId: string) {
+  const post = snap.val();
+  if (post.important == true) {
+    const author = (await admin.database().ref("users/" + runId + "/" + post.author).once("value")).val()
+    // send notification
+    const tokens = ((await admin.database().ref("userSecrets/" + runId).once("value")).val()).map(( (secret: any) => secret.notificationsToken )).filter( (token: string) => token != null )
+    const androidConfig: admin.messaging.AndroidConfig = {
+      priority: 'high'
+    }
+    const message = {
+      data: {
+        authorName: author.name,
+        authorPictureUrl: author.profilePictureUrl,
+        postText: post.text,
+        postId: postId
+      },
+      android: androidConfig,
+      tokens: tokens
+    };
+    console.log("message=" + JSON.stringify(message))
+    await admin.messaging().sendMulticast(message)
+  }
+}

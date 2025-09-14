@@ -87,7 +87,8 @@ type Post {
   author: Id,
   text: LongText,
   createdAt: Number,
-  pictureUrl: Url
+  pictureUrl: Url,
+  important: Boolean
 }
 
 // 

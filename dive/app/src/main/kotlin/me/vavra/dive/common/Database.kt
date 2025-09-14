@@ -290,7 +290,8 @@ object Database {
         val text: String = "",
         val author: String = "",
         val pictureUrl: String = "",
-        val createdAt: Long = 0
+        val createdAt: Long = 0,
+        val important: Boolean = false
     )
 
     data class RawMessage(

@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { doLogin } from './login';
-import { doProcessRating, doProcessReport, doProcessPostRating, doProcessChatMessage, doProcessComment } from './database';
+import { doProcessRating, doProcessReport, doProcessPostRating, doProcessChatMessage, doProcessComment, doProcessPost } from './database';
 
 admin.initializeApp({
     databaseURL: "https://nosedive-larp-default-rtdb.europe-west1.firebasedatabase.app"
@@ -29,4 +29,8 @@ export let processChatMessage = functions.region('europe-west1').database.ref("c
 
 export let processComment = functions.region('europe-west1').database.ref("postComments/{runId}/{postId}/{commentId}").onCreate(async (snap, context) => {
     await doProcessComment(snap, context.params.runId, context.params.postId)
+})
+
+export let processPost = functions.region('europe-west1').database.ref("posts/{runId}/{postId}").onCreate(async (snap, context) => {
+    await doProcessPost(snap, context.params.runId, context.params.postId)
 })

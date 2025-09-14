@@ -111,6 +111,11 @@ export class AppComponent {
     this.state.chatAttachment = file ? file : null;
   }
 
+  onFeedPhotoChange(event: any) {
+    const file = event.target.files[0];
+    this.state.feedPhoto = file ? file : null;
+  }
+
   async onMessageSubmit() {
     this.state.chatUploading = true
     if (this.state.chatToAll) {
@@ -147,8 +152,27 @@ export class AppComponent {
   }
 
 
-  onPostSubmit() {
+  async onPostSubmit() {
+    this.state.feedUploading = true
+    const filePath = `chat_attachments/${this.runId}/${Date.now()}_${this.state.feedPhoto!.name}`;
+    const fileRef = storageRef(this.storage, filePath);
+    await uploadBytes(fileRef, this.state.feedPhoto!)
+    let downloadUrl = await getDownloadURL(fileRef)
+    await this.sendPost(this.state.feedFrom.id, this.state.feedText, downloadUrl, this.state.feedNotification)
+    this.state.feedUploading = false
+    this.state.feedText = ""
+    this.state.feedPhoto = null
+    this.state.feedNotification = false
+  }
 
+  private async sendPost(authorId: string, text: string, pictureUrl: string, important: boolean) {
+    await push(ref(this.database, `posts/${this.runId}`), {
+      "author": authorId,
+      "text": text,
+      "pictureUrl": pictureUrl,
+      "createdAt": serverTimestamp(),
+      "important": important
+    })
   }
 
   onReportSubmit() {
@@ -239,9 +263,10 @@ export class State {
     public chatAttachment: File | null = null,
     public chatUploading: boolean = false,
     public feedFrom: User = NO_USER,
-    public feedPhoto: string = "",
+    public feedPhoto: File | null = null,
     public feedText: string = "",
     public feedNotification: boolean = false,
+    public feedUploading: boolean = false,
     public reporter1: User = NO_USER,
     public reporter2: User = NO_USER,
     public victim: User = NO_USER,
