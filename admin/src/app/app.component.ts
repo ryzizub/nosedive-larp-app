@@ -117,22 +117,24 @@ export class AppComponent {
   }
 
   async onMessageSubmit() {
-    this.state.chatUploading = true
-    if (this.state.chatToAll) {
-      for (const player of this.players) {
-        const conversationId = await this.getConversationId(this.state.chatFrom.id, player.id)
-        await this.sendMessage(conversationId!)
+    if (!this.state.chatToAll || confirm("Fakt chceš poslat zprávu všem hráčům?")) {
+      this.state.chatUploading = true
+      if (this.state.chatToAll) {
+        for (const player of this.players) {
+          const conversationId = await this.getConversationId(this.state.chatFrom.id, player.id)
+          await this.sendMessage(conversationId!)
+        }
+      } else {
+        await this.sendMessage(this.conversationId!)
       }
-    } else {
-      await this.sendMessage(this.conversationId!)
+      if (this.noMessagesYet) {
+        this.subscribeToMessages()
+      }
+      this.state.chatUploading = false
+      this.state.chatText = ""
+      this.state.chatAttachment = null
+      this.state.chatToAll = false
     }
-    if (this.noMessagesYet) {
-      this.subscribeToMessages()
-    }
-    this.state.chatUploading = false
-    this.state.chatText = ""
-    this.state.chatAttachment = null
-    this.state.chatToAll = false
   }
 
   private async sendMessage(conversationId: string) {
