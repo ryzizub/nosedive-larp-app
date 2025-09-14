@@ -141,11 +141,8 @@ export async function doProcessPost(snap: DataSnapshot, runId: string, postId: s
     // send notifications to all
     let tokens: string[] = new Array<string>
     await (admin.database().ref("userSecrets/" + runId).once("value", (snap) => {
-      console.log("snap=" + JSON.stringify(snap))
       const value = snap.val()
-      console.log("val=" + JSON.stringify(value))
       tokens = Object.values(value).map((v: any) => v.notificationsToken).filter((t: any) => t != undefined)
-      console.log("tokens=" + JSON.stringify(tokens))
     }))
     const androidConfig: admin.messaging.AndroidConfig = {
       priority: 'high'
@@ -161,6 +158,6 @@ export async function doProcessPost(snap: DataSnapshot, runId: string, postId: s
       tokens: tokens
     };
     console.log("message=" + JSON.stringify(message))
-    await admin.messaging().sendMulticast(message)
+    await admin.messaging().sendEachForMulticast(message)
   }
 }
