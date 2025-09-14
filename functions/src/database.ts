@@ -142,11 +142,10 @@ export async function doProcessPost(snap: DataSnapshot, runId: string, postId: s
     let tokens: string[] = new Array<string>
     await (admin.database().ref("userSecrets/" + runId).once("value", (snap) => {
       console.log("snap=" + JSON.stringify(snap))
-      const token = snap.val().notificationsToken
-      console.log("token=" + JSON.stringify(token))
-      if (token != undefined) {
-        tokens.push(token)
-      }
+      const value = snap.val()
+      console.log("val=" + JSON.stringify(value))
+      tokens = Object.values(value).map((v: any) => v.notificationsToken).filter((t: any) => t != undefined)
+      console.log("tokens=" + JSON.stringify(tokens))
     }))
     const androidConfig: admin.messaging.AndroidConfig = {
       priority: 'high'
