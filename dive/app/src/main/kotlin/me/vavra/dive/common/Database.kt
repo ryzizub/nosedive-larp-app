@@ -200,7 +200,8 @@ object Database {
                 "author" to Auth.getUserId(),
                 "text" to text,
                 "pictureUrl" to pictureUrl,
-                "createdAt" to ServerValue.TIMESTAMP
+                "createdAt" to ServerValue.TIMESTAMP,
+                "important" to false
             )
         ).await()
     }

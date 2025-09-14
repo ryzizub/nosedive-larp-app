@@ -79,10 +79,10 @@ class MessagingService : FirebaseMessagingService() {
             showRatingNotification(message.data)
         } else if (message.data.contains("conversationId")) {
             showChatNotification(message.data)
-        } else if (message.data.contains("postId")) {
-            showCommentNotification(message.data)
         } else if (message.data.contains("postText")) {
             showImportantPostNotification(message.data)
+        } else if (message.data.contains("postId")) {
+            showCommentNotification(message.data)
         }
     }
 
@@ -194,13 +194,14 @@ class MessagingService : FirebaseMessagingService() {
         val authorPictureUrl = data["authorPictureUrl"]
         val postText = data["postText"]
         GlobalScope.launch {
-            val notification = NotificationCompat.Builder(this@MessagingService, "comments")
+            val notification = NotificationCompat.Builder(this@MessagingService, "news")
                 .setSmallIcon(R.drawable.ic_notification_feed)
                 .setStyle(
                     NotificationCompat.BigTextStyle().bigText(postText)
                 )
                 .setContentIntent(getFeedPendingIntent(this@MessagingService))
                 .setContentTitle(authorName)
+                .setContentText(postText)
                 .setLargeIcon(getPersonIcon(authorPictureUrl))
                 .setAutoCancel(true)
                 .setGroup("news")
