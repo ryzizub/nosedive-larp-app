@@ -138,8 +138,14 @@ export async function doProcessPost(snap: DataSnapshot, runId: string, postId: s
   const post = snap.val();
   if (post.important == true) {
     const author = (await admin.database().ref("users/" + runId + "/" + post.author).once("value")).val()
-    // send notification
-    const tokens = ((await admin.database().ref("userSecrets/" + runId).once("value")).val()).map(( (secret: any) => secret.notificationsToken )).filter( (token: string) => token != null )
+    // send notifications to all
+    let tokens: string[] = new Array<string>
+    await (admin.database().ref("userSecrets/" + runId).once("value", (snap) => {
+      const token = snap.val().notificationsToken
+      if (token != undefined) {
+        tokens.push(token)
+      }
+    }))
     const androidConfig: admin.messaging.AndroidConfig = {
       priority: 'high'
     }
