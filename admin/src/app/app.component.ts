@@ -203,10 +203,10 @@ export class AppComponent {
   }
 
   onResetRunSubmit() {
-    if (confirm("Fakt chceš všechno smazat a začít nový běh?")) {
+    if (confirm("Fakt chceš všechno v běhu číslo " + this.runId + " resetovat?")) {
       this.players.forEach(player => {
         if (player.defaultRating != undefined) {
-          update(ref(this.database, "nearbyUsers/" + player.id), {
+          update(ref(this.database, "users/" + this.runId + "/" + player.id), {
             "totalRating": player.defaultRating,
             "ratingCount": 4000
           })
@@ -214,14 +214,20 @@ export class AppComponent {
       })
       this.npcs.forEach(npc => {
         if (npc.defaultRating != undefined) {
-          update(ref(this.database, "nearbyUsers/" + npc.id), {
+          update(ref(this.database, "users/" + this.runId + "/" + npc.id), {
             "totalRating": npc.defaultRating,
             "ratingCount": npc.id == "_karolina" ? 500000 : 4000
           })
         }
       })
-      remove(ref(this.database, "reports"))
-      remove(ref(this.database, "ratings"))
+      remove(ref(this.database, "conversationMessages/" + this.runId))
+      remove(ref(this.database, "conversationUsers/" + this.runId))
+      remove(ref(this.database, "postComments/" + this.runId))
+      remove(ref(this.database, "postRatings/" + this.runId))
+      remove(ref(this.database, "posts/" + this.runId))
+      remove(ref(this.database, "ratings/" + this.runId))
+      remove(ref(this.database, "reports/" + this.runId))
+      remove(ref(this.database, "userConversations/" + this.runId))
     }
   }
 

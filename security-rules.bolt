@@ -95,14 +95,19 @@ type Post {
 // Posts comments
 //
 
-path /postComments/{run_id}/{post_id} {
+path /postComments/{run_id} {
     
-  read() { isSignedIn() }
+  read() { isAuditor() }
 
   write() { isAuditor() }
 
-  path /{comment_id} is Message {
-    write() { isInsert(this) && this.author == auth.uid }
+  path /{post_id} {
+
+    read() { isSignedIn() }
+
+    path /{comment_id} is Message {
+      write() { isInsert(this) && this.author == auth.uid }
+    }
   }
 }
 
@@ -110,16 +115,21 @@ path /postComments/{run_id}/{post_id} {
 // Post ratings
 //
 
-path /postRatings/{run_id}/{post_id} {
-  
-  index() {["from"]}
+path /postRatings/{run_id} {
     
-  read() { true }
+  read() { isAuditor() }
 
   write() { isAuditor() }
 
-  path /{rating_id} is PostRating {
-    write() { isInsert(this) && this.from == auth.uid }
+  path /{post_id} {
+
+    index() {["from"]}
+
+    read() { true }
+
+    path /{rating_id} is PostRating {
+      write() { isInsert(this) && this.from == auth.uid }
+    }
   }
 }
 
@@ -133,36 +143,51 @@ type PostRating {
 // Chat conversations
 //
 
-path /conversationUsers/{run_id}/{conversation_id} {
+path /conversationUsers/{run_id} {
     
-  read() { isSignedIn() }
+  read() { isAuditor() }
 
   write() { isAuditor() }
 
-  path /{user_id} is Boolean {
-    write() { isInsert(this) }
+  path /{conversation_id} {
+
+    read() { isSignedIn() }
+
+    path /{user_id} is Boolean {
+      write() { isInsert(this) }
+    }
   }
 }
 
-path /userConversations/{run_id}/{user_id} {
+path /userConversations/{run_id} {
     
-  read() { isCurrentUser(user_id) || isAuditor() }
+  read() { isAuditor() }
 
   write() { isAuditor() }
 
-  path /{conversation_id} is Boolean {
-    write() { isInsert(this) }
+  path /{user_id} {
+
+    read() { isCurrentUser(user_id) || isAuditor() }
+
+    path /{conversation_id} is Boolean {
+      write() { isInsert(this) }
+    }
   }
 }
 
-path /conversationMessages/{run_id}/{conversation_id} {
+path /conversationMessages/{run_id} {
     
-  read() { isSignedIn() }
+  read() { isAuditor() }
 
   write() { isAuditor() }
+  
+  path /{conversation_id} {
 
-  path /{message_id} is Message {
-    write() { isInsert(this) && this.author == auth.uid }
+    read() { isSignedIn() }
+
+    path /{message_id} is Message {
+      write() { isInsert(this) && this.author == auth.uid }
+    }
   }
 }
 

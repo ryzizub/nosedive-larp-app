@@ -85,7 +85,7 @@
     </div>
     <div class="form-group">
       <label for="victim">Oběť</label>
-      <select class="form-control" id="user" required [(ngModel)]="state.victim" name="victim">
+      <select class="form-control" id="victim" required [(ngModel)]="state.victim" name="victim">
         <option *ngFor="let user of players" [ngValue]="user">{{user.name}}</option>
       </select>
     </div>
