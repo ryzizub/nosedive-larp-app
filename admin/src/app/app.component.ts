@@ -23,6 +23,7 @@ export class AppComponent {
   conversationId: string | null = null
   state = new State()
   chatMessages: any[] = [];
+  private noMessagesYet: boolean = false
 
   constructor(private http: HttpClient) {
     const url = new URL(window.location.href)
@@ -53,53 +54,56 @@ export class AppComponent {
     })
   }
 
-  onConversationSubmit() {
-    const runId = this.runId;
+  async onConversationSubmit() {
     const fromId = this.state.chatFrom?.id;
     const toId = this.state.chatTo?.id;
-    if (!runId || !fromId || !toId || fromId === "unknown" || toId === "unknown") {
-      this.conversationId = null;
-      return;
-    }
-    firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
-      if (!convs) {
-        await this.createConversation()
-        this.subscribeToMessages()
-        return;
-      }
-      let found = false
-      for (const convId of Object.keys(convs)) {
-        const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
-        if (exists) {
-          this.conversationId = convId;
-          found = true
-          this.subscribeToMessages()
-          return;
-        }
-      }
-      if (!found) {
-        await this.createConversation()
-        this.subscribeToMessages()
-      }
-    });
-  }
-
-  private async createConversation() {
-    const convRef = await push(ref(this.database, `conversationUsers/${this.runId}`))
-    this.conversationId = convRef.key
-    await update(ref(this.database), {
-      [`conversationUsers/${this.runId}/${this.conversationId}/${this.state.chatFrom.id}`]: true,
-      [`conversationUsers/${this.runId}/${this.conversationId}/${this.state.chatTo.id}`]: true,
-      [`userConversations/${this.runId}/${this.state.chatFrom.id}/${this.conversationId}`]: true,
-      [`userConversations/${this.runId}/${this.state.chatTo.id}/${this.conversationId}`]: true
-    })
+    this.conversationId = await this.getConversationId(fromId, toId)
+    this.subscribeToMessages()
   }
 
   private subscribeToMessages() {
     const messagesRef = ref(this.database, `conversationMessages/${this.runId}/${this.conversationId}`);
     listVal(messagesRef, { keyField: 'id' }).subscribe((msgs: any[] | null) => {
       this.chatMessages = msgs?.slice(-10) || [];
+      if (this.chatMessages.length == 0 && !this.noMessagesYet) {
+        this.noMessagesYet = true
+      } else {
+        this.noMessagesYet = false
+      }
     });
+  }
+
+  private async getConversationId(fromId: string, toId: string): Promise<string | null> {
+    const runId = this.runId;
+    if (!runId || !fromId || !toId || fromId === "unknown" || toId === "unknown") {
+      return null;
+    }
+    return firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
+      if (!convs) {
+        return await this.createConversation(fromId, toId)
+      }
+      for (const convId of Object.keys(convs)) {
+        const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
+        if (exists) {
+          return convId;
+        }
+      }
+      // not found
+      return await this.createConversation(fromId, toId)
+    });
+  }
+
+
+  private async createConversation(fromId: string, toId: string): Promise<string | null> {
+    const convRef = await push(ref(this.database, `conversationUsers/${this.runId}`))
+    const conversationId = convRef.key
+    await update(ref(this.database), {
+      [`conversationUsers/${this.runId}/${conversationId}/${fromId}`]: true,
+      [`conversationUsers/${this.runId}/${conversationId}/${toId}`]: true,
+      [`userConversations/${this.runId}/${fromId}/${conversationId}`]: true,
+      [`userConversations/${this.runId}/${toId}/${conversationId}`]: true
+    })
+    return conversationId
   }
 
   onChatAttachmentChange(event: any) {
@@ -109,6 +113,24 @@ export class AppComponent {
 
   async onMessageSubmit() {
     this.state.chatUploading = true
+    if (this.state.chatToAll) {
+      for (const player of this.players) {
+        const conversationId = await this.getConversationId(this.state.chatFrom.id, player.id)
+        await this.sendMessage(conversationId!)
+      }
+    } else {
+      await this.sendMessage(this.conversationId!)
+    }
+    if (this.noMessagesYet) {
+      this.subscribeToMessages()
+    }
+    this.state.chatUploading = false
+    this.state.chatText = ""
+    this.state.chatAttachment = null
+    this.state.chatToAll = false
+  }
+
+  private async sendMessage(conversationId: string) {
     let downloadUrl = null
     if (this.state.chatAttachment) {
       const filePath = `chat_attachments/${this.runId}/${Date.now()}_${this.state.chatAttachment.name}`;
@@ -116,16 +138,14 @@ export class AppComponent {
       await uploadBytes(fileRef, this.state.chatAttachment)
       downloadUrl = await getDownloadURL(fileRef)
     }
-    push(ref(this.database, `conversationMessages/${this.runId}/${this.conversationId}`), {
+    push(ref(this.database, `conversationMessages/${this.runId}/${conversationId}`), {
       "author": this.state.chatFrom.id,
       "text": this.state.chatText,
       "attachmentUrl": downloadUrl,
       "createdAt": serverTimestamp()
     })
-    this.state.chatUploading = false
-    this.state.chatText = ""
-    this.state.chatAttachment = null
   }
+
 
   onPostSubmit() {
 
