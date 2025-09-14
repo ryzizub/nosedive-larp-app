@@ -47,7 +47,7 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(state.posts) { post ->
-                PostItem(post = post, onPostClicked =  {
+                PostItem(post = post, onPostClicked = {
                     navController.navigate(NavDestination.Comments(post.id))
                 }, onPostRated = {
                     viewModel.rate(post.id, it)
@@ -61,7 +61,7 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
 }
 
 @Composable
-fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)-> Unit) {
+fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -124,21 +124,25 @@ fun ColumnScope.Post(post: FeedState.Post) {
     )
 
     // Post Image
-    SubcomposeAsyncImage(
-        model = post.imageUrl,
-        contentDescription = "Obrázek příspěvku od ${post.user.name}",
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f) // Square aspect ratio for main image
-            .padding(vertical = 8.dp),
-        contentScale = ContentScale.Crop
-    ) {
-        val painterState = painter.state
-        if (painterState is AsyncImagePainter.State.Loading || painterState is AsyncImagePainter.State.Error) {
-            CenteredLoadingIndicator()
-        } else {
-            SubcomposeAsyncImageContent()
+    if (post.imageUrl != null) {
+        SubcomposeAsyncImage(
+            model = post.imageUrl,
+            contentDescription = "Obrázek příspěvku od ${post.user.name}",
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f) // Square aspect ratio for main image
+                .padding(vertical = 8.dp),
+            contentScale = ContentScale.Crop
+        ) {
+            val painterState = painter.state
+            if (painterState is AsyncImagePainter.State.Loading || painterState is AsyncImagePainter.State.Error) {
+                CenteredLoadingIndicator()
+            } else {
+                SubcomposeAsyncImageContent()
+            }
         }
+    } else {
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -147,6 +151,6 @@ fun ColumnScope.Post(post: FeedState.Post) {
 @Composable
 fun PostItemPreview() {
     DiveTheme {
-        PostItem(post = FeedState().posts.first(), {}, { _ ->})
+        PostItem(post = FeedState().posts.first(), {}, { _ -> })
     }
 }

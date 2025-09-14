@@ -193,7 +193,7 @@ object Database {
     suspend fun addPost(
         runId: String,
         text: String,
-        pictureUrl: String,
+        pictureUrl: String?,
     ) {
         reference.child("posts/$runId").push().updateChildren(
             hashMapOf(
@@ -290,7 +290,7 @@ object Database {
         val id: String = "",
         val text: String = "",
         val author: String = "",
-        val pictureUrl: String = "",
+        val pictureUrl: String? = null,
         val createdAt: Long = 0,
         val important: Boolean = false
     )

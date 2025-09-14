@@ -128,7 +128,7 @@ fun NewPostScreenContent(
                     Spacer(modifier = Modifier.height(24.dp))
                     SendUp(
                         Modifier.padding(horizontal = 20.dp),
-                        state.progress == NewPostState.Progress.INITIAL && state.imageUri != null && !state.text.isEmpty(),
+                        state.progress == NewPostState.Progress.INITIAL && !state.text.isEmpty(),
                         state.progress == NewPostState.Progress.SENDING,
                         onSend
                     )

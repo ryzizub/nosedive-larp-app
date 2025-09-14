@@ -11,7 +11,7 @@ data class FeedState(
     data class Post(
         val id: String,
         val user: User,
-        val imageUrl: String,
+        val imageUrl: String?,
         val text: String,
         val stars: Int,
         val rated: Boolean,

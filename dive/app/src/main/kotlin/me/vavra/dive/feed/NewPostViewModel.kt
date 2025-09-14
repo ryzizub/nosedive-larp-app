@@ -26,7 +26,10 @@ class NewPostViewModel(private val app: Application) : AndroidViewModel(app) {
             viewModelScope.launch {
                 try {
                     val runId = storage.getRunId()
-                    val pictureUrl = Files.upload(checkNotNull(state.imageUri), "feed_pics", runId)
+                    val imageUri = state.imageUri
+                    val pictureUrl = if (imageUri != null) {
+                        Files.upload(imageUri, "feed_pics", runId)
+                    } else null
                     Database.addPost(runId, state.text, pictureUrl)
                     audio.play(R.raw.swoosh)
                     state = state.copy(progress = NewPostState.Progress.SUCCESS)

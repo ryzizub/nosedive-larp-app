@@ -154,10 +154,13 @@ export class AppComponent {
 
   async onPostSubmit() {
     this.state.feedUploading = true
-    const filePath = `chat_attachments/${this.runId}/${Date.now()}_${this.state.feedPhoto!.name}`;
-    const fileRef = storageRef(this.storage, filePath);
-    await uploadBytes(fileRef, this.state.feedPhoto!)
-    let downloadUrl = await getDownloadURL(fileRef)
+    let downloadUrl = null
+    if (this.state.feedPhoto) {
+      const filePath = `chat_attachments/${this.runId}/${Date.now()}_${this.state.feedPhoto!.name}`;
+      const fileRef = storageRef(this.storage, filePath);
+      await uploadBytes(fileRef, this.state.feedPhoto!)
+      downloadUrl = await getDownloadURL(fileRef)
+    }
     await this.sendPost(this.state.feedFrom.id, this.state.feedText, downloadUrl, this.state.feedNotification)
     this.state.feedUploading = false
     this.state.feedText = ""
@@ -166,7 +169,7 @@ export class AppComponent {
     this.state.feedNotification = false
   }
 
-  private async sendPost(authorId: string, text: string, pictureUrl: string, important: boolean) {
+  private async sendPost(authorId: string, text: string, pictureUrl: string | null, important: boolean) {
     await push(ref(this.database, `posts/${this.runId}`), {
       "author": authorId,
       "text": text,
@@ -177,7 +180,7 @@ export class AppComponent {
   }
 
   onReportSubmit() {
-    push(ref(this.database, "reports"), {
+    push(ref(this.database, "reports/" + this.runId), {
       "reporter1": this.state.reporter1.id,
       "reporter2": this.state.reporter2.id,
       "victim": this.state.victim.id,
@@ -190,6 +193,7 @@ export class AppComponent {
       "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživateli " + this.state.reporter1.name + " za reportování, za odměnu bylo zvýšeno hodnocení o " + this.state.reward
       :
       "Uživateli " + this.state.victim.name + " bylo sníženo hodnocení o " + this.state.penalty + "\n\nDůvod: " + this.state.reportReason + "\n\nDěkujeme uživatelům " + this.state.reporter1.name + " a " + this.state.reporter2.name + " za reportování, za odměnu jim bylo zvýšeno hodnocení o " + this.state.reward / 2
+    this.sendPost("_dive_safety", message, null, true)
     this.state.reporter1 = NO_USER
     this.state.reporter2 = NO_USER
     this.state.victim = NO_USER
