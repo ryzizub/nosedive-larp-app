@@ -230,7 +230,7 @@ export class AppComponent {
   }
 
   onRatingSubmit() {
-    push(ref(this.database, "ratings"), {
+    push(ref(this.database, "ratings/" + this.runId), {
       "from": "_karolina",
       "to": this.state.ratingUser.id,
       "majorChange": this.state.ratingChange,
@@ -238,17 +238,18 @@ export class AppComponent {
     })
     let message = (this.state.ratingChange > 0) ? "Nečekaná změna hodnocení! Uživateli " + this.state.ratingUser.name + " se zvýšilo hodnocení o " + this.state.ratingChange + "\n\nDůvod: " + this.state.ratingReason : "Nečekaná změna hodnocení! Uživateli " + this.state.ratingUser.name + " se snížilo hodnocení o " + -this.state.ratingChange + "\n\nDůvod: " + this.state.ratingReason
     const superblesk = this.npcs.find(npc => npc.id === "_superblesk");
+    this.sendPost("_superblesk", message, null, true)
   }
 
   onMakeVisible() {
-    update(ref(this.database, "nearbyUsers/" + this.state.visibilityUser.id), {
-      "isVisible": true
+    update(ref(this.database, "users/" + this.runId + "/" + this.state.visibilityUser.id), {
+      "isNearby": true
     })
   }
 
   onMakeInvisible() {
-    update(ref(this.database, "nearbyUsers/" + this.state.visibilityUser.id), {
-      "isVisible": false
+    update(ref(this.database, "users/" + this.runId + "/" + this.state.visibilityUser.id), {
+      "isNearby": false
     })
   }
 
