@@ -24,6 +24,9 @@ path /userSecrets/{run_id} {
   
     index() {["password"]}
 
+    read() { isAuditor() }
+    write() { isAuditor() }
+
     path /{user_id}/notificationsToken is Token {
       read() { isCurrentUser(user_id) }
       write() { isCurrentUser(user_id) }

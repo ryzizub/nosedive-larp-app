@@ -149,12 +149,8 @@
       <label for="newRunName">Název běhu</label><br />
       <input type="text" id="newRunName" name="newRunName" required [(ngModel)]="state.newRunName" />
     </div>
-    <div class="form-group">
-      <label for="newRunBasedOn">Zkopírovat uživatele z běhu:</label>
-      <select class="form-control" id="newRunBasedOn" required [(ngModel)]="state.newRunBasedOn" name="newRunBasedOn">
-        <option *ngFor="let run of runs" [ngValue]="run">{{run.name}}</option>
-      </select>
-    </div>
+    <div>Uživatelé se zkopírují z aktuálního běhu. Jiná data se nepřenesou. Po vytvoření běhu je potřeba změnit ručně profilovky v databázi a taky změnit číslo běhu v URL.</div>
+    <br />
     <button type="submit" [disabled]="!newRunForm.form.valid" class="btn">Vytvořit nový běh</button><br /><br />
   </form>
 </div>

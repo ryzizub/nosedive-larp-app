@@ -3,7 +3,7 @@ import { Component, Injectable, inject } from '@angular/core';
 import { Auth, signInWithCustomToken } from '@angular/fire/auth';
 import { Database, listVal, query, ref, push, serverTimestamp, objectVal, update, remove } from '@angular/fire/database';
 import { getDownloadURL, Storage, ref as storageRef, uploadBytes } from '@angular/fire/storage';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +36,7 @@ export class AppComponent {
     listVal(query(ref(this.database, "users/" + this.runId)), { keyField: "id" }).subscribe(users => {
       if (users != null) {
         let npcUsers = (users as User[]).filter(user => user.id.startsWith("_")).sort((a, b) => a.name.localeCompare(b.name))
-        let playerUsers = (users as User[]).filter(user => !user.id.startsWith("_") || LIVE_NPC_IDS.includes(user.id)).sort((a, b) => a.name.localeCompare(b.name))
+        let playerUsers = (users as User[]).filter(user => !user.id.startsWith("_")).sort((a, b) => a.name.localeCompare(b.name))
         npcUsers.push(NO_USER)
         playerUsers.push(NO_USER)
         if (!this.isSame(npcUsers, this.npcs)) {
@@ -80,7 +80,7 @@ export class AppComponent {
     }
     return firstValueFrom(objectVal(ref(this.database, `userConversations/${runId}/${fromId}`))).then(async (convs) => {
       if (!convs) {
-        return await this.createConversation(fromId, toId)
+        return await this.createConversation(this.runId!, fromId, toId)
       }
       for (const convId of Object.keys(convs)) {
         const exists = await firstValueFrom(objectVal(ref(this.database, `conversationUsers/${runId}/${convId}/${toId}`)));
@@ -89,19 +89,19 @@ export class AppComponent {
         }
       }
       // not found
-      return await this.createConversation(fromId, toId)
+      return await this.createConversation(this.runId!, fromId, toId)
     });
   }
 
 
-  private async createConversation(fromId: string, toId: string): Promise<string | null> {
-    const convRef = await push(ref(this.database, `conversationUsers/${this.runId}`))
+  private async createConversation(runId: string, fromId: string, toId: string): Promise<string | null> {
+    const convRef = await push(ref(this.database, `conversationUsers/${runId}`))
     const conversationId = convRef.key
     await update(ref(this.database), {
-      [`conversationUsers/${this.runId}/${conversationId}/${fromId}`]: true,
-      [`conversationUsers/${this.runId}/${conversationId}/${toId}`]: true,
-      [`userConversations/${this.runId}/${fromId}/${conversationId}`]: true,
-      [`userConversations/${this.runId}/${toId}/${conversationId}`]: true
+      [`conversationUsers/${runId}/${conversationId}/${fromId}`]: true,
+      [`conversationUsers/${runId}/${conversationId}/${toId}`]: true,
+      [`userConversations/${runId}/${fromId}/${conversationId}`]: true,
+      [`userConversations/${runId}/${toId}/${conversationId}`]: true
     })
     return conversationId
   }
@@ -234,7 +234,56 @@ export class AppComponent {
   }
 
   onNewRunSubmit() {
-
+    if (confirm("Fakt chceš vytvořit nový běh číslo " + this.state.newRunId + " na základě běhu číslo " + this.runId + "?")) {
+      update(ref(this.database, "runs/" + this.state.newRunId), {
+        "name": this.state.newRunName
+      })
+      listVal(query(ref(this.database, "userSecrets")), { keyField: "id" }).pipe(take(1)).subscribe(secrets => {
+        if (secrets != null) {
+          (secrets as any[]).forEach(secret => {
+            update(ref(this.database, "userSecrets/" + this.state.newRunId + "/" + secret.id), {
+              "password": secret.password
+            })
+          })
+        }
+      })
+      this.players.forEach(player => {
+        if (player.defaultRating != undefined) {
+          update(ref(this.database, "users/" + this.state.newRunId + "/" + player.id), {
+            "totalRating": player.defaultRating,
+            "ratingCount": 4000,
+            "name": player.name,
+            "profilePictureUrl": player.profilePictureUrl,
+            "isNearby": player.isNearby,
+            "defaultRating": player.defaultRating,
+            "nameAkuzativ": player.nameAkuzativ,
+            "nameGenitiv": player.nameGenitiv,
+            "nameVokativ": player.nameVokativ
+          })
+        }
+      })
+      this.npcs.forEach(npc => {
+        if (npc.defaultRating != undefined) {
+          update(ref(this.database, "users/" + this.state.newRunId + "/" + npc.id), {
+            "totalRating": npc.defaultRating,
+            "ratingCount": npc.id == "_karolina" ? 500000 : 4000,
+            "name": npc.name,
+            "profilePictureUrl": npc.profilePictureUrl,
+            "isNearby": npc.isNearby,
+            "defaultRating": npc.defaultRating,
+            "nameAkuzativ": npc.nameAkuzativ,
+            "nameGenitiv": npc.nameGenitiv,
+            "nameVokativ": npc.nameVokativ
+          })
+        }
+      })
+      this.players.forEach(player => {
+        if (player.defaultRating != undefined) {
+          this.createConversation(this.state.newRunId.toString(), "_dive_admin", player.id)
+          this.createConversation(this.state.newRunId.toString(), "_dive_safety", player.id)
+        }
+      })
+    }
   }
 
   onRatingSubmit() {
@@ -293,7 +342,6 @@ export class State {
     public visibilityUser: User = NO_USER,
     public newRunId: number = 0,
     public newRunName: string = "",
-    public newRunBasedOn: string = "",
   ) { }
 
 }
@@ -305,7 +353,11 @@ export class User {
     public name: string,
     public profilePictureUrl: string,
     public defaultRating: number | undefined,
-    public totalRating: number | undefined
+    public totalRating: number | undefined,
+    public isNearby: boolean,
+    public nameAkuzativ: string | undefined,
+    public nameGenitiv: string | undefined,
+    public nameVokativ: string | undefined
   ) { }
 
 }
@@ -319,7 +371,6 @@ export class Run {
 
 }
 
-let NO_USER = new User("unknown", "-- Nikdo --", "", undefined, undefined)
-let LIVE_NPC_IDS = ["_barman", "_david", "_vaclav"]
+let NO_USER = new User("unknown", "-- Nikdo --", "", undefined, undefined, false, undefined, undefined, undefined)
 
 
