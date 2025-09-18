@@ -233,55 +233,66 @@ export class AppComponent {
     }
   }
 
-  onNewRunSubmit() {
+  async onNewRunSubmit() {
     if (confirm("Fakt chceš vytvořit nový běh číslo " + this.state.newRunId + " na základě běhu číslo " + this.runId + "?")) {
-      update(ref(this.database, "runs/" + this.state.newRunId), {
+      await update(ref(this.database, "runs/" + this.state.newRunId), {
         "name": this.state.newRunName
       })
-      listVal(query(ref(this.database, "userSecrets")), { keyField: "id" }).pipe(take(1)).subscribe(secrets => {
+      listVal(query(ref(this.database, "userSecrets/" + this.runId)), { keyField: "id" }).pipe(take(1)).subscribe(async secrets => {
         if (secrets != null) {
-          (secrets as any[]).forEach(secret => {
-            update(ref(this.database, "userSecrets/" + this.state.newRunId + "/" + secret.id), {
+          for (const secret of secrets as any[]) {
+            await update(ref(this.database, "userSecrets/" + this.state.newRunId + "/" + secret.id), {
               "password": secret.password
             })
-          })
+          }
         }
-      })
-      this.players.forEach(player => {
-        if (player.defaultRating != undefined) {
-          update(ref(this.database, "users/" + this.state.newRunId + "/" + player.id), {
-            "totalRating": player.defaultRating,
-            "ratingCount": 4000,
-            "name": player.name,
-            "profilePictureUrl": player.profilePictureUrl,
-            "isNearby": player.isNearby,
-            "defaultRating": player.defaultRating,
-            "nameAkuzativ": player.nameAkuzativ,
-            "nameGenitiv": player.nameGenitiv,
-            "nameVokativ": player.nameVokativ
-          })
+        for (const player of this.players) {
+          if (player.defaultRating != undefined) {
+            await update(ref(this.database, "users/" + this.state.newRunId + "/" + player.id), {
+              "totalRating": player.defaultRating,
+              "ratingCount": 4000,
+              "name": player.name,
+              "profilePictureUrl": player.profilePictureUrl,
+              "isNearby": player.isNearby,
+              "defaultRating": player.defaultRating,
+            })
+            if (player.nameAkuzativ != undefined) {
+              await update(ref(this.database, "users/" + this.state.newRunId + "/" + player.id), {
+                "nameAkuzativ": player.nameAkuzativ,
+                "nameGenitiv": player.nameGenitiv,
+                "nameVokativ": player.nameVokativ
+              })
+            }
+          }
         }
-      })
-      this.npcs.forEach(npc => {
-        if (npc.defaultRating != undefined) {
-          update(ref(this.database, "users/" + this.state.newRunId + "/" + npc.id), {
-            "totalRating": npc.defaultRating,
-            "ratingCount": npc.id == "_karolina" ? 500000 : 4000,
-            "name": npc.name,
-            "profilePictureUrl": npc.profilePictureUrl,
-            "isNearby": npc.isNearby,
-            "defaultRating": npc.defaultRating,
-            "nameAkuzativ": npc.nameAkuzativ,
-            "nameGenitiv": npc.nameGenitiv,
-            "nameVokativ": npc.nameVokativ
-          })
+        for (const npc of this.npcs) {
+          if (npc.defaultRating != undefined) {
+            await update(ref(this.database, "users/" + this.state.newRunId + "/" + npc.id), {
+              "totalRating": npc.defaultRating,
+              "ratingCount": npc.id == "_karolina" ? 500000 : 4000,
+              "name": npc.name,
+              "profilePictureUrl": npc.profilePictureUrl,
+              "isNearby": npc.isNearby,
+              "defaultRating": npc.defaultRating
+            })
+            if (npc.nameAkuzativ != undefined) {
+              await update(ref(this.database, "users/" + this.state.newRunId + "/" + npc.id), {
+                "nameAkuzativ": npc.nameAkuzativ,
+                "nameGenitiv": npc.nameGenitiv,
+                "nameVokativ": npc.nameVokativ
+              })
+            }
+          }
         }
-      })
-      this.players.forEach(player => {
-        if (player.defaultRating != undefined) {
-          this.createConversation(this.state.newRunId.toString(), "_dive_admin", player.id)
-          this.createConversation(this.state.newRunId.toString(), "_dive_safety", player.id)
+        for (const player of this.players) {
+          if (player.defaultRating != undefined) {
+            await this.createConversation(this.state.newRunId.toString(), "_dive_admin", player.id)
+            await this.createConversation(this.state.newRunId.toString(), "_dive_safety", player.id)
+          }
         }
+        console.log("done")
+        this.state.newRunId = 0
+        this.state.newRunName = ""
       })
     }
   }
@@ -371,6 +382,6 @@ export class Run {
 
 }
 
-let NO_USER = new User("unknown", "-- Nikdo --", "", undefined, undefined, false, undefined, undefined, undefined)
+let NO_USER = new User("unknown", "-- Nikdo --", "", undefined, undefined, false, undefined, undefined, undefined);
 
 
