@@ -6,15 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import me.vavra.dive.common.Auth
 import me.vavra.dive.common.Database
 import me.vavra.dive.common.Database.toMessages
+import me.vavra.dive.common.Database.toPostRatings
 import me.vavra.dive.common.Storage
 import me.vavra.dive.common.flatMapItems
 
@@ -31,7 +32,6 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
             Database.observePosts(runId).flatMapItems { post ->
                 post.toFeedPost(runId).map { it.copy(comments = it.comments.reversed()) }
             }
-                .map { it.reversed() }
                 .collect {
                     state = state.copy(posts = it, isLoading = false)
                 }
@@ -53,10 +53,15 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
 fun Database.Post.toFeedPost(runId: String): Flow<FeedState.Post> {
     return combine(
         Database.observeUser(runId, author),
-        Database.observePostRating(runId, id),
+        Database.observePostRatings(runId, id).toPostRatings(runId),
         Database.observePostComments(runId, id).toMessages(runId)
-    ) { user, stars, comments ->
-        val rated = stars != null
-        FeedState.Post(id, user, pictureUrl, text, stars ?: 0, rated, comments)
+    ) { user, ratings, comments ->
+        val stars = ratings.find { it.author.id == Auth.getUserId() }?.stars ?: 0
+        val rated = stars > 0
+        val messages = (ratings.map {
+            val text = "⭐".repeat(it.stars)
+            Database.Message(text, it.author, null, it.createdAt)
+        } + comments).sortedBy { it.createdAt }
+        FeedState.Post(id, user, pictureUrl, text, stars, rated, messages)
     }
 }

@@ -80,12 +80,11 @@ object Database {
         }
     }
 
-    fun observePostRating(runId: String, postId: String): Flow<Int?> {
-        return reference.child("postRatings/$runId/$postId").orderByChild("from")
-            .equalTo(Auth.getUserId()).snapshots.map {
-            it.children.map { snap ->
-                snap.child("stars").getValue<Int>()
-            }.firstOrNull()
+    fun observePostRatings(runId: String, postId: String): Flow<List<Rating>> {
+        return reference.child("postRatings/$runId/$postId").snapshots.map {
+            it.children.mapNotNull { snap ->
+                snap.getValue<Rating>()
+            }
         }
     }
 
@@ -125,6 +124,14 @@ object Database {
         return flatMapItems { rawMessage ->
             observeUser(runId, rawMessage.author).map {
                 Message(rawMessage.text, it, rawMessage.attachmentUrl, rawMessage.createdAt)
+            }
+        }
+    }
+
+    fun Flow<List<Rating>>.toPostRatings(runId: String): Flow<List<PostRating>> {
+        return flatMapItems { rating ->
+            observeUser(runId, rating.from).map {
+                PostRating(rating.stars, it, rating.createdAt)
             }
         }
     }
@@ -306,6 +313,12 @@ object Database {
         val text: String,
         val author: User,
         val attachmentUrl: String?,
+        val createdAt: Long
+    )
+
+    data class PostRating(
+        val stars: Int,
+        val author: User,
         val createdAt: Long
     )
 }

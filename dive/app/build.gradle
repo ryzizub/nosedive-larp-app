@@ -4,6 +4,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -61,8 +62,9 @@ dependencies {
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.compose.material:material-icons-extended"
     implementation "androidx.navigation:navigation-compose:2.9.3"
-    implementation platform('com.google.firebase:firebase-bom:34.1.0')
+    implementation platform('com.google.firebase:firebase-bom:34.3.0')
     implementation 'com.google.firebase:firebase-database'
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-messaging'
