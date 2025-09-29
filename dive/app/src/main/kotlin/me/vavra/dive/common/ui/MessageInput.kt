@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
@@ -28,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -53,19 +56,20 @@ fun MessageInput(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
+        val onSendAction: () -> Unit = {
+            onSend(message, selectedUri)
+            message = ""
+            selectedUri = null
+            keyboardController?.hide()
+        }
         OutlinedTextField(
             value = message,
             onValueChange = { message = it },
             placeholder = { Text(hint) },
             modifier = Modifier.weight(1f),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send, capitalization = KeyboardCapitalization.Sentences, keyboardType = KeyboardType.Text),
             keyboardActions = KeyboardActions(
-                onSend = {
-                    onSend(message, selectedUri)
-                    message = ""
-                    selectedUri = null
-                    keyboardController?.hide()
-                }
+                onSend = { onSendAction() }
             ),
             enabled = !sending
         )
@@ -92,6 +96,18 @@ fun MessageInput(
                     )
                 }
             }
+        }
+        if (!sending && message.isNotBlank()) {
+            Spacer(modifier = Modifier.size(8.dp))
+            IconButton(
+                onClick = onSendAction
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.Send,
+                    contentDescription = "Send"
+                )
+            }
+
         }
     }
 }

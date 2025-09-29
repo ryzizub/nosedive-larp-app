@@ -44,6 +44,7 @@ class FeedViewModel(private val app: Application) : AndroidViewModel(app) {
         rateJobs[postId]?.cancel()
         rateJobs[postId] = viewModelScope.launch {
             delay(2000)
+            state = state.copy(posts = state.posts.map { if (it.id == postId) it.copy(rated = true) else it })
             val runId = storage.getRunId()
             Database.addPostRating(runId, postId, stars)
         }
