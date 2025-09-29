@@ -49,6 +49,10 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
             modifier = modifier.fillMaxSize()
         ) {
             items(state.posts) { post ->
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
                 PostItem(post = post, onPostClicked = {
                     navController.navigate(NavDestination.Comments(post.id))
                 }, onPostRated = {
@@ -133,9 +137,6 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)
 
         if (post.user.id != Auth.getUserId()) {
             Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
             val interactive = !post.rated
             StarRating(
                 modifier = Modifier
