@@ -24,6 +24,7 @@ export class AppComponent {
   state = new State()
   chatMessages: any[] = [];
   private noMessagesYet: boolean = false
+  cpChatMessages: any[] = [];
 
   constructor(private http: HttpClient) {
     const url = new URL(window.location.href)
@@ -52,6 +53,9 @@ export class AppComponent {
         this.runs = runs as Run[]
       }
     })
+    listVal(query(ref(this.database, "chatCpNotifications/" + this.runId)), { keyField: 'id' }).subscribe((msgs: any[] | null) => {
+      this.cpChatMessages = msgs?.slice(-10) || [];
+    });
   }
 
   async onConversationSubmit() {

@@ -1,6 +1,6 @@
 <div class="container">
   <h2>Chat</h2>
-  <form (ngSubmit)="onConversationSubmit()" #conversationForm="ngForm">
+  <form (ngSubmit)="onConversationSubmit()" #conversationForm="ngForm" style="display: inline-block;">
     <div class="form-group">
       <label for="chatFrom">Od koho</label>
       <select class="form-control" id="chatFrom" required [(ngModel)]="state.chatFrom" name="chatFrom">
@@ -15,6 +15,14 @@
     </div>
     <button type="submit" [disabled]="!conversationForm.form.valid" class="btn btn-success">Načíst konverzaci</button>
   </form>
+  <div style="display: inline-block; margin-left: 1em;">
+    <label>Poslední zprávy pro CP:</label>
+    <div *ngFor="let msg of cpChatMessages">
+      <b>{{msg.from}} -> {{msg.to}}:</b> {{msg.text}} <a *ngIf="msg.attachmentUrl" [href]="msg.attachmentUrl"
+        target="_blank">Příloha</a> <span class="text-muted" *ngIf="msg.createdAt" style="float: right;">
+        {{msg.createdAt | date:'short'}}</span>
+    </div>
+  </div>
   <div *ngIf="conversationId">
     <h3 *ngIf="chatMessages.length > 0">Posledních 10 zpráv</h3>
     <ul class="list-group mb-2">
@@ -33,14 +41,16 @@
       </div>
       <div class="form-group">
         <label for="chatAttachment">Příloha</label>
-        <input type="file" class="form-control" id="chatAttachment" (change)="onChatAttachmentChange($event)" [(ngModel)]="state.chatAttachment"
-          name="chatAttachment" />
+        <input type="file" class="form-control" id="chatAttachment" (change)="onChatAttachmentChange($event)"
+          [(ngModel)]="state.chatAttachment" name="chatAttachment" />
       </div>
       <div class="form-group">
-        <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" name="chatToAll" />&nbsp;<label for="chatToAll">Poslat zprávu
+        <input type="checkbox" id="chatToAll" [(ngModel)]="state.chatToAll" name="chatToAll" />&nbsp;<label
+          for="chatToAll">Poslat zprávu
           všem hráčům (typicky organizační info od Dive Admin)</label>
       </div>
-      <button type="submit" [disabled]="!messageForm.form.valid" class="btn btn-success" *ngIf="!state.chatUploading">Poslat</button>
+      <button type="submit" [disabled]="!messageForm.form.valid" class="btn btn-success"
+        *ngIf="!state.chatUploading">Poslat</button>
       <button class="btn btn-success" disabled *ngIf="state.chatUploading">Nahrávám...</button>
     </form>
   </div>
@@ -54,7 +64,8 @@
     </div>
     <div class="form-group">
       <label for="feedPhoto">Fotka</label>
-      <input type="file" class="form-control" id="feedPhoto" [(ngModel)]="state.feedPhoto" (change)="onFeedPhotoChange($event)" accept="image/*" name="feedPhoto" />
+      <input type="file" class="form-control" id="feedPhoto" [(ngModel)]="state.feedPhoto"
+        (change)="onFeedPhotoChange($event)" accept="image/*" name="feedPhoto" />
     </div>
     <div class="form-group">
       <label for="feedText">Text</label>
@@ -62,10 +73,11 @@
         rows="5"></textarea>
     </div>
     <div class="form-group">
-      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification" name="feedNotification" />&nbsp;<label
-        for="feedNotification">Poslat také notifikaci všem hráčům</label>
+      <input type="checkbox" id="feedNotification" [(ngModel)]="state.feedNotification"
+        name="feedNotification" />&nbsp;<label for="feedNotification">Poslat také notifikaci všem hráčům</label>
     </div>
-    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success" *ngIf="!state.feedUploading">Poslat</button>
+    <button type="submit" [disabled]="!slackForm.form.valid" class="btn btn-success"
+      *ngIf="!state.feedUploading">Poslat</button>
     <button class="btn btn-success" disabled *ngIf="state.feedUploading">Nahrávám...</button>
   </form>
   <h2>Reportování</h2>
@@ -149,7 +161,8 @@
       <label for="newRunName">Název běhu</label><br />
       <input type="text" id="newRunName" name="newRunName" required [(ngModel)]="state.newRunName" />
     </div>
-    <div>Uživatelé se zkopírují z aktuálního běhu. Jiná data se nepřenesou. Po vytvoření běhu je potřeba změnit ručně profilovky v databázi a taky změnit číslo běhu v URL.</div>
+    <div>Uživatelé se zkopírují z aktuálního běhu. Jiná data se nepřenesou. Po vytvoření běhu je potřeba změnit ručně
+      profilovky v databázi a taky změnit číslo běhu v URL.</div>
     <br />
     <button type="submit" [disabled]="!newRunForm.form.valid" class="btn">Vytvořit nový běh</button><br /><br />
   </form>

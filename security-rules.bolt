@@ -194,6 +194,12 @@ path /conversationMessages/{run_id} {
   }
 }
 
+path /chatCpNotifications/{run_id} {
+  read() { isAuditor() }
+
+  write() { isAuditor() }
+}
+
 //
 // Common
 //

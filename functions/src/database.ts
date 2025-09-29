@@ -108,6 +108,16 @@ export async function doProcessChatMessage(snap: DataSnapshot, runId: string, co
   };
   console.log("message=" + JSON.stringify(message))
   await admin.messaging().send(message)
+  // save CP notification
+  if (otherUserId?.startsWith("_")) {
+    await admin.database().ref("chatCpNotifications/" + runId).push().set({
+      from: chatMessage.author,
+      to: otherUserId,
+      text: chatMessage.text,
+      attachmentUrl: chatMessage.attachmentUrl,
+      createdAt: chatMessage.createdAt
+    })
+  }
 }
 
 export async function doProcessComment(snap: DataSnapshot, runId: string, postId: string) {
