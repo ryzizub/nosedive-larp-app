@@ -1,7 +1,5 @@
 package me.vavra.dive.feed
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -11,8 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +45,7 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
         CenteredLoadingIndicator()
     } else {
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = modifier.fillMaxSize()
         ) {
             items(state.posts) { post ->
                 PostItem(post = post, onPostClicked = {
@@ -52,6 +53,11 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
                 }, onPostRated = {
                     viewModel.rate(post.id, it)
                 })
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
             item {
                 Spacer(modifier = Modifier.height(48.dp))
@@ -62,30 +68,52 @@ fun FeedScreen(modifier: Modifier, navController: NavHostController) {
 
 @Composable
 fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int) -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = androidx.compose.ui.graphics.RectangleShape,
+        onClick = { onPostClicked() }
     ) {
-        Column(modifier = Modifier.clickable {
-            onPostClicked()
-        }) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Post(post)
-            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp, bottom = 8.dp)
+            ) {
                 post.comments.take(1)
-                    .forEach { comment -> // Show only the first comment preview
-                        Row {
+                    .forEach { comment ->                 // Show first comment if exists
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        ) {
                             Text(
-                                "${comment.author.name} (${comment.author.mainRating}): ",
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodySmall
+                                "${comment.author.name} (${comment.author.mainRating})",
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 comment.text,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
+
+
                 val remainingCommentCount = post.comments.size - 1
                 val text = when (remainingCommentCount) {
                     -1, 0 -> "Přidat komentář"
@@ -95,43 +123,60 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)
                 }
                 Text(
                     text,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.padding(top = 2.dp)
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
         }
+
         if (post.user.id != Auth.getUserId()) {
             Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
             val interactive = !post.rated
-            StarRating(modifier = Modifier.align(CenterHorizontally), stars = post.stars, interactive = interactive, onPostRated)
+            StarRating(
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .padding(vertical = 20.dp),
+                stars = post.stars,
+                interactive = interactive,
+                onPostRated
+            )
+        } else {
+            Spacer(modifier = Modifier.height(12.dp))
         }
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
 fun ColumnScope.Post(post: FeedState.Post) {
-    Spacer(modifier = Modifier.height(8.dp))
-    UserRating(post.user, modifier = Modifier.padding(horizontal = 20.dp))
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = post.text,
-        style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-    )
+    Spacer(modifier = Modifier.height(12.dp))
+    UserRating(post.user, modifier = Modifier.padding(horizontal = 16.dp))
+
+    if (post.text.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = post.text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+    }
 
     // Post Image
     if (post.imageUrl != null) {
+        Spacer(modifier = Modifier.height(12.dp))
         SubcomposeAsyncImage(
             model = post.imageUrl,
             contentDescription = "Obrázek příspěvku od ${post.user.name}",
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f) // Square aspect ratio for main image
-                .padding(vertical = 8.dp),
+                .aspectRatio(1f),
             contentScale = ContentScale.Crop
         ) {
             val painterState = painter.state
@@ -141,8 +186,6 @@ fun ColumnScope.Post(post: FeedState.Post) {
                 SubcomposeAsyncImageContent()
             }
         }
-    } else {
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
