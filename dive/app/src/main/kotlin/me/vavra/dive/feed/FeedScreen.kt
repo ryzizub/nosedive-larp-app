@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,8 +74,8 @@ fun PostItem(post: FeedState.Post, onPostClicked: () -> Unit, onPostRated: (Int)
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = androidx.compose.ui.graphics.RectangleShape,
-        onClick = { onPostClicked() }
+        shape = RectangleShape,
+        onClick = onPostClicked
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
